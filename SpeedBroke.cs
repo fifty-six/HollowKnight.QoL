@@ -25,9 +25,8 @@ namespace QoL
 
         private bool CanQuickMap(On.HeroController.orig_CanQuickMap orig, HeroController self)
         {
-            float? attack_time = (float?) self.GetType().GetField("attack_time", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(self);
             return !GameManager.instance.isPaused && !self.cState.onConveyor && !self.cState.dashing &&
-                   !self.cState.backDashing && (!self.cState.attacking || attack_time >= self.ATTACK_RECOVERY_TIME) &&
+                   !self.cState.backDashing && (!self.cState.attacking || self.GetAttr<float?>("attack_time") >= self.ATTACK_RECOVERY_TIME) &&
                    !self.cState.recoiling && !self.cState.hazardDeath &&
                    !self.cState.hazardRespawning;
 
