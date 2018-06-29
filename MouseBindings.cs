@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using HutongGames.PlayMaker.Actions;
 using Modding;
 using FsmUtil;
 using InControl;
+using On.InControl.NativeProfile;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -14,22 +14,53 @@ namespace QoL
 {
     public class MouseBindings : Mod
     {
+        // F13, F14, F15
+        // are 
+        // Button4, Button5, Button6
+        // cause tc was high when they wrote this shit
         public override void Initialize()
         {
-            On.InControl.PlayerAction.ctor += Cancer;
+            // On.InControl.PlayerAction.ctor += Cancer;
+            On.InputHandler.AddKeyBinding += TcWhy;
+            On.MappableKey.OnBindingAdded += Reeee;
         }
 
-        // Thanks, TC.
-        private void Cancer(On.InControl.PlayerAction.orig_ctor orig, PlayerAction self, string name,
-            PlayerActionSet owner)
+        private void Reeee(On.MappableKey.orig_OnBindingAdded orig, MappableKey self, PlayerAction action, BindingSource binding)
         {
-            orig(self, name, owner);
-            IList<BindingSource> gay = self.Bindings.GetAttr<IList<BindingSource>>("list");
-            if (gay == null) return;
-            gay.Add(new MouseBindingSource(Mouse.Button4));
-            gay.Add(new MouseBindingSource(Mouse.Button5));
-            gay.Add(new MouseBindingSource(Mouse.Button6));
-            self.Bindings.SetAttr("list", gay);
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (binding.Name)
+            {
+                case "Button4":
+                    action.AddBinding(new KeyBindingSource(Key.F13));
+                    break;
+                case "Button5":
+                    action.AddBinding(new KeyBindingSource(Key.F14));
+                    break;
+                case "Button6":
+                    action.AddBinding(new KeyBindingSource(Key.F15));
+                    break;
+            }
+
+            orig(self, action, binding);
+        }
+
+        private void TcWhy(On.InputHandler.orig_AddKeyBinding orig, PlayerAction action, Key key)
+        {
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (key)
+            {
+                case Key.F13:
+                    action.AddBinding(new MouseBindingSource(Mouse.Button4));
+                    break;
+                case Key.F14:
+                    action.AddBinding(new MouseBindingSource(Mouse.Button5));
+                    break;
+                case Key.F15:
+                    action.AddBinding(new MouseBindingSource(Mouse.Button6));
+                    break;
+            }
+
+            orig(action, key);
         }
     }
 }
