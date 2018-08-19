@@ -1,7 +1,6 @@
-﻿using System;
-using HutongGames.PlayMaker.Actions;
+﻿using HutongGames.PlayMaker.Actions;
+using JetBrains.Annotations;
 using Modding;
-using FsmUtil;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -9,6 +8,7 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class SalubraKiller : Mod, ITogglableMod
     {
         public override void Initialize()

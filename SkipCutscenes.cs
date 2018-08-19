@@ -9,16 +9,14 @@ using On;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace QoL
 {
     public class SkipCutscenes : Mod, ITogglableMod
     {
-        public SkipCutscenes Instance;
-
         public override void Initialize()
         {
-            Instance = this;
             On.CreditsHelper.BeginCredits += EnableSkip;
             ModHooks.Instance.SceneChanged += SceneModHook;
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += SceneLoaded;
@@ -26,7 +24,7 @@ namespace QoL
 
         private void SceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
-            CinematicPlayer player = GameObject.FindObjectOfType<CinematicPlayer>();
+            CinematicPlayer player = Object.FindObjectOfType<CinematicPlayer>();
             if (player == null) return;
 
             Log("allowed skip from Unity Hook");
@@ -35,7 +33,7 @@ namespace QoL
             player.UnlockSkip();
         }
 
-        private void EnableSkip(On.CreditsHelper.orig_BeginCredits orig, CreditsHelper self)
+        private static void EnableSkip(On.CreditsHelper.orig_BeginCredits orig, CreditsHelper self)
         {
             self.cutSceneHelper.skipMode = SkipPromptMode.SKIP_INSTANT;
             self.cutSceneHelper.UnlockSkip();
