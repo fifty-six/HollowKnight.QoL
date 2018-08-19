@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BetterSaves.cs" />
     <Compile Include="FsmUtil.cs" />
     <Compile Include="MouseBindings.cs" />
     <Compile Include="ReflectionHelper.cs" />

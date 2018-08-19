@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Modding;
 using JetBrains.Annotations;
@@ -17,7 +19,7 @@ namespace QoL
             ["Dream_03_Infected_Knight"] = new Vector3(13.4f, 28.4f),
             ["Grimm_Nightmare"] = new Vector3(91, 6.4f),
             ["Dream_01_False_Knight"] = new Vector3(40.6f, 27.4f),
-            ["Dream_02_Mage_Lord"] = new Vector3(29.4f, 22.5f),
+            ["Dream_02_Mage_Lord"] = new Vector3(29.4f, 29.5f),
             ["Dream_Mighty_Zote"] = new Vector3(25, 30),
             ["Dream_04_White_Defender"] = new Vector3(70.6f, 7.4f)
         };
@@ -32,6 +34,8 @@ namespace QoL
             ["whiteDefenderDefeats"] = "Waterways_15"
         };
 
+        private bool _isLoading;
+
         public override void Initialize()
         {
             ModHooks.Instance.SetPlayerBoolHook += SetBool;
@@ -40,6 +44,22 @@ namespace QoL
             USceneManager.activeSceneChanged += SceneChanged;
 
             On.GameManager.EnterHero += OnEnterHero;
+            On.GameManager.SaveGame += SaveGame;
+        }
+
+        private void SaveGame(On.GameManager.orig_SaveGame orig, GameManager self)
+        {
+            GameManager.instance.StartCoroutine(SaveGameRoutine(orig, self));
+        }
+
+        private IEnumerator SaveGameRoutine(On.GameManager.orig_SaveGame orig, GameManager self)
+        {
+            while (_isLoading)
+            {
+                yield return null;
+            }
+
+            orig(self);
         }
 
         public void Unload()
@@ -69,13 +89,21 @@ namespace QoL
             PlayerData.instance.SetIntInternal(intname, value);
         }
 
-        private static void SetBool(string originalset, bool value)
+        private void Loader(Scene arg0, Scene arg1)
+        {
+            _isLoading = true;
+            
+            USceneManager.activeSceneChanged -= Loader;
+        }
+
+        private void SetBool(string originalset, bool value)
         {
             if (VAR_SCENES.ContainsKey(originalset) && value)
             {
                 PlayerData.instance.dreamReturnScene = VAR_SCENES[originalset];
+                USceneManager.activeSceneChanged += Loader;
             }
-            
+
             PlayerData.instance.SetBoolInternal(originalset, value);
         }
 
