@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using Modding;
 using JetBrains.Annotations;
+using ModCommon;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -77,10 +78,6 @@ namespace QoL
             if (VAR_SCENES.ContainsKey(originalset) && value)
             {
                 PlayerData.instance.dreamReturnScene = VAR_SCENES[originalset];
-
-                HeroController.instance.controlReqlinquished = true;
-                HeroController.instance.IgnoreInput();
-                HeroController.instance.EnterSceneDreamGate();
             }
 
             PlayerData.instance.SetBoolInternal(originalset, value);
@@ -91,6 +88,34 @@ namespace QoL
             if (SCENE_TRANSFORMS.Keys.Contains(arg1.name))
             {
                 PlayerData.instance.dreamReturnScene = arg1.name;
+            }
+            
+            if (SCENE_TRANSFORMS.Keys.Contains(arg0.name) && VAR_SCENES.ContainsValue(arg1.name))
+            {
+                IEnumerator H()
+                {
+                    yield return null;
+                    yield return null;
+
+                    foreach (GameObject go in UObject.FindObjectsOfType<GameObject>())
+                    {
+                        if (go.name.Contains("Blanker"))
+                        {
+                            go.GetComponent<SpriteRenderer>().enabled = false;
+                        }
+
+                        if (go.name == "White Flash")
+                        {
+                            UObject.Destroy(go);
+                        }
+                    }
+                    
+                    yield return new WaitForSecondsRealtime(1.4f);
+                    
+                    HeroController.instance.AcceptInput();
+                }
+
+                GameManager.instance.StartCoroutine(H());
             }
 
             if (GameManager.instance == null || arg1.name != "Dream_Mighty_Zote") return;
