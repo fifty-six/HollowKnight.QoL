@@ -56,7 +56,6 @@
   <ItemGroup>
     <Compile Include="BetterSaves.cs" />
     <Compile Include="FsmUtil.cs" />
-    <Compile Include="InfinitePoP.cs" />
     <Compile Include="MouseBindings.cs" />
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="SalubraKiller.cs" />
