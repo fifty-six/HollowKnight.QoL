@@ -41,9 +41,17 @@ namespace QoL
             {
                 DateTime jsonWrite = File.GetLastWriteTimeUtc(jsonPath);
                 DateTime datWrite = File.GetLastWriteTimeUtc(GetSavePath(saveSlot, "dat"));
-                
+
+                /*
+                 * Load the json if it's newer, otherwise the dat
+                 * However, if the json is more than 20 minutes newer
+                 * and not modified today (so the user hasn't been trying to modify it)
+                 * than load the dat cause it's probably an old save that they're trying to restore
+                */
                 text = jsonWrite > datWrite
-                    ? Encoding.UTF8.GetString(File.ReadAllBytes(jsonPath))
+                    ? ((jsonWrite - datWrite).Minutes > 20 && (jsonWrite - DateTime.Now).Days != 0
+                        ? LoadEncrypted(gm, saveSlot)
+                        : Encoding.UTF8.GetString(File.ReadAllBytes(jsonPath)))
                     : LoadEncrypted(gm, saveSlot);
             }
             else
