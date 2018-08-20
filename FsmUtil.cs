@@ -37,7 +37,6 @@ namespace QoL
 
                 FsmStateAction action = fsm.GetAction(stateName, index);
                 actions = actions.Where(x => x != action).ToArray();
-                Log(action.GetType().ToString());
 
                 t.Actions = actions;
             }

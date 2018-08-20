@@ -1,10 +1,12 @@
 ﻿using Modding;
 using InControl;
+using JetBrains.Annotations;
 using UObject = UnityEngine.Object;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class MouseBindings : Mod, ITogglableMod
     {
         // F13, F14, F15

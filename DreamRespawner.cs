@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using Modding;
 using JetBrains.Annotations;
-using ModCommon;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -89,8 +86,10 @@ namespace QoL
             {
                 PlayerData.instance.dreamReturnScene = arg1.name;
             }
-            
-            if (SCENE_TRANSFORMS.Keys.Contains(arg0.name) && VAR_SCENES.ContainsValue(arg1.name))
+
+            if (SCENE_TRANSFORMS.Keys.Contains(arg0.name) && VAR_SCENES.ContainsValue(arg1.name) ||
+                !VAR_SCENES.ContainsValue(arg1.name) && WorldNavigation.Scenes.First(i => i.Name == arg1.name)
+                    .Transitions.Any(x => x.Name == "door_dreamReturn"))
             {
                 IEnumerator H()
                 {
@@ -109,9 +108,9 @@ namespace QoL
                             UObject.Destroy(go);
                         }
                     }
-                    
+
                     yield return new WaitForSecondsRealtime(1.4f);
-                    
+
                     HeroController.instance.AcceptInput();
                 }
 

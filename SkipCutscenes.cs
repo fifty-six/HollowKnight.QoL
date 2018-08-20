@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GlobalEnums;
+﻿using GlobalEnums;
 using Modding;
-using System.Reflection;
-using On;
-using System.Collections;
+using JetBrains.Annotations;
 using UnityEngine.SceneManagement;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class SkipCutscenes : Mod, ITogglableMod
     {
         public override void Initialize()
@@ -42,8 +36,7 @@ namespace QoL
 
         private void SceneModHook(string targetScene)
         {
-            CinematicPlayer player;
-            player = GameObject.FindObjectOfType<CinematicPlayer>();
+            CinematicPlayer player = Object.FindObjectOfType<CinematicPlayer>();
             if (player == null) return;
 
             Log("allowed skip from ModHook");

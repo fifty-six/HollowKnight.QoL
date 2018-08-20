@@ -45,24 +45,24 @@ namespace QoL
 
     internal class SalubraBehaviour : MonoBehaviour
     {
-        private GameObject BlessingGhost;
+        private GameObject _blessingGhost;
 
         public void Start()
         {
-            USceneManager.activeSceneChanged += Reset;
+            USceneManager.activeSceneChanged += ResetScene;
         }
 
-        private void Reset(Scene arg0, Scene arg1)
+        private void ResetScene(Scene arg0, Scene arg1)
         {
-            BlessingGhost = null;
+            _blessingGhost = null;
         }
 
         public void Update()
         {
-            if (BlessingGhost != null) return;
-            BlessingGhost = GameObject.Find("Blessing Ghost");
-            if (BlessingGhost == null) return;
-            BlessingGhost
+            if (_blessingGhost != null) return;
+            _blessingGhost = GameObject.Find("Blessing Ghost");
+            if (_blessingGhost == null) return;
+            _blessingGhost
                 .LocateMyFSM("Blessing Control")
                 .GetAction<ActivateGameObject>("Start Blessing", 0)
                 .activate
