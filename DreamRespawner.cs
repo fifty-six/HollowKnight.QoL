@@ -82,14 +82,18 @@ namespace QoL
 
         private static void SceneChanged(Scene arg0, Scene arg1)
         {
+            if (arg0.name == null || arg1.name == null) return;
+            
             if (SCENE_TRANSFORMS.Keys.Contains(arg1.name))
             {
                 PlayerData.instance.dreamReturnScene = arg1.name;
             }
 
+            bool? hasDreamDoor = WorldNavigation.Scenes.FirstOrDefault(i => i.Name == arg1.name)?.Transitions
+                .Any(x => x.Name == "door_dreamReturn");
+
             if (SCENE_TRANSFORMS.Keys.Contains(arg0.name) && VAR_SCENES.ContainsValue(arg1.name) ||
-                !VAR_SCENES.ContainsValue(arg1.name) && WorldNavigation.Scenes.First(i => i.Name == arg1.name)
-                    .Transitions.Any(x => x.Name == "door_dreamReturn"))
+                !VAR_SCENES.ContainsValue(arg1.name) && hasDreamDoor != null && (bool) hasDreamDoor)
             {
                 IEnumerator H()
                 {
