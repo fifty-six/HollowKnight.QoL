@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Modding;
 using JetBrains.Annotations;
@@ -34,8 +35,6 @@ namespace QoL
             ["whiteDefenderDefeats"] = "Waterways_15"
         };
 
-        private bool _isLoading;
-
         public override void Initialize()
         {
             ModHooks.Instance.SetPlayerBoolHook += SetBool;
@@ -44,22 +43,6 @@ namespace QoL
             USceneManager.activeSceneChanged += SceneChanged;
 
             On.GameManager.EnterHero += OnEnterHero;
-            On.GameManager.SaveGame += SaveGame;
-        }
-
-        private void SaveGame(On.GameManager.orig_SaveGame orig, GameManager self)
-        {
-            GameManager.instance.StartCoroutine(SaveGameRoutine(orig, self));
-        }
-
-        private IEnumerator SaveGameRoutine(On.GameManager.orig_SaveGame orig, GameManager self)
-        {
-            while (_isLoading)
-            {
-                yield return null;
-            }
-
-            orig(self);
         }
 
         public void Unload()
@@ -89,19 +72,15 @@ namespace QoL
             PlayerData.instance.SetIntInternal(intname, value);
         }
 
-        private void Loader(Scene arg0, Scene arg1)
-        {
-            _isLoading = true;
-            
-            USceneManager.activeSceneChanged -= Loader;
-        }
-
-        private void SetBool(string originalset, bool value)
+        private static void SetBool(string originalset, bool value)
         {
             if (VAR_SCENES.ContainsKey(originalset) && value)
             {
                 PlayerData.instance.dreamReturnScene = VAR_SCENES[originalset];
-                USceneManager.activeSceneChanged += Loader;
+
+                HeroController.instance.controlReqlinquished = true;
+                HeroController.instance.IgnoreInput();
+                HeroController.instance.EnterSceneDreamGate();
             }
 
             PlayerData.instance.SetBoolInternal(originalset, value);
