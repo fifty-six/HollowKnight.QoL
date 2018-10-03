@@ -92,7 +92,11 @@ namespace QoL
                 });
             }
 
-            Platform.Current.ReadSaveSlot(saveSlot, bytes => { callback(Encoding.UTF8.GetString(bytes)); });
+            Platform.Current.ReadSaveSlot(saveSlot, bytes =>
+            {
+                callback(Encoding.UTF8.GetString(bytes));
+                OnSaveSave(saveSlot);
+            });
         }
 
 

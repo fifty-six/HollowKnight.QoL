@@ -1,19 +1,30 @@
 using System.Reflection;
-using TMPro;
+using JetBrains.Annotations;
 using Modding;
+using TMPro;
 
-namespace FastText
+namespace QoL
 {
-    public class FastText : Mod
+    [UsedImplicitly]
+    public class FastText : Mod, ITogglableMod
     {
+        private static readonly FieldInfo TEXT_MESH = typeof(DialogueBox).GetField("textMesh", BindingFlags.NonPublic | BindingFlags.Instance);
+
         public override void Initialize()
         {
-            FieldInfo textMesh = typeof(DialogueBox).GetField("textMesh", BindingFlags.NonPublic | BindingFlags.Instance);
-            On.DialogueBox.ShowNextChar += (orig, self) =>
-            {
-                TextMeshPro text = (TextMeshPro)textMesh.GetValue(self);
-                text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
-            };
+            On.DialogueBox.ShowNextChar += OnNextChar;
         }
+
+        public void Unload()
+        {
+            On.DialogueBox.ShowNextChar -= OnNextChar;
+        }
+
+        private static void OnNextChar(On.DialogueBox.orig_ShowNextChar orig, DialogueBox self)
+        {
+            TextMeshPro text = (TextMeshPro) TEXT_MESH.GetValue(self);
+            text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
+        }
+
     }
 }

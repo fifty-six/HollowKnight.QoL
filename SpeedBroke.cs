@@ -10,12 +10,19 @@ namespace QoL
         {
             On.HeroController.CanOpenInventory += MenuDrop;
             On.HeroController.CanQuickMap += CanQuickMap;
+            On.TutorialEntryPauser.Start += AllowPause;
         }
-
+        
         public void Unload()
         {
             On.HeroController.CanOpenInventory -= MenuDrop;
             On.HeroController.CanQuickMap -= CanQuickMap;
+            On.TutorialEntryPauser.Start -= AllowPause;
+        }
+
+        private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
+        {
+            HeroController.instance.isEnteringFirstLevel = false;
         }
 
         private static bool CanQuickMap(On.HeroController.orig_CanQuickMap orig, HeroController self)
