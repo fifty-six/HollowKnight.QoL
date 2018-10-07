@@ -41,6 +41,7 @@ namespace QoL
 
         private static void DreamerFsm(Scene arg0, Scene arg1)
         {
+            if (HeroController.instance == null) return;
             HeroController.instance.StartCoroutine(DreamerFsm(arg1));
         }
 
@@ -78,6 +79,8 @@ namespace QoL
             GameCameras.instance.cameraFadeFSM.Fsm.SetState("FadeIn");
 
             yield return null;
+            
+            HeroController.instance.MaxHealth();
 
             while (GameManager.instance.gameState != GameState.PLAYING)
                 yield return null;

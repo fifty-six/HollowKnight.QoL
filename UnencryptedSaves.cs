@@ -35,12 +35,19 @@ namespace QoL
             
             void DoLoad(string text)
             {
-                SaveGameData saveGameData = JsonUtility.FromJson<SaveGameData>(text);
+                try
+                {
+                    SaveGameData saveGameData = JsonUtility.FromJson<SaveGameData>(text);
 
-                gm.playerData = PlayerData.instance = saveGameData.playerData;
-                gm.sceneData = SceneData.instance = saveGameData.sceneData;
-                gm.profileID = saveSlot;
-                gm.inputHandler.RefreshPlayerData();
+                    gm.playerData = PlayerData.instance = saveGameData.playerData;
+                    gm.sceneData = SceneData.instance = saveGameData.sceneData;
+                    gm.profileID = saveSlot;
+                    gm.inputHandler.RefreshPlayerData();
+                }
+                catch (ArgumentException)
+                {
+                    // It's fine to just stop here as this is *after* the game loads the dat anyways
+                }
             }
 
             string jsonPath = GetSavePath(saveSlot, "json");
@@ -90,6 +97,7 @@ namespace QoL
                     MemoryStream serializationStream = new MemoryStream(bytes);
                     callback(Encryption.Decrypt((string) binaryFormatter.Deserialize(serializationStream)));
                 });
+                return;
             }
 
             Platform.Current.ReadSaveSlot(saveSlot, bytes =>
