@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography;
 using System.Text;
 using JetBrains.Annotations;
 using Modding;
@@ -12,6 +13,8 @@ namespace QoL
     [UsedImplicitly]
     public class UnencryptedSaves : Mod
     {
+        private static readonly MethodInfo GET_SAVE_FILE_NAME = typeof(ModHooks).GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic);
+        
         public override void Initialize()
         {
             ModHooks.Instance.SavegameLoadHook += OnSaveLoad;
@@ -20,6 +23,9 @@ namespace QoL
 
         private static void OnSaveSave(int id)
         {
+            id = GetRealID(id);
+            
+            Modding.Logger.Log("Saving save slot: " + id);
             string path = GetSavePath(id, "json");
             SaveGameData sg = new SaveGameData(GameManager.instance.playerData, GameManager.instance.sceneData);
             string text = JsonUtility.ToJson(sg, true);
@@ -31,6 +37,9 @@ namespace QoL
 
         private static void OnSaveLoad(int saveSlot)
         {
+            saveSlot = GetRealID(saveSlot);
+            
+            Modding.Logger.Log("Loading save slot: " + saveSlot);
             GameManager gm = GameManager.instance;
             
             void DoLoad(string text)
@@ -111,6 +120,14 @@ namespace QoL
         private static string GetSavePath(int saveSlot, string ending)
         {
             return Path.Combine(Application.persistentDataPath, $"user{saveSlot}.{ending}");
+        }
+
+        private static int GetRealID(int id)
+        {
+            string s = (string) GET_SAVE_FILE_NAME.Invoke(ModHooks.Instance, new object[] {id});
+            return s == null
+                ? id
+                : int.Parse(new string(s.SkipWhile(c => !char.IsDigit(c)).TakeWhile(char.IsDigit).ToArray()));
         }
     }
 }
