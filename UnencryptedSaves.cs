@@ -63,9 +63,8 @@ namespace QoL
             if (!File.Exists(jsonPath)) return;
             
             DateTime jsonWrite = File.GetLastWriteTimeUtc(jsonPath);
-            DateTime datWrite = File.GetLastWriteTimeUtc(GetSavePath(saveSlot, "dat"));
 
-            if (jsonWrite > datWrite && jsonWrite.Year != 1999)
+            if (jsonWrite.Year != 1999)
                 LoadJson(jsonPath, DoLoad);
         }
 
