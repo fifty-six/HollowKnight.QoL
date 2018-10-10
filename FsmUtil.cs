@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
-using UnityEngine;
 using Logger = Modding.Logger;
 
 // Taken and modified from
@@ -68,7 +66,7 @@ namespace QoL
 
         public static FsmState CopyState(PlayMakerFSM fsm, string stateName, string newState)
         {
-            FsmState state = new FsmState(fsm.GetState(stateName)) {Name = newState};
+            var state = new FsmState(fsm.GetState(stateName)) {Name = newState};
 
             List<FsmState> fsmStates = fsm.FsmStates.ToList();
             fsmStates.Add(state);

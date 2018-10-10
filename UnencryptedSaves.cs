@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using JetBrains.Annotations;
 using Modding;
@@ -27,7 +26,7 @@ namespace QoL
             
             Modding.Logger.Log("Saving save slot: " + id);
             string path = GetSavePath(id, "json");
-            SaveGameData sg = new SaveGameData(GameManager.instance.playerData, GameManager.instance.sceneData);
+            var sg = new SaveGameData(GameManager.instance.playerData, GameManager.instance.sceneData);
             string text = JsonUtility.ToJson(sg, true);
 
             File.WriteAllText(path, text);
@@ -46,7 +45,7 @@ namespace QoL
             {
                 try
                 {
-                    SaveGameData saveGameData = JsonUtility.FromJson<SaveGameData>(text);
+                    var saveGameData = JsonUtility.FromJson<SaveGameData>(text);
 
                     gm.playerData = PlayerData.instance = saveGameData.playerData;
                     gm.sceneData = SceneData.instance = saveGameData.sceneData;
@@ -61,20 +60,13 @@ namespace QoL
 
             string jsonPath = GetSavePath(saveSlot, "json");
 
-            if (File.Exists(jsonPath))
-            {
-                DateTime jsonWrite = File.GetLastWriteTimeUtc(jsonPath);
-                DateTime datWrite = File.GetLastWriteTimeUtc(GetSavePath(saveSlot, "dat"));
+            if (!File.Exists(jsonPath)) return;
+            
+            DateTime jsonWrite = File.GetLastWriteTimeUtc(jsonPath);
+            DateTime datWrite = File.GetLastWriteTimeUtc(GetSavePath(saveSlot, "dat"));
 
-                if (jsonWrite > datWrite && jsonWrite.Year != 1999)
-                    LoadJson(jsonPath, DoLoad);
-                else
-                    LoadDat(gm, saveSlot, DoLoad);
-            }
-            else
-            {
-                LoadDat(gm, saveSlot, DoLoad);
-            }
+            if (jsonWrite > datWrite && jsonWrite.Year != 1999)
+                LoadJson(jsonPath, DoLoad);
         }
 
         private static void LoadJson(string jsonPath, Action<string> callback)
@@ -95,27 +87,6 @@ namespace QoL
                 callback?.Invoke(res);
             });
         }
-        
-        private static void LoadDat(GameManager gm, int saveSlot, Action<string> callback)
-        {
-            if (gm.gameConfig.useSaveEncryption && !Platform.Current.IsFileSystemProtected)
-            {
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                Platform.Current.ReadSaveSlot(saveSlot, bytes =>
-                {
-                    MemoryStream serializationStream = new MemoryStream(bytes);
-                    callback(Encryption.Decrypt((string) binaryFormatter.Deserialize(serializationStream)));
-                });
-                return;
-            }
-
-            Platform.Current.ReadSaveSlot(saveSlot, bytes =>
-            {
-                callback(Encoding.UTF8.GetString(bytes));
-                OnSaveSave(saveSlot);
-            });
-        }
-
 
         private static string GetSavePath(int saveSlot, string ending)
         {

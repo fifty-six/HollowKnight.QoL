@@ -22,7 +22,7 @@ namespace QoL
 
         private static void OnNextChar(On.DialogueBox.orig_ShowNextChar orig, DialogueBox self)
         {
-            TextMeshPro text = (TextMeshPro) TEXT_MESH.GetValue(self);
+            var text = (TextMeshPro) TEXT_MESH.GetValue(self);
             text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
         }
 

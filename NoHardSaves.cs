@@ -16,7 +16,7 @@ namespace QoL
             UnregisterCallbacks();
         }
 
-        private void RegisterCallbacks()
+        private static void RegisterCallbacks()
         {
             On.PlayerData.SetBenchRespawn -= PlayerData_SetBenchRespawn;
             On.PlayerData.SetBenchRespawn += PlayerData_SetBenchRespawn;
@@ -28,7 +28,7 @@ namespace QoL
             On.PlayerData.SetBenchRespawn_2 += PlayerData_SetBenchRespawn_2;
         }
 
-        private void UnregisterCallbacks()
+        private static void UnregisterCallbacks()
         {
             On.PlayerData.SetBenchRespawn -= PlayerData_SetBenchRespawn;
             On.PlayerData.SetBenchRespawn_1 -= PlayerData_SetBenchRespawn_1;
