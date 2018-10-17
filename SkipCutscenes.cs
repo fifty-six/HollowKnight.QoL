@@ -1,13 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
+using System.Reflection;
 using GlobalEnums;
 using Modding;
 using JetBrains.Annotations;
-using ModCommon;
-using ModCommon.Util;
+using MonoMod.RuntimeDetour;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Logger = Modding.Logger;
 using UObject = UnityEngine.Object;
 
 namespace QoL
@@ -16,8 +16,13 @@ namespace QoL
     public class SkipCutscenes : Mod, ITogglableMod
     {
         private const string GUARDIAN = "Dream_Guardian_";
-        
-        private static readonly string[] DREAMERS = { "Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room"};
+
+        private static readonly string[] DREAMERS = {"Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room"};
+
+        private const string UUMUU = "Fungus3_archive_02_boss";
+        private Hook _rando;
+
+        public override int LoadPriority() => int.MaxValue;
 
         public override void Initialize()
         {
@@ -27,6 +32,23 @@ namespace QoL
             On.InputHandler.SetSkipMode += OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += DreamerFsm;
+
+            Type t = Type.GetType("RandomizerMod.RandomizerMod, RandomizerMod2.0");
+
+            if (t == null) return;
+
+            _rando = new Hook
+            (
+                t.GetMethod("SceneHasPreload", BindingFlags.NonPublic | BindingFlags.Static),
+                typeof(SkipCutscenes).GetMethod(nameof(FixRandoMonomon))
+            );
+        }
+
+        [UsedImplicitly]
+        public static bool FixRandoMonomon(Func<string, bool> orig, string sceneName)
+        {
+            // this is really dumb
+            return sceneName != UUMUU && orig(sceneName);
         }
 
         public void Unload()
@@ -37,6 +59,7 @@ namespace QoL
             On.InputHandler.SetSkipMode -= OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= DreamerFsm;
+            _rando?.Dispose();
         }
 
         private static void DreamerFsm(Scene arg0, Scene arg1)
@@ -48,7 +71,7 @@ namespace QoL
         private static IEnumerator DreamerFsm(Scene arg1)
         {
             if (!DREAMERS.Contains(arg1.name)) yield break;
-            
+
             yield return null;
 
             GameObject.Find("Dream Enter").LocateMyFSM("Control").ChangeTransition("Idle", "DREAM HIT", "Change Scene");
@@ -62,24 +85,23 @@ namespace QoL
                 yield break;
             }
 
-
             string @bool = info.SceneName.Substring(15);
 
             PlayerData.instance.SetBool($"{@bool.ToLower()}Defeated", true);
             PlayerData.instance.SetBool($"maskBroken{@bool}", true);
             PlayerData.instance.guardiansDefeated++;
-            
+
             info.SceneName = GameManager.instance.sceneName;
             info.EntryGateName = "door_dreamReturn";
-            
+
             GameCameras.instance.cameraFadeFSM.Fsm.Event("FADE INSTANT");
-            
+
             yield return orig(self, info);
-            
+
             GameCameras.instance.cameraFadeFSM.Fsm.SetState("FadeIn");
 
             yield return null;
-            
+
             HeroController.instance.MaxHealth();
 
             while (GameManager.instance.gameState != GameState.PLAYING)
