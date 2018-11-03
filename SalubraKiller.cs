@@ -1,4 +1,5 @@
 ﻿using HutongGames.PlayMaker.Actions;
+using InControl;
 using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace QoL
         {
             ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
-
+            
             // in game
             if (HeroController.instance == null && GameManager.instance.gameObject.GetComponent<SalubraBehaviour>() == null)
             {
@@ -23,9 +24,9 @@ namespace QoL
             }
         }
 
-        private void AddSaveGame(SaveGameData data) => AddComponent();
+        private static void AddSaveGame(SaveGameData data) => AddComponent();
 
-        private void AddComponent()
+        private static void AddComponent()
         {
             GameManager.instance.gameObject.AddComponent<SalubraBehaviour>();
         }

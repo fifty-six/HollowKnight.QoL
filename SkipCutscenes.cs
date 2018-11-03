@@ -34,7 +34,7 @@ namespace QoL
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += DreamerFsm;
 
             Type t = Type.GetType("RandomizerMod.RandomizerMod, RandomizerMod2.0");
-
+            
             if (t == null) return;
 
             _rando = new Hook
@@ -79,6 +79,8 @@ namespace QoL
 
         private static IEnumerator Dreamers(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
         {
+            info.EntryDelay = 0f;
+            
             if (info.SceneName.Length <= 15 || info.SceneName.Substring(0, 15) != GUARDIAN)
             {
                 yield return orig(self, info);
@@ -105,7 +107,9 @@ namespace QoL
             HeroController.instance.MaxHealth();
 
             while (GameManager.instance.gameState != GameState.PLAYING)
+            {
                 yield return null;
+            }
 
             yield return null;
 

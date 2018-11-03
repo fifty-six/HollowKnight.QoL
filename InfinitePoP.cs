@@ -30,33 +30,32 @@ namespace QoL
 
         private static void SetBool(string originalset, bool value)
         {
-            if (originalset == "newDataBindingSeal" && value)
-            {
-                SceneData sd = GameManager.instance.sceneData;
-
-                sd.SaveMyState(new PersistentBoolData
-                {
-                    sceneName = "White_Palace_17",
-                    id = "WP Lever",
-                    activated = false
-                });
-
-                sd.SaveMyState(new PersistentBoolData
-                {
-                    sceneName = "White_Palace_17",
-                    id = "Collapser Small",
-                    activated = false
-                });
-
-                sd.SaveMyState(new PersistentBoolData
-                {
-                    sceneName = "White_Palace_06",
-                    id = "Breakable Wall Ruin Lift",
-                    activated = false
-                });
-            }
-
             PlayerData.instance.SetBoolInternal(originalset, value);
+
+            if (originalset != "newDataBindingSeal" || !value) return;
+            
+            SceneData sd = GameManager.instance.sceneData;
+
+            sd.SaveMyState(new PersistentBoolData
+            {
+                sceneName = "White_Palace_17",
+                id = "WP Lever",
+                activated = false
+            });
+
+            sd.SaveMyState(new PersistentBoolData
+            {
+                sceneName = "White_Palace_17",
+                id = "Collapser Small",
+                activated = false
+            });
+
+            sd.SaveMyState(new PersistentBoolData
+            {
+                sceneName = "White_Palace_06",
+                id = "Breakable Wall Ruin Lift",
+                activated = false
+            });
         }
 
         private static bool GetBool(string originalset)
