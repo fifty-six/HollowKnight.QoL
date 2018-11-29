@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 using GlobalEnums;
+using HutongGames.PlayMaker.Actions;
 using Modding;
 using JetBrains.Annotations;
 using MonoMod.RuntimeDetour;
@@ -31,7 +32,7 @@ namespace QoL
             On.AnimatorSequence.Begin += AnimatorBegin;
             On.InputHandler.SetSkipMode += OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += DreamerFsm;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
 
             Type t = Type.GetType("RandomizerMod.RandomizerMod, RandomizerMod2.0");
             
@@ -58,14 +59,47 @@ namespace QoL
             On.AnimatorSequence.Begin -= AnimatorBegin;
             On.InputHandler.SetSkipMode -= OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= DreamerFsm;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
             _rando?.Dispose();
         }
 
-        private static void DreamerFsm(Scene arg0, Scene arg1)
+        private static void FsmSkips(Scene arg0, Scene arg1)
         {
             if (HeroController.instance == null) return;
             HeroController.instance.StartCoroutine(DreamerFsm(arg1));
+            HeroController.instance.StartCoroutine(AbsRadSkip(arg1));
+            HeroController.instance.StartCoroutine(HKPrimeSkip(arg1));
+
+        }
+
+        private static IEnumerator HKPrimeSkip(Scene arg1)
+        {
+			if (arg1.name != "GG_Hollow_Knight") yield break;
+			yield return null;
+			
+			PlayMakerFSM control = GameObject.Find("HK Prime").LocateMyFSM("Control");
+			
+			control.ChangeTransition("Init", "FINISHED", "Intro Roar");
+			control.GetAction<Wait>("Intro 2", 3).time = 0.01f;
+			control.GetAction<Wait>("Intro 1", 0).time = 0.01f;
+			control.GetAction<Wait>("Intro Roar", 7).time = 1f;
+        }
+
+        private static IEnumerator AbsRadSkip(Scene arg1)
+        {
+			if (arg1.name != "GG_Radiance") yield break;
+			yield return null;
+			
+			PlayMakerFSM control = GameObject.Find("Boss Control").LocateMyFSM("Control");
+			
+			UObject.Destroy(GameObject.Find("Sun"));
+			UObject.Destroy(GameObject.Find("feather_particles"));
+			
+			control.GetAction<Wait>("Setup", 6).time = 1.5f;
+			control.RemoveAction("Setup", 5);
+			control.RemoveAction("Setup", 4);
+			control.ChangeTransition("Setup", "FINISHED", "Eye Flash");
+			control.GetAction<Wait>("Title Up", 6).time = 1f;
         }
 
         private static IEnumerator DreamerFsm(Scene arg1)
