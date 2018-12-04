@@ -127,6 +127,7 @@ namespace QoL
             PlayerData.instance.SetBool($"{@bool.ToLower()}Defeated", true);
             PlayerData.instance.SetBool($"maskBroken{@bool}", true);
             PlayerData.instance.guardiansDefeated++;
+            PlayerData.instance.crossroadsInfected = true;
 
             info.SceneName = GameManager.instance.sceneName;
             info.EntryGateName = "door_dreamReturn";
