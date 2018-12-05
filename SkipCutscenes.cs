@@ -20,7 +20,7 @@ namespace QoL
 
         private static readonly string[] DREAMERS = {"Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room"};
 
-        private const string UUMUU = "Fungus3_archive_02_boss";
+        private const string UUMUU = "Fungus3_archive_02";
         private Hook _rando;
 
         public override int LoadPriority() => int.MaxValue;
@@ -49,7 +49,7 @@ namespace QoL
         public static bool FixRandoMonomon(Func<string, bool> orig, string sceneName)
         {
             // this is really dumb
-            return sceneName != UUMUU && orig(sceneName);
+            return !sceneName.StartsWith(UUMUU) && orig(sceneName);
         }
 
         public void Unload()
