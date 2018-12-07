@@ -49,7 +49,7 @@ namespace QoL
         public static bool FixRandoMonomon(Func<string, bool> orig, string sceneName)
         {
             // this is really dumb
-            return string.IsNullOrEmpty(sceneName) || !sceneName.StartsWith(UUMUU) && orig(sceneName);
+            return !string.IsNullOrEmpty(sceneName) && !sceneName.StartsWith(UUMUU) && orig(sceneName);
         }
 
         public void Unload()
