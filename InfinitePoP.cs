@@ -33,7 +33,7 @@ namespace QoL
             PlayerData.instance.SetBoolInternal(originalset, value);
 
             if (originalset != "newDataBindingSeal" || !value) return;
-            
+
             SceneData sd = GameManager.instance.sceneData;
 
             sd.SaveMyState(new PersistentBoolData

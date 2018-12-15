@@ -25,6 +25,5 @@ namespace QoL
             var text = (TextMeshPro) TEXT_MESH.GetValue(self);
             text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
         }
-
     }
 }

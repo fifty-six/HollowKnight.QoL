@@ -13,7 +13,7 @@ namespace QoL
     public class UnencryptedSaves : Mod
     {
         private static readonly MethodInfo GET_SAVE_FILE_NAME = typeof(ModHooks).GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic);
-        
+
         public override void Initialize()
         {
             ModHooks.Instance.SavegameLoadHook += OnSaveLoad;
@@ -23,7 +23,7 @@ namespace QoL
         private static void OnSaveSave(int id)
         {
             id = GetRealID(id);
-            
+
             Modding.Logger.Log("Saving save slot: " + id);
             string path = GetSavePath(id, "json");
             var sg = new SaveGameData(GameManager.instance.playerData, GameManager.instance.sceneData);
@@ -37,10 +37,10 @@ namespace QoL
         private static void OnSaveLoad(int saveSlot)
         {
             saveSlot = GetRealID(saveSlot);
-            
+
             Modding.Logger.Log("Loading save slot: " + saveSlot);
             GameManager gm = GameManager.instance;
-            
+
             void DoLoad(string text)
             {
                 try
@@ -61,7 +61,7 @@ namespace QoL
             string jsonPath = GetSavePath(saveSlot, "json");
 
             if (!File.Exists(jsonPath)) return;
-            
+
             DateTime jsonWrite = File.GetLastWriteTimeUtc(jsonPath);
 
             if (jsonWrite.Year != 1999)
@@ -71,7 +71,7 @@ namespace QoL
         private static void LoadJson(string jsonPath, Action<string> callback)
         {
             string res = null;
-            
+
             try
             {
                 res = Encoding.UTF8.GetString(File.ReadAllBytes(jsonPath));
@@ -80,11 +80,8 @@ namespace QoL
             {
                 Debug.LogException(exception);
             }
-            
-            CoreLoop.InvokeNext(() =>
-            {
-                callback?.Invoke(res);
-            });
+
+            CoreLoop.InvokeNext(() => { callback?.Invoke(res); });
         }
 
         private static string GetSavePath(int saveSlot, string ending)
@@ -95,6 +92,7 @@ namespace QoL
         private static int GetRealID(int id)
         {
             string s = (string) GET_SAVE_FILE_NAME.Invoke(ModHooks.Instance, new object[] {id});
+
             return s == null
                 ? id
                 : int.Parse(new string(s.SkipWhile(c => !char.IsDigit(c)).TakeWhile(char.IsDigit).ToArray()));

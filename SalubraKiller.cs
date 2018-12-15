@@ -15,7 +15,7 @@ namespace QoL
         {
             ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
-            
+
             // in game
             if (HeroController.instance == null && GameManager.instance.gameObject.GetComponent<SalubraBehaviour>() == null)
             {
@@ -60,8 +60,11 @@ namespace QoL
         public void Update()
         {
             if (_blessingGhost != null) return;
+
             _blessingGhost = GameObject.Find("Blessing Ghost");
+
             if (_blessingGhost == null) return;
+
             _blessingGhost
                 .LocateMyFSM("Blessing Control")
                 .GetAction<ActivateGameObject>("Start Blessing", 0)

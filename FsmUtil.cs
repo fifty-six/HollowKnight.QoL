@@ -20,10 +20,13 @@ namespace QoL
         {
             FieldInfo[] fieldInfo =
                 typeof(ActionData).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
             foreach (FieldInfo t in fieldInfo)
             {
                 if (t.Name != "fsmStringParams") continue;
+
                 FsmStringParamsField = t;
+
                 break;
             }
         }
@@ -33,6 +36,7 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 if (t.Name != stateName) continue;
+
                 FsmStateAction[] actions = t.Actions;
 
                 FsmStateAction action = fsm.GetAction(stateName, index);
@@ -48,20 +52,26 @@ namespace QoL
             Tk2dPlayAnimationWithEvents anim = fsm.GetAction<Tk2dPlayAnimationWithEvents>(stateName, index);
             FsmEvent @event = new FsmEvent(anim.animationCompleteEvent ?? anim.animationTriggerEvent);
             fsm.RemoveAction(stateName, index);
-            fsm.InsertAction(stateName, new NextFrameEvent
-            {
-                sendEvent = @event,
-                Active = true,
-                Enabled = true
-            }, index);
+            fsm.InsertAction(stateName,
+                             new NextFrameEvent
+                             {
+                                 sendEvent = @event,
+                                 Active = true,
+                                 Enabled = true
+                             },
+                             index);
         }
 
         public static FsmState GetState(PlayMakerFSM fsm, string stateName)
         {
             return fsm.FsmStates.Where(t => t.Name == stateName)
-                .Select(t => new {t, actions = t.Actions})
-                .Select(t1 => t1.t)
-                .FirstOrDefault();
+                      .Select(t => new
+                      {
+                          t,
+                          actions = t.Actions
+                      })
+                      .Select(t1 => t1.t)
+                      .FirstOrDefault();
         }
 
         public static FsmState CopyState(PlayMakerFSM fsm, string stateName, string newState)
@@ -80,6 +90,7 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 if (t.Name != stateName) continue;
+
                 FsmStateAction[] actions = t.Actions;
 
                 Array.Resize(ref actions, actions.Length + 1);
@@ -100,6 +111,7 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 if (t.Name != stateName) continue;
+
                 FsmStateAction[] actions = t.Actions;
 
                 Array.Resize(ref actions, actions.Length + 1);
@@ -114,6 +126,7 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 if (t.Name != stateName) continue;
+
                 List<FsmStateAction> actions = t.Actions.ToList();
 
                 actions.Insert(index, action);
@@ -127,6 +140,7 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 if (t.Name != stateName) continue;
+
                 foreach (FsmTransition trans in t.Transitions)
                 {
                     if (trans.EventName == eventName)
@@ -142,6 +156,7 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 if (t.Name != stateName) continue;
+
                 List<FsmTransition> transitions = t.Transitions.ToList();
                 transitions.Add(new FsmTransition
                 {
@@ -152,8 +167,12 @@ namespace QoL
             }
         }
 
-        public static void RemoveTransitions(PlayMakerFSM fsm, IEnumerable<string> states,
-            IEnumerable<string> transitions)
+        public static void RemoveTransitions
+        (
+            PlayMakerFSM        fsm,
+            IEnumerable<string> states,
+            IEnumerable<string> transitions
+        )
         {
             IEnumerable<string> enumerable = states as string[] ?? states.ToArray();
 
@@ -180,10 +199,13 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 bool found = false;
+
                 if (!states.Contains(t.Name)) continue;
+
                 foreach (FsmString str in (List<FsmString>) FsmStringParamsField.GetValue(t.ActionData))
                 {
                     List<FsmString> val = new List<FsmString>();
+
                     if (dict.ContainsKey(str.Value))
                     {
                         val.Add(dict[str.Value]);
@@ -212,10 +234,13 @@ namespace QoL
             foreach (FsmState t in fsm.FsmStates)
             {
                 bool found = false;
+
                 if (t.Name != state && state != "") continue;
+
                 foreach (FsmString str in (List<FsmString>) FsmStringParamsField.GetValue(t.ActionData))
                 {
                     List<FsmString> val = new List<FsmString>();
+
                     if (dict.ContainsKey(str.Value))
                     {
                         val.Add(dict[str.Value]);
@@ -242,15 +267,20 @@ namespace QoL
         public static void ReplaceStringVariable(PlayMakerFSM fsm, string state, string src, string dst)
         {
             Log("Replacing FSM Strings");
+
             foreach (FsmState t in fsm.FsmStates)
             {
                 bool found = false;
+
                 if (t.Name != state && state != "") continue;
+
                 Log($"Found FsmState with name \"{t.Name}\" ");
+
                 foreach (FsmString str in (List<FsmString>) FsmStringParamsField.GetValue(t.ActionData))
                 {
                     List<FsmString> val = new List<FsmString>();
                     Log($"Found FsmString with value \"{str}\" ");
+
                     if (str.Value.Contains(src))
                     {
                         val.Add(dst);
@@ -285,7 +315,7 @@ namespace QoL
             Logger.Log("[FSM UTIL]: " + str);
         }
     }
-    
+
     ///////////////////////
     // Method Invocation //
     ///////////////////////
@@ -298,14 +328,14 @@ namespace QoL
         {
             _action = a;
         }
-        
+
         public override void OnEnter()
         {
             _action?.Invoke();
             Finish();
         }
     }
-    
+
 
     ////////////////
     // Extensions //
@@ -313,54 +343,52 @@ namespace QoL
 
     public static class FsmutilExt
     {
-        public static void RemoveAnim(this PlayMakerFSM fsm, string stateName, int index) =>
-            FsmUtil.RemoveAnim(fsm, stateName, index);
+        public static void RemoveAnim(this PlayMakerFSM fsm, string stateName, int index) => FsmUtil.RemoveAnim(fsm, stateName, index);
 
-        public static void InsertAction(this PlayMakerFSM fsm, string stateName, FsmStateAction action, int index) =>
-            FsmUtil.InsertAction(fsm, stateName, action, index);
+        public static void InsertAction(this PlayMakerFSM fsm, string stateName, FsmStateAction action, int index) => FsmUtil.InsertAction(fsm, stateName, action, index);
 
-        public static void RemoveAction(this PlayMakerFSM fsm, string stateName, int index) =>
-            FsmUtil.RemoveAction(fsm, stateName, index);
+        public static void RemoveAction(this PlayMakerFSM fsm, string stateName, int index) => FsmUtil.RemoveAction(fsm, stateName, index);
 
         public static FsmState GetState(this PlayMakerFSM fsm, string stateName) => FsmUtil.GetState(fsm, stateName);
 
-        public static FsmStateAction GetAction(this PlayMakerFSM fsm, string stateName, int index) =>
-            FsmUtil.GetAction(fsm, stateName, index);
+        public static FsmStateAction GetAction(this PlayMakerFSM fsm, string stateName, int index) => FsmUtil.GetAction(fsm, stateName, index);
 
-        public static T GetAction<T>(this PlayMakerFSM fsm, string stateName, int index) where T : FsmStateAction =>
-            FsmUtil.GetAction<T>(fsm, stateName, index);
+        public static T GetAction<T>(this PlayMakerFSM fsm, string stateName, int index) where T : FsmStateAction => FsmUtil.GetAction<T>(fsm, stateName, index);
 
-        public static FsmState CopyState(this PlayMakerFSM fsm, string stateName, string newState) =>
-            FsmUtil.CopyState(fsm, stateName, newState);
+        public static FsmState CopyState(this PlayMakerFSM fsm, string stateName, string newState) => FsmUtil.CopyState(fsm, stateName, newState);
 
-        public static void AddAction(this PlayMakerFSM fsm, string stateName, FsmStateAction action) =>
-            FsmUtil.AddAction(fsm, stateName, action);
+        public static void AddAction(this PlayMakerFSM fsm, string stateName, FsmStateAction action) => FsmUtil.AddAction(fsm, stateName, action);
 
         public static void
             ChangeTransition(this PlayMakerFSM fsm, string stateName, string eventName, string toState) =>
             FsmUtil.ChangeTransition(fsm, stateName, eventName, toState);
 
-        public static void InsertMethod(this PlayMakerFSM fsm, string stateName, int index, Action method) =>
-            FsmUtil.InsertMethod(fsm, stateName, index, method);
+        public static void InsertMethod(this PlayMakerFSM fsm, string stateName, int index, Action method) => FsmUtil.InsertMethod(fsm, stateName, index, method);
 
-        public static void AddTransition(this PlayMakerFSM fsm, string stateName, string eventName, string toState) =>
-            FsmUtil.AddTransition(fsm, stateName, eventName, toState);
+        public static void AddTransition(this PlayMakerFSM fsm, string stateName, string eventName, string toState) => FsmUtil.AddTransition(fsm, stateName, eventName, toState);
 
-        public static void RemoveTransitions(this PlayMakerFSM fsm, IEnumerable<string> states,
-            IEnumerable<string> transitions) =>
+        public static void RemoveTransitions
+        (
+            this PlayMakerFSM   fsm,
+            IEnumerable<string> states,
+            IEnumerable<string> transitions
+        ) =>
             FsmUtil.RemoveTransitions(fsm, states, transitions);
 
-        public static void RemoveTransition(this PlayMakerFSM fsm, string state, string transition) =>
-            FsmUtil.RemoveTransition(fsm, state, transition);
+        public static void RemoveTransition(this PlayMakerFSM fsm, string state, string transition) => FsmUtil.RemoveTransition(fsm, state, transition);
 
-        public static void ReplaceStringVariable(this PlayMakerFSM fsm, List<string> states,
-            Dictionary<string, string> dict) => FsmUtil.ReplaceStringVariable(fsm, states, dict);
+        public static void ReplaceStringVariable
+        (
+            this PlayMakerFSM          fsm,
+            List<string>               states,
+            Dictionary<string, string> dict
+        ) =>
+            FsmUtil.ReplaceStringVariable(fsm, states, dict);
 
         public static void
             ReplaceStringVariable(this PlayMakerFSM fsm, string state, Dictionary<string, string> dict) =>
             FsmUtil.ReplaceStringVariable(fsm, state, dict);
 
-        public static void ReplaceStringVariable(this PlayMakerFSM fsm, string state, string src, string dst) =>
-            FsmUtil.ReplaceStringVariable(fsm, state, src, dst);
+        public static void ReplaceStringVariable(this PlayMakerFSM fsm, string state, string src, string dst) => FsmUtil.ReplaceStringVariable(fsm, state, src, dst);
     }
 }

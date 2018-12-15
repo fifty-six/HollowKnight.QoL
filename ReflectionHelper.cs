@@ -25,9 +25,9 @@ namespace QoL
             if (!typeFields.ContainsKey(name))
             {
                 typeFields.Add(name,
-                    t.GetField(name,
-                        BindingFlags.NonPublic | BindingFlags.Public |
-                        (instance ? BindingFlags.Instance : BindingFlags.Static)));
+                               t.GetField(name,
+                                          BindingFlags.NonPublic | BindingFlags.Public |
+                                          (instance ? BindingFlags.Instance : BindingFlags.Static)));
             }
 
             return (T) typeFields[name]?.GetValue(obj);
@@ -49,9 +49,9 @@ namespace QoL
             if (!typeFields.ContainsKey(name))
             {
                 typeFields.Add(name,
-                    t.GetField(name,
-                        BindingFlags.NonPublic | BindingFlags.Public |
-                        (instance ? BindingFlags.Instance : BindingFlags.Static)));
+                               t.GetField(name,
+                                          BindingFlags.NonPublic | BindingFlags.Public |
+                                          (instance ? BindingFlags.Instance : BindingFlags.Static)));
             }
 
             typeFields[name]?.SetValue(obj, val);
@@ -60,10 +60,8 @@ namespace QoL
 
     public static class ReflectionExtensions
     {
-        public static void SetAttr<T>(this object obj, string name, T val, bool instance = true) =>
-            ReflectionHelper.SetAttr(obj, name, val, instance);
+        public static void SetAttr<T>(this object obj, string name, T val, bool instance = true) => ReflectionHelper.SetAttr(obj, name, val, instance);
 
-        public static T GetAttr<T>(this object obj, string name, bool instance = true) =>
-           ReflectionHelper.GetAttr<T>(obj, name, instance);
+        public static T GetAttr<T>(this object obj, string name, bool instance = true) => ReflectionHelper.GetAttr<T>(obj, name, instance);
     }
 }

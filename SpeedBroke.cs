@@ -12,7 +12,7 @@ namespace QoL
             On.HeroController.CanQuickMap += CanQuickMap;
             On.TutorialEntryPauser.Start += AllowPause;
         }
-        
+
         public void Unload()
         {
             On.HeroController.CanOpenInventory -= MenuDrop;
@@ -27,18 +27,17 @@ namespace QoL
 
         private static bool CanQuickMap(On.HeroController.orig_CanQuickMap orig, HeroController self)
         {
-            return !GameManager.instance.isPaused && !self.cState.onConveyor && !self.cState.dashing &&
-                   !self.cState.backDashing && (!self.cState.attacking || self.GetAttr<float?>("attack_time") >= self.ATTACK_RECOVERY_TIME) &&
-                   !self.cState.recoiling && !self.cState.hazardDeath &&
+            return !GameManager.instance.isPaused && !self.cState.onConveyor                                                                      && !self.cState.dashing &&
+                   !self.cState.backDashing       && (!self.cState.attacking || self.GetAttr<float?>("attack_time") >= self.ATTACK_RECOVERY_TIME) &&
+                   !self.cState.recoiling         && !self.cState.hazardDeath                                                                     &&
                    !self.cState.hazardRespawning;
-
         }
 
         private static bool MenuDrop(On.HeroController.orig_CanOpenInventory orig, HeroController self)
         {
-            return !GameManager.instance.isPaused && !self.controlReqlinquished && !self.cState.recoiling &&
-                   !self.cState.transitioning && !self.cState.hazardDeath && !self.cState.hazardRespawning &&
-                   !self.playerData.disablePause && self.CanInput() || self.playerData.atBench;
+            return !GameManager.instance.isPaused && !self.controlReqlinquished && !self.cState.recoiling        &&
+                   !self.cState.transitioning     && !self.cState.hazardDeath   && !self.cState.hazardRespawning &&
+                   !self.playerData.disablePause  && self.CanInput() || self.playerData.atBench;
         }
     }
 }

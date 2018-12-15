@@ -32,12 +32,15 @@ namespace QoL
             {
                 case "Button4":
                     action.AddBinding(new KeyBindingSource(Key.F13));
+
                     break;
                 case "Button5":
                     action.AddBinding(new KeyBindingSource(Key.F14));
+
                     break;
                 case "Button6":
                     action.AddBinding(new KeyBindingSource(Key.F15));
+
                     break;
             }
 
@@ -51,12 +54,15 @@ namespace QoL
             {
                 case Key.F13:
                     action.AddBinding(new MouseBindingSource(Mouse.Button4));
+
                     break;
                 case Key.F14:
                     action.AddBinding(new MouseBindingSource(Mouse.Button5));
+
                     break;
                 case Key.F15:
                     action.AddBinding(new MouseBindingSource(Mouse.Button6));
+
                     break;
             }
 

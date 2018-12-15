@@ -34,24 +34,24 @@ namespace QoL
                 typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetBoolInternal)),
                 typeof(SkipCutscenes).GetMethod(nameof(GetBoolInternal))
             );
-            
+
             new Detour
             (
                 typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetIntInternal)),
                 typeof(SkipCutscenes).GetMethod(nameof(GetIntInternal))
             );
         }
-        
+
         [UsedImplicitly]
         public static int GetIntInternal(PlayerData pd, string @int)
         {
-                return pd.GetAttr<int?>(@int) ?? -9999;
+            return pd.GetAttr<int?>(@int) ?? -9999;
         }
 
         [UsedImplicitly]
         public static bool GetBoolInternal(PlayerData pd, string @bool)
         {
-                return pd.GetAttr<bool?>(@bool) ?? false;
+            return pd.GetAttr<bool?>(@bool) ?? false;
         }
 
         public void Unload()
@@ -67,6 +67,7 @@ namespace QoL
         private static void FsmSkips(Scene arg0, Scene arg1)
         {
             if (HeroController.instance == null) return;
+
             HeroController.instance.StartCoroutine(DreamerFsm(arg1));
             HeroController.instance.StartCoroutine(AbsRadSkip(arg1));
             HeroController.instance.StartCoroutine(HKPrimeSkip(arg1));
@@ -120,6 +121,7 @@ namespace QoL
             if (info.SceneName.Length <= 15 || info.SceneName.Substring(0, 15) != GUARDIAN)
             {
                 yield return orig(self, info);
+
                 yield break;
             }
 
