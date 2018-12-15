@@ -152,6 +152,9 @@ namespace QoL
 
             yield return null;
 
+            PlayMakerFSM.BroadcastEvent("BOX DOWN");
+            PlayMakerFSM.BroadcastEvent("BOX DOWN DREAM");
+            
             HeroController.instance.AcceptInput();
         }
 
