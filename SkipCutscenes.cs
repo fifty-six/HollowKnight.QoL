@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
-using System.Reflection;
 using GlobalEnums;
 using HutongGames.PlayMaker.Actions;
 using Modding;
@@ -20,9 +18,6 @@ namespace QoL
 
         private static readonly string[] DREAMERS = {"Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room"};
 
-        private const string UUMUU = "Fungus3_archive_02";
-        private Hook _rando;
-
         public override int LoadPriority() => int.MaxValue;
 
         public override void Initialize()
@@ -34,22 +29,29 @@ namespace QoL
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
 
-            Type t = Type.GetType("RandomizerMod.RandomizerMod, RandomizerMod2.0");
-
-            if (t == null) return;
-
-            _rando = new Hook
+            new Detour
             (
-                t.GetMethod("SceneHasPreload", BindingFlags.NonPublic | BindingFlags.Static),
-                typeof(SkipCutscenes).GetMethod(nameof(FixRandoMonomon))
+                typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetBoolInternal)),
+                typeof(SkipCutscenes).GetMethod(nameof(GetBoolInternal))
             );
+            
+            new Detour
+            (
+                typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetIntInternal)),
+                typeof(SkipCutscenes).GetMethod(nameof(GetIntInternal))
+            );
+        }
+        
+        [UsedImplicitly]
+        public static int GetIntInternal(PlayerData pd, string @int)
+        {
+                return pd.GetAttr<int?>(@int) ?? -9999;
         }
 
         [UsedImplicitly]
-        public static bool FixRandoMonomon(Func<string, bool> orig, string sceneName)
+        public static bool GetBoolInternal(PlayerData pd, string @bool)
         {
-            // this is really dumb
-            return !string.IsNullOrEmpty(sceneName) && !sceneName.StartsWith(UUMUU) && orig(sceneName);
+                return pd.GetAttr<bool?>(@bool) ?? false;
         }
 
         public void Unload()
@@ -60,7 +62,6 @@ namespace QoL
             On.InputHandler.SetSkipMode -= OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
-            _rando?.Dispose();
         }
 
         private static void FsmSkips(Scene arg0, Scene arg1)

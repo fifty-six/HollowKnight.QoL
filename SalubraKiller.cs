@@ -1,5 +1,4 @@
 ﻿using HutongGames.PlayMaker.Actions;
-using InControl;
 using JetBrains.Annotations;
 using Modding;
 using UnityEngine;

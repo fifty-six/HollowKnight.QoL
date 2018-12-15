@@ -8,26 +8,24 @@ namespace QoL
     [UsedImplicitly]
     public class FixDashmaster : Mod, ITogglableMod
     {
-        private static FieldInfo heroInputHandler = typeof(HeroController).GetField("inputHandler", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static FieldInfo oneAxisEnabled = typeof(OneAxisInputControl).GetField("Enabled", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo HERO_INPUT_HANDLER = typeof(HeroController).GetField("inputHandler", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo ONE_AXIS_ENABLED = typeof(OneAxisInputControl).GetField("Enabled", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public override void Initialize()
-        {
-            Hook();
-        }
+        public override void Initialize() => Hook();
 
-        private void KillDiagonals(On.HeroController.orig_HeroDash orig, HeroController self)
+        private static void KillDiagonals(On.HeroController.orig_HeroDash orig, HeroController self)
         {
-            InputHandler input = (InputHandler)heroInputHandler.GetValue(self);
+            var input = (InputHandler) HERO_INPUT_HANDLER.GetValue(self);
+            
             if (input.inputActions.left.IsPressed || input.inputActions.right.IsPressed)
             {
-                bool downEnabled = (bool)oneAxisEnabled.GetValue(input.inputActions.down);
+                bool downEnabled = (bool)ONE_AXIS_ENABLED.GetValue(input.inputActions.down);
 
-                oneAxisEnabled.SetValue(input.inputActions.down, false);
+                ONE_AXIS_ENABLED.SetValue(input.inputActions.down, false);
 
                 orig(self);
 
-                oneAxisEnabled.SetValue(input.inputActions.down, downEnabled);
+                ONE_AXIS_ENABLED.SetValue(input.inputActions.down, downEnabled);
             }
             else
             {
@@ -35,13 +33,13 @@ namespace QoL
             }
         }
 
-        private void Hook()
+        private static void Hook()
         {
             UnHook();
             On.HeroController.HeroDash += KillDiagonals;
         }
 
-        private void UnHook()
+        private static void UnHook()
         {
             On.HeroController.HeroDash -= KillDiagonals;
         }

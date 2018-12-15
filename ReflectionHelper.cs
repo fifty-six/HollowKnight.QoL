@@ -64,6 +64,6 @@ namespace QoL
             ReflectionHelper.SetAttr(obj, name, val, instance);
 
         public static T GetAttr<T>(this object obj, string name, bool instance = true) =>
-            ReflectionHelper.GetAttr<T>(obj, name, instance);
+           ReflectionHelper.GetAttr<T>(obj, name, instance);
     }
 }
