@@ -9,6 +9,8 @@ namespace QoL
     public class FastText : Mod, ITogglableMod
     {
         private static readonly FieldInfo TEXT_MESH = typeof(DialogueBox).GetField("textMesh", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public override void Initialize()
         {

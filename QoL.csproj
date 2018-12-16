@@ -3,6 +3,7 @@
     <ProjectGuid>{F039FA1D-A12D-4672-BF0A-60CF7900EE21}</ProjectGuid>
     <TargetFramework>net35</TargetFramework>
     <AssemblyTitle>QoL</AssemblyTitle>
+    <AssemblyVersion>1.69.420.0</AssemblyVersion>
     <Product>QoL</Product>
     <Copyright>Copyright ©  2018</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>

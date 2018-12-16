@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Reflection;
+using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,8 @@ namespace QoL
     [UsedImplicitly]
     public class InfinitePoP : Mod, ITogglableMod
     {
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        
         public override void Initialize()
         {
             ModHooks.Instance.GetPlayerBoolHook += GetBool;

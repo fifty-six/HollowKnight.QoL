@@ -1,4 +1,5 @@
-﻿using Modding;
+﻿using System.Reflection;
+using Modding;
 using InControl;
 using JetBrains.Annotations;
 using UObject = UnityEngine.Object;
@@ -9,6 +10,8 @@ namespace QoL
     [UsedImplicitly]
     public class MouseBindings : Mod, ITogglableMod
     {
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        
         // F13, F14, F15
         // are 
         // Button4, Button5, Button6

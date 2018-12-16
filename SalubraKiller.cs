@@ -1,4 +1,5 @@
-﻿using HutongGames.PlayMaker.Actions;
+﻿using System.Reflection;
+using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
@@ -11,6 +12,8 @@ namespace QoL
     [UsedImplicitly]
     public class SalubraKiller : Mod, ITogglableMod
     {
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        
         public override void Initialize()
         {
             ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;

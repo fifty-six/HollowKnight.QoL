@@ -1,4 +1,5 @@
-﻿using Modding;
+﻿using System.Reflection;
+using Modding;
 using JetBrains.Annotations;
 
 namespace QoL
@@ -6,6 +7,8 @@ namespace QoL
     [UsedImplicitly]
     public class SpeedBroke : Mod, ITogglableMod
     {
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        
         public override void Initialize()
         {
             On.HeroController.CanOpenInventory += MenuDrop;

@@ -12,6 +12,8 @@ namespace QoL
     [UsedImplicitly]
     public class UnencryptedSaves : Mod
     {
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        
         private static readonly MethodInfo GET_SAVE_FILE_NAME = typeof(ModHooks).GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public override void Initialize()

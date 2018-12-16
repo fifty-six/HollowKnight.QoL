@@ -1,3 +1,4 @@
+using System.Reflection;
 using JetBrains.Annotations;
 using Modding;
 
@@ -6,6 +7,8 @@ namespace QoL
     [UsedImplicitly]
     public class NoHardSaves : Mod, ITogglableMod
     {
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        
         public override void Initialize()
         {
             RegisterCallbacks();

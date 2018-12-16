@@ -10,6 +10,8 @@ namespace QoL
     {
         private static readonly FieldInfo HERO_INPUT_HANDLER = typeof(HeroController).GetField("inputHandler", BindingFlags.NonPublic | BindingFlags.Instance);
         private static readonly FieldInfo ONE_AXIS_ENABLED   = typeof(OneAxisInputControl).GetField("Enabled", BindingFlags.NonPublic | BindingFlags.Instance);
+        
+        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public override void Initialize() => Hook();
 
