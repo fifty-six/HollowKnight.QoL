@@ -22,6 +22,9 @@ namespace QoL
 
         public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+        private Detour _getBoolInternal;
+        private Detour _getIntInternal;
+
         public override void Initialize()
         {
             On.CinematicSequence.Begin += CinematicBegin;
@@ -32,13 +35,13 @@ namespace QoL
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += EaseColorSucks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
 
-            new Detour
+            _getBoolInternal = new Detour
             (
                 typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetBoolInternal)),
                 typeof(SkipCutscenes).GetMethod(nameof(GetBoolInternal))
             );
 
-            new Detour
+            _getIntInternal = new Detour
             (
                 typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetIntInternal)),
                 typeof(SkipCutscenes).GetMethod(nameof(GetIntInternal))
@@ -73,7 +76,10 @@ namespace QoL
             On.AnimatorSequence.Begin -= AnimatorBegin;
             On.InputHandler.SetSkipMode -= OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
+            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= EaseColorSucks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
+            _getIntInternal?.Dispose();
+            _getBoolInternal?.Dispose();
         }
 
         private static void FsmSkips(Scene arg0, Scene arg1)
