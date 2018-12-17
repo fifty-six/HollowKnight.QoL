@@ -184,6 +184,9 @@ namespace QoL
 
             PlayMakerFSM.BroadcastEvent("BOX DOWN");
             PlayMakerFSM.BroadcastEvent("BOX DOWN DREAM");
+
+            PlayerData.instance.SetBenchRespawn(UObject.FindObjectOfType<RespawnMarker>(), GameManager.instance.sceneName, 2);
+            GameManager.instance.SaveGame();
             
             HeroController.instance.AcceptInput();
         }
