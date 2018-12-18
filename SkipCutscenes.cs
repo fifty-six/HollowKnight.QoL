@@ -22,9 +22,6 @@ namespace QoL
 
         public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-        private Detour _getBoolInternal;
-        private Detour _getIntInternal;
-
         public override void Initialize()
         {
             On.CinematicSequence.Begin += CinematicBegin;
@@ -34,18 +31,6 @@ namespace QoL
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += EaseColorSucks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
-
-            _getBoolInternal = new Detour
-            (
-                typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetBoolInternal)),
-                typeof(SkipCutscenes).GetMethod(nameof(GetBoolInternal))
-            );
-
-            _getIntInternal = new Detour
-            (
-                typeof(PlayerData).GetMethod(nameof(PlayerData.instance.GetIntInternal)),
-                typeof(SkipCutscenes).GetMethod(nameof(GetIntInternal))
-            );
         }
 
         private static void EaseColorSucks(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
@@ -57,18 +42,6 @@ namespace QoL
             orig(self);
         }
 
-        [UsedImplicitly]
-        public static int GetIntInternal(PlayerData pd, string @int)
-        {
-            return pd.GetAttr<int?>(@int) ?? -9999;
-        }
-
-        [UsedImplicitly]
-        public static bool GetBoolInternal(PlayerData pd, string @bool)
-        {
-            return pd.GetAttr<bool?>(@bool) ?? false;
-        }
-
         public void Unload()
         {
             On.CinematicSequence.Begin -= CinematicBegin;
@@ -78,8 +51,6 @@ namespace QoL
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= EaseColorSucks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
-            _getIntInternal?.Dispose();
-            _getBoolInternal?.Dispose();
         }
 
         private static void FsmSkips(Scene arg0, Scene arg1)
