@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using Modding;
 using JetBrains.Annotations;
+using ModCommon.Util;
 
 namespace QoL
 {
