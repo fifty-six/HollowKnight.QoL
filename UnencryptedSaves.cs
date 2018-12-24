@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using ModCommon.Util;
 using Modding;
 using UnityEngine;
 
@@ -88,7 +89,7 @@ namespace QoL
 
         private static string GetSavePath(int saveSlot, string ending)
         {
-            return Path.Combine(Application.persistentDataPath, $"user{saveSlot}.{ending}");
+            return Path.Combine(Platform.Current.GetAttr<string>("saveDirPath"), $"user{saveSlot}.{ending}");
         }
 
         private static int GetRealID(int id)
