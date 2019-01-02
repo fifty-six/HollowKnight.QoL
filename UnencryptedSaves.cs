@@ -6,6 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 using ModCommon.Util;
 using Modding;
+using MonoMod.RuntimeDetour.HookGen;
 using UnityEngine;
 
 namespace QoL
@@ -21,6 +22,27 @@ namespace QoL
         {
             ModHooks.Instance.SavegameLoadHook += OnSaveLoad;
             ModHooks.Instance.SavegameSaveHook += OnSaveSave;
+            IL.DesktopPlatform.WriteSaveSlot += RemoveStupidSave;
+        }
+
+        private void RemoveStupidSave(HookIL il)
+        {
+            HookILCursor c = il.At(0);
+            while (c.TryFindNext(out HookILCursor[] cursors,
+                      /* 0 */    x => x.MatchLdstr("_1.4.3.2.dat"),
+                      /* 1 */    x => x.MatchCall(typeof(string), nameof(String.Concat)),
+                      /* 2 */    x => true, // stloc.s V_5 (5)
+                      /* 3 */    x => true, // ldloc.s V_5 (5)
+                      /* 4 */    x => x.MatchLdarg(2),
+                      /* 5 */    x => x.MatchCall(typeof(File), nameof(File.WriteAllBytes)),
+                      /* 6 */    x => true // leave.s 51 (008C) ldloc.1
+            ))
+            {
+                for (int i = cursors.Length - 1; i >= 0; i--)
+                {
+                    cursors[i].Remove();
+                }
+            }
         }
 
         private static void OnSaveSave(int id)
