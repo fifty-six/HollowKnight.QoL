@@ -71,6 +71,8 @@ namespace QoL
             {
                 fsm.ChangeTransition("On Left", "FINISHED", "Dream Box Down");
                 fsm.ChangeTransition("On Right", "FINISHED", "Dream Box Down");
+                
+                fsm.InsertAction("Dream Box Down", fsm.GetAction<SetPlayerDataString>("Impact", 2), 0);
             }
         }
 
