@@ -13,7 +13,7 @@ namespace QoL
     public class SalubraKiller : Mod, ITogglableMod
     {
         public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        
+
         public override void Initialize()
         {
             ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;

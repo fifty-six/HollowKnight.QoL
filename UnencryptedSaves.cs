@@ -111,7 +111,7 @@ namespace QoL
 
         private static string GetSavePath(int saveSlot, string ending)
         {
-            return Path.Combine(Platform.Current.GetAttr<string>("saveDirPath"), $"user{saveSlot}.{ending}");
+            return Path.Combine(((DesktopPlatform) Platform.Current).GetAttr<DesktopPlatform, string>("saveDirPath"), $"user{saveSlot}.{ending}");
         }
 
         private static int GetRealID(int id)
