@@ -21,16 +21,23 @@ namespace QoL
         public override void Initialize()
         {
             ModHooks.Instance.SavegameLoadHook += OnSaveLoad;
-            ModHooks.Instance.SavegameSaveHook += OnSaveSave;
+            ModHooks.Instance.BeforeSavegameSaveHook += OnSaveSave;
             IL.DesktopPlatform.WriteSaveSlot += RemoveStupidSave;
         }
+
+        /*
+         * LoadPriority is set at highest value so mod is loaded last.
+         * This allows for BeforeSavegameSave to run last which means that we're able to grab
+         * all ModSettings for serialization.
+         */
+        public override int LoadPriority() => int.MaxValue;
 
         private void RemoveStupidSave(HookIL il)
         {
             HookILCursor c = il.At(0);
             while (c.TryFindNext(out HookILCursor[] cursors,
                       /* 0 */    x => x.MatchLdstr("_1.4.3.2.dat"),
-                      /* 1 */    x => x.MatchCall(typeof(string), nameof(String.Concat)),
+                      /* 1 */    x => x.MatchCall(typeof(string), nameof(string.Concat)),
                       /* 2 */    x => true, // stloc.s V_5 (5)
                       /* 3 */    x => true, // ldloc.s V_5 (5)
                       /* 4 */    x => x.MatchLdarg(2),
@@ -44,15 +51,16 @@ namespace QoL
                 }
             }
         }
-
-        private static void OnSaveSave(int id)
+        
+        private void OnSaveSave(SaveGameData data)
         {
-            id = GetRealID(id);
-
+            int id = GetRealID(data.playerData.profileID);
+            
             Modding.Logger.Log("Saving save slot: " + id);
+            
             string path = GetSavePath(id, "json");
-            var sg = new SaveGameData(GameManager.instance.playerData, GameManager.instance.sceneData);
-            string text = JsonUtility.ToJson(sg, true);
+            
+            string text = JsonUtility.ToJson(data, true);
 
             File.WriteAllText(path, text);
 
