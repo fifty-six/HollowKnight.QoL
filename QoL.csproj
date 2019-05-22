@@ -7,6 +7,7 @@
     <Product>QoL</Product>
     <Copyright>Copyright ©  2018</Copyright>
     <OutputPath>bin\$(Configuration)\</OutputPath>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
