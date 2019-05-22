@@ -6,7 +6,6 @@ using GlobalEnums;
 using HutongGames.PlayMaker.Actions;
 using Modding;
 using JetBrains.Annotations;
-using MonoMod.RuntimeDetour;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -30,7 +29,13 @@ namespace QoL
             On.InputHandler.SetSkipMode += OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += EaseColorSucks;
+            On.GameManager.FadeSceneInWithDelay += NoFade;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
+        }
+
+        private static IEnumerator NoFade(On.GameManager.orig_FadeSceneInWithDelay orig, GameManager self, float delay)
+        {
+            yield return orig(self, 0);
         }
 
         private static void EaseColorSucks(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
@@ -39,6 +44,7 @@ namespace QoL
             {
                 self.time.Value = 0.066f;
             }
+
             orig(self);
         }
 
@@ -50,6 +56,7 @@ namespace QoL
             On.InputHandler.SetSkipMode -= OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= EaseColorSucks;
+            On.GameManager.FadeSceneInWithDelay -= NoFade;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
         }
 
@@ -71,7 +78,7 @@ namespace QoL
             {
                 fsm.ChangeTransition("On Left", "FINISHED", "Dream Box Down");
                 fsm.ChangeTransition("On Right", "FINISHED", "Dream Box Down");
-                
+
                 fsm.InsertAction("Dream Box Down", fsm.GetAction<SetPlayerDataString>("Impact", 2), 0);
             }
         }
@@ -160,7 +167,7 @@ namespace QoL
 
             PlayerData.instance.SetBenchRespawn(UObject.FindObjectOfType<RespawnMarker>(), GameManager.instance.sceneName, 2);
             GameManager.instance.SaveGame();
-            
+
             HeroController.instance.AcceptInput();
         }
 
