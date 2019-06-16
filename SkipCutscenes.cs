@@ -19,6 +19,26 @@ namespace QoL
 
         private static readonly string[] DREAMERS = {"Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room"};
 
+        private static readonly string[] ALL_DREAMER_BOOLS =
+        {
+            "corniferAtHome",
+            "iseldaConvo1",
+            "dungDefenderSleeping",
+            "corn_crossroadsLeft",
+            "corn_greenpathLeft",
+            "corn_fogCanyonLeft",
+            "corn_fungalWastesLeft",
+            "corn_cityLeft",
+            "corn_waterwaysLeft",
+            "corn_minesLeft",
+            "corn_cliffsLeft",
+            "corn_deepnestLeft",
+            "corn_outskirtsLeft",
+            "corn_royalGardensLeft",
+            "corn_abyssLeft",
+            "metIselda"
+        };
+
         public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public override void Initialize()
@@ -137,10 +157,21 @@ namespace QoL
 
             string @bool = info.SceneName.Substring(15);
 
-            PlayerData.instance.SetBool($"{@bool.ToLower()}Defeated", true);
-            PlayerData.instance.SetBool($"maskBroken{@bool}", true);
-            PlayerData.instance.guardiansDefeated++;
-            PlayerData.instance.crossroadsInfected = true;
+            PlayerData pd = PlayerData.instance;
+            
+            pd.SetBool($"{@bool.ToLower()}Defeated", true);
+            pd.SetBool($"maskBroken{@bool}", true);
+            pd.guardiansDefeated++;
+            pd.crossroadsInfected = true;
+
+            if (pd.guardiansDefeated == 3)
+            {
+                pd.mrMushroomState = 1;
+                pd.brettaState++;
+                
+                foreach(string pdBool in ALL_DREAMER_BOOLS)
+                    pd.SetBool(pdBool, true);
+            }
 
             info.SceneName = GameManager.instance.sceneName;
             info.EntryGateName = "door_dreamReturn";
@@ -165,7 +196,7 @@ namespace QoL
             PlayMakerFSM.BroadcastEvent("BOX DOWN");
             PlayMakerFSM.BroadcastEvent("BOX DOWN DREAM");
 
-            PlayerData.instance.SetBenchRespawn(UObject.FindObjectOfType<RespawnMarker>(), GameManager.instance.sceneName, 2);
+            pd.SetBenchRespawn(UObject.FindObjectOfType<RespawnMarker>(), GameManager.instance.sceneName, 2);
             GameManager.instance.SaveGame();
 
             HeroController.instance.AcceptInput();
