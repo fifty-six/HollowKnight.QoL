@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using Modding;
-using InControl;
+﻿using InControl;
 using JetBrains.Annotations;
 using UObject = UnityEngine.Object;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
@@ -8,11 +6,9 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 namespace QoL
 {
     [UsedImplicitly]
-    public class MouseBindings : Mod, ITogglableMod
+    public class MouseBindings : FauxMod
     {
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        
-        // F13, F14, F15
+        // F13, F14, and F15
         // are 
         // Button4, Button5, Button6
         public override void Initialize()
@@ -21,7 +17,7 @@ namespace QoL
             On.MappableKey.OnBindingAdded += ConvertMouseBindingToKey;
         }
 
-        public void Unload()
+        public override void Unload()
         {
             On.InputHandler.AddKeyBinding -= AddMouseBindings;
             On.MappableKey.OnBindingAdded -= ConvertMouseBindingToKey;

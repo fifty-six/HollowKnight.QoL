@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,10 +6,8 @@ using UnityEngine.SceneManagement;
 namespace QoL
 {
     [UsedImplicitly]
-    public class InfinitePoP : Mod, ITogglableMod
+    public class InfinitePoP : FauxMod
     {
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        
         public override void Initialize()
         {
             ModHooks.Instance.GetPlayerBoolHook += GetBool;
@@ -66,7 +63,7 @@ namespace QoL
             return originalset == "newDataBindingSeal" || PlayerData.instance.GetBoolInternal(originalset);
         }
 
-        public void Unload()
+        public override void Unload()
         {
             ModHooks.Instance.GetPlayerBoolHook -= GetBool;
             ModHooks.Instance.SetPlayerBoolHook -= SetBool;

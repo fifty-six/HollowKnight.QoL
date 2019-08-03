@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using System.Reflection;
 using GlobalEnums;
 using HutongGames.PlayMaker.Actions;
-using Modding;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,7 +11,7 @@ using UObject = UnityEngine.Object;
 namespace QoL
 {
     [UsedImplicitly]
-    public class SkipCutscenes : Mod, ITogglableMod
+    public class SkipCutscenes : FauxMod
     {
         private const string GUARDIAN = "Dream_Guardian_";
 
@@ -38,8 +36,6 @@ namespace QoL
             "corn_abyssLeft",
             "metIselda"
         };
-
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public override void Initialize()
         {
@@ -68,7 +64,7 @@ namespace QoL
             orig(self);
         }
 
-        public void Unload()
+        public override void Unload()
         {
             On.CinematicSequence.Begin -= CinematicBegin;
             On.FadeSequence.Begin -= FadeBegin;

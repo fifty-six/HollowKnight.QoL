@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using HutongGames.PlayMaker.Actions;
+﻿using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
@@ -10,10 +9,8 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 namespace QoL
 {
     [UsedImplicitly]
-    public class SalubraKiller : Mod, ITogglableMod
+    public class SalubraKiller : FauxMod
     {
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
         public override void Initialize()
         {
             ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;
@@ -33,7 +30,7 @@ namespace QoL
             GameManager.instance.gameObject.AddComponent<SalubraBehaviour>();
         }
 
-        public void Unload()
+        public override void Unload()
         {
             ModHooks.Instance.AfterSavegameLoadHook -= AddSaveGame;
             ModHooks.Instance.NewGameHook -= AddComponent;

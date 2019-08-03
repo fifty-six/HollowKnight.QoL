@@ -2,14 +2,13 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
-using Modding;
 using MonoMod.RuntimeDetour;
 using UnityEngine;
 
 namespace QoL
 {
     [UsedImplicitly]
-    public class Dev : Mod
+    public class Dev : FauxMod
     {
         private static readonly string[] GARBAGE_MESSAGES =
         {

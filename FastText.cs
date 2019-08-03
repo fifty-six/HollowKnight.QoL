@@ -6,25 +6,21 @@ using TMPro;
 namespace QoL
 {
     [UsedImplicitly]
-    public class FastText : Mod, ITogglableMod
+    public class FastText : FauxMod
     {
-        private static readonly FieldInfo TEXT_MESH = typeof(DialogueBox).GetField("textMesh", BindingFlags.NonPublic | BindingFlags.Instance);
-        
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
         public override void Initialize()
         {
             On.DialogueBox.ShowNextChar += OnNextChar;
         }
 
-        public void Unload()
+        public override void Unload()
         {
             On.DialogueBox.ShowNextChar -= OnNextChar;
         }
 
         private static void OnNextChar(On.DialogueBox.orig_ShowNextChar orig, DialogueBox self)
         {
-            var text = (TextMeshPro) TEXT_MESH.GetValue(self);
+            TextMeshPro text = ReflectionHelper.GetAttr<DialogueBox, TextMeshPro>(self, "textMesh");
             text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
         }
     }

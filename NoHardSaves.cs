@@ -1,17 +1,13 @@
-using System.Reflection;
 using JetBrains.Annotations;
-using Modding;
 
 namespace QoL
 {
     [UsedImplicitly]
-    public class NoHardSaves : Mod, ITogglableMod
+    public class NoHardSaves : FauxMod
     {
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
         public override void Initialize() => RegisterCallbacks();
 
-        void ITogglableMod.Unload() => UnregisterCallbacks();
+        public override void Unload() => UnregisterCallbacks();
 
         private static void RegisterCallbacks()
         {
