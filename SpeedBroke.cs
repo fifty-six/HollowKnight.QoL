@@ -8,11 +8,11 @@ namespace QoL
     {
         [SerializeToSetting]
         [UsedImplicitly]
-        public static bool EnableMenuDrop;
+        public static bool EnableMenuDrop = true;
 
         [SerializeToSetting]
         [UsedImplicitly]
-        public static bool Storage;
+        public static bool Storage = true;
 
         public override void Initialize()
         {
