@@ -22,6 +22,10 @@ namespace QoL
 
         private static readonly int[] HASHES;
 
+        [SerializeToSetting]
+        [UsedImplicitly]
+        public static bool LogUnityErrors = true;
+
         static Dev()
         {
             minStrLen = GARBAGE_MESSAGES.Min(x => x.Length);
@@ -43,6 +47,21 @@ namespace QoL
                 typeof(Debug).GetMethod(nameof(Debug.LogError), new[] {typeof(object)}),
                 typeof(Dev).GetMethod(nameof(LogHook))
             );
+
+
+            if (!LogUnityErrors) return;
+            
+            Application.SetStackTraceLogType(LogType.Exception, StackTraceLogType.Full);
+            Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.Full);
+
+            Application.logMessageReceived += HandleLog;
+        }
+
+        private static void HandleLog(string condition, string stacktrace, LogType type)
+        {
+            if (type != LogType.Error && type != LogType.Exception) return;
+            
+            Modding.Logger.LogError($"[UNITY]:\n{condition}\n{stacktrace}");
         }
 
         [UsedImplicitly]
