@@ -59,7 +59,7 @@ namespace QoL
 
         private static void HandleLog(string condition, string stacktrace, LogType type)
         {
-            if (type != LogType.Error && type != LogType.Exception) return;
+            if (type != LogType.Exception) return;
             
             Modding.Logger.LogError($"[UNITY]:\n{condition}\n{stacktrace}");
         }
