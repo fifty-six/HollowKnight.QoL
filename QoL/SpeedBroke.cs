@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using ModCommon.Util;
+using UnityEngine;
 
 namespace QoL
 {
@@ -14,11 +15,17 @@ namespace QoL
         [UsedImplicitly]
         public static bool Storage = true;
 
+        [SerializeToSetting]
+        [UsedImplicitly]
+        public static bool NoHardFalls;
+
         public override void Initialize()
         {
             On.HeroController.CanOpenInventory += MenuDrop;
             On.HeroController.CanQuickMap += CanQuickMap;
             On.TutorialEntryPauser.Start += AllowPause;
+            On.HeroController.ShouldHardLand += CanHardLand;
+            On.PlayMakerFSM.OnEnable += NoKPHardFall;
         }
 
         public override void Unload()
@@ -26,6 +33,8 @@ namespace QoL
             On.HeroController.CanOpenInventory -= MenuDrop;
             On.HeroController.CanQuickMap -= CanQuickMap;
             On.TutorialEntryPauser.Start -= AllowPause;
+            On.HeroController.ShouldHardLand -= CanHardLand;
+            On.PlayMakerFSM.OnEnable -= NoKPHardFall;
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
@@ -60,6 +69,22 @@ namespace QoL
                 && self.CanInput()
                 || self.playerData.atBench
                 : orig(self);
+        }
+
+        private static bool CanHardLand(On.HeroController.orig_ShouldHardLand orig, HeroController self, Collision2D collision)
+        {
+            return !NoHardFalls && orig(self, collision);
+        }
+
+        private static void NoKPHardFall(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+        {
+            if (!NoHardFalls || self.name != "Initial Fall Impact" || self.FsmName != "Control")
+            {
+                orig(self);
+                return;
+            }
+
+            self.ChangeTransition("Idle", "LAND", "Return Control");
         }
     }
 }
