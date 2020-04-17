@@ -27,17 +27,22 @@ namespace QoL
         {
             foreach (Type t in Assembly.GetAssembly(typeof(QoL)).GetTypes().Where(x => x.IsSubclassOf(typeof(FauxMod))))
             {
+                var fm = (FauxMod) Activator.CreateInstance(t);
+
+                // If Disable isn't overridden then it can't be toggled.
                 bool cantDisable = t.GetMethod(nameof(FauxMod.Unload))?.DeclaringType == typeof(FauxMod);
-                
-                if (cantDisable || !GlobalSettings.BoolValues.TryGetValue(t.Name, out bool enabled))
+
+                if (!GlobalSettings.BoolValues.TryGetValue(t.Name, out bool enabled))
                 {
-                    if (!cantDisable)
-                        GlobalSettings.BoolValues.Add(t.Name, true);
+                    enabled = fm.DefaultState;
                     
-                    enabled = true;
+                    GlobalSettings.BoolValues.Add(t.Name, enabled);
                 }
 
-                var fm = (FauxMod) Activator.CreateInstance(t);
+                if (!cantDisable)
+                {
+                    enabled = true;
+                }
 
                 if (enabled)
                 {

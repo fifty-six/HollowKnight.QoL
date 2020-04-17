@@ -5,23 +5,18 @@ namespace QoL
     [UsedImplicitly]
     public class NoHardSaves : FauxMod
     {
-        public override void Initialize() => RegisterCallbacks();
+        public NoHardSaves() : base(false) { }
 
-        public override void Unload() => UnregisterCallbacks();
-
-        private static void RegisterCallbacks()
+        public override void Initialize()
         {
-            On.PlayerData.SetBenchRespawn_RespawnMarker_string_int -= PlayerData_SetBenchRespawn;
+            Unload();
+
             On.PlayerData.SetBenchRespawn_RespawnMarker_string_int += PlayerData_SetBenchRespawn;
-
-            On.PlayerData.SetBenchRespawn_string_string_bool -= PlayerData_SetBenchRespawn_1;
             On.PlayerData.SetBenchRespawn_string_string_bool += PlayerData_SetBenchRespawn_1;
-
-            On.PlayerData.SetBenchRespawn_string_string_int_bool -= PlayerData_SetBenchRespawn_2;
             On.PlayerData.SetBenchRespawn_string_string_int_bool += PlayerData_SetBenchRespawn_2;
         }
 
-        private static void UnregisterCallbacks()
+        public override void Unload()
         {
             On.PlayerData.SetBenchRespawn_RespawnMarker_string_int -= PlayerData_SetBenchRespawn;
             On.PlayerData.SetBenchRespawn_string_string_bool -= PlayerData_SetBenchRespawn_1;
@@ -40,11 +35,11 @@ namespace QoL
         private static void PlayerData_SetBenchRespawn_2
         (
             On.PlayerData.orig_SetBenchRespawn_string_string_int_bool orig,
-            PlayerData                                                self,
-            string                                                    spawnMarker,
-            string                                                    sceneName,
-            int                                                       spawnType,
-            bool                                                      facingRight
+            PlayerData self,
+            string spawnMarker,
+            string sceneName,
+            int spawnType,
+            bool facingRight
         )
         {
             if (IsGarbage || !string.IsNullOrEmpty(spawnMarker) && spawnMarker.ToLower().Contains("bench"))
@@ -56,10 +51,10 @@ namespace QoL
         private static void PlayerData_SetBenchRespawn_1
         (
             On.PlayerData.orig_SetBenchRespawn_string_string_bool orig,
-            PlayerData                                            self,
-            string                                                spawnMarker,
-            string                                                sceneName,
-            bool                                                  facingRight
+            PlayerData self,
+            string spawnMarker,
+            string sceneName,
+            bool facingRight
         )
         {
             if (IsGarbage || !string.IsNullOrEmpty(spawnMarker) && spawnMarker.ToLower().Contains("bench"))
@@ -71,10 +66,10 @@ namespace QoL
         private static void PlayerData_SetBenchRespawn
         (
             On.PlayerData.orig_SetBenchRespawn_RespawnMarker_string_int orig,
-            PlayerData                                                  self,
-            RespawnMarker                                               spawnMarker,
-            string                                                      sceneName,
-            int                                                         spawnType
+            PlayerData self,
+            RespawnMarker spawnMarker,
+            string sceneName,
+            int spawnType
         )
         {
             if (IsGarbage || spawnMarker != null && !string.IsNullOrEmpty(spawnMarker.name) && spawnMarker.name.ToLower().Contains("bench"))
