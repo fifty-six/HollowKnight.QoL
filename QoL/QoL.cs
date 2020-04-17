@@ -39,10 +39,8 @@ namespace QoL
                     GlobalSettings.BoolValues.Add(t.Name, enabled);
                 }
 
-                if (!cantDisable)
-                {
+                if (cantDisable)
                     enabled = true;
-                }
 
                 if (enabled)
                 {
