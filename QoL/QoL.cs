@@ -2,14 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Modding;
 
 namespace QoL
 {
     public class QoL : Mod, ITogglableMod
     {
-        public override string GetVersion() => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        
+        public override string GetVersion()
+        {
+            Assembly asm = Assembly.GetExecutingAssembly();
+            
+            string ver = asm.GetName().Version.ToString();
+            string guid = ((GuidAttribute) asm.GetCustomAttributes(typeof(GuidAttribute), true)[0]).Value;
+            
+            return $"{ver}-{guid.Substring(0, 6)}";
+        }
+
         public override ModSettings GlobalSettings
         {
             get => _globalSettings;
