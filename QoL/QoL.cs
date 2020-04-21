@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using Modding;
 
 namespace QoL
@@ -14,9 +15,15 @@ namespace QoL
             Assembly asm = Assembly.GetExecutingAssembly();
             
             string ver = asm.GetName().Version.ToString();
-            string guid = ((GuidAttribute) asm.GetCustomAttributes(typeof(GuidAttribute), true)[0]).Value;
+
+            using SHA1 sha1 = SHA1.Create();
+            using FileStream stream = File.OpenRead(asm.Location);
+
+            byte[] hashBytes = sha1.ComputeHash(stream);
             
-            return $"{ver}-{guid.Substring(0, 6)}";
+            string hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+
+            return $"{ver}-{hash.Substring(0, 6)}";
         }
 
         public override ModSettings GlobalSettings
