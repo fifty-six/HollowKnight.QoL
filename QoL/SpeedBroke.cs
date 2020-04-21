@@ -1,6 +1,9 @@
-﻿using JetBrains.Annotations;
+﻿using GlobalEnums;
+using JetBrains.Annotations;
 using ModCommon.Util;
 using UnityEngine;
+
+using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL
 {
@@ -17,6 +20,10 @@ namespace QoL
 
         [SerializeToSetting]
         [UsedImplicitly]
+        public static bool Superslides = true;
+
+        [SerializeToSetting]
+        [UsedImplicitly]
         public static bool NoHardFalls;
 
         public override void Initialize()
@@ -26,6 +33,7 @@ namespace QoL
             On.TutorialEntryPauser.Start += AllowPause;
             On.HeroController.ShouldHardLand += CanHardLand;
             On.PlayMakerFSM.OnEnable += NoKPHardFall;
+            On.InputHandler.Update += EnableSuperslides;
         }
 
         public override void Unload()
@@ -35,6 +43,7 @@ namespace QoL
             On.TutorialEntryPauser.Start -= AllowPause;
             On.HeroController.ShouldHardLand -= CanHardLand;
             On.PlayMakerFSM.OnEnable -= NoKPHardFall;
+            On.InputHandler.Update -= EnableSuperslides;
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
@@ -69,6 +78,28 @@ namespace QoL
                 && self.CanInput()
                 || self.playerData.atBench
                 : orig(self);
+        }
+
+        private static void EnableSuperslides(On.InputHandler.orig_Update orig, InputHandler self)
+        {
+            if (Superslides && GameManager.instance.TimeSlowed)
+            {
+                // Ensure the slide has the correct speed
+                ReflectionHelper.SetAttr(HeroController.instance, "recoilSteps", 0);
+
+                // Kill the thing that kills superslides
+                int timeSlowedCount = ReflectionHelper.GetAttr<GameManager, int>(GameManager.instance, "timeSlowedCount");
+                ReflectionHelper.SetAttr(GameManager.instance, "timeSlowedCount", 0);
+
+                orig(self);
+
+                // Restore to old value
+                ReflectionHelper.SetAttr(GameManager.instance, "timeSlowedCount", timeSlowedCount);
+            }
+            else
+            {
+                orig(self);
+            }
         }
 
         private static bool CanHardLand(On.HeroController.orig_ShouldHardLand orig, HeroController self, Collision2D collision)
