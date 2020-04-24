@@ -1,5 +1,4 @@
-﻿using GlobalEnums;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using ModCommon.Util;
 using UnityEngine;
 
@@ -24,6 +23,10 @@ namespace QoL
 
         [SerializeToSetting]
         [UsedImplicitly]
+        public static bool Televator = true;
+
+        [SerializeToSetting]
+        [UsedImplicitly]
         public static bool NoHardFalls;
 
         public override void Initialize()
@@ -32,7 +35,7 @@ namespace QoL
             On.HeroController.CanQuickMap += CanQuickMap;
             On.TutorialEntryPauser.Start += AllowPause;
             On.HeroController.ShouldHardLand += CanHardLand;
-            On.PlayMakerFSM.OnEnable += NoKPHardFall;
+            On.PlayMakerFSM.OnEnable += ModifyFSM;
             On.InputHandler.Update += EnableSuperslides;
         }
 
@@ -42,7 +45,7 @@ namespace QoL
             On.HeroController.CanQuickMap -= CanQuickMap;
             On.TutorialEntryPauser.Start -= AllowPause;
             On.HeroController.ShouldHardLand -= CanHardLand;
-            On.PlayMakerFSM.OnEnable -= NoKPHardFall;
+            On.PlayMakerFSM.OnEnable -= ModifyFSM;
             On.InputHandler.Update -= EnableSuperslides;
         }
 
@@ -107,15 +110,21 @@ namespace QoL
             return !NoHardFalls && orig(self, collision);
         }
 
-        private static void NoKPHardFall(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+        private static void ModifyFSM(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
-            if (!NoHardFalls || self.name != "Initial Fall Impact" || self.FsmName != "Control")
+            switch (self.FsmName)
             {
-                orig(self);
-                return;
+                case "Control" when self.name == "Initial Fall Impact" && NoHardFalls:
+                    self.ChangeTransition("Idle", "LAND", "Return Control");
+                    break;
+
+                case "Call Lever" when self.name.StartsWith("Lift Call Lever") && Televator:
+                    self.ChangeTransition("Left", "FINISHED", "Send Msg");
+                    self.ChangeTransition("Right", "FINISHED", "Send Msg");
+                    break;
             }
 
-            self.ChangeTransition("Idle", "LAND", "Return Control");
+            orig(self);
         }
     }
 }
