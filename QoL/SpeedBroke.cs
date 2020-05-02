@@ -119,6 +119,9 @@ namespace QoL
                     break;
 
                 case "Call Lever" when self.name.StartsWith("Lift Call Lever") && Televator:
+                    // Don't change big elevators.
+                    if (self.GetState("Check Already Called") == null) break;
+                    
                     self.ChangeTransition("Left", "FINISHED", "Send Msg");
                     self.ChangeTransition("Right", "FINISHED", "Send Msg");
                     break;
