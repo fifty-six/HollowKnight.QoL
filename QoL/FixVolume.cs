@@ -10,7 +10,6 @@ namespace QoL
     public class FixVolume : FauxMod
     {
         [SerializeToSetting]
-        [UsedImplicitly]
         public static float DoubleDamageVolumeModifier = .8f;
         
         private static float Volume => GameManager.instance.gameSettings.soundVolume / 10f;

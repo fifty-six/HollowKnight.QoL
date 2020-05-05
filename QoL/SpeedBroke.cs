@@ -10,23 +10,18 @@ namespace QoL
     public class SpeedBroke : FauxMod
     {
         [SerializeToSetting]
-        [UsedImplicitly]
         public static bool EnableMenuDrop = true;
 
         [SerializeToSetting]
-        [UsedImplicitly]
         public static bool Storage = true;
 
         [SerializeToSetting]
-        [UsedImplicitly]
         public static bool Superslides = true;
 
         [SerializeToSetting]
-        [UsedImplicitly]
         public static bool Televator = true;
 
         [SerializeToSetting]
-        [UsedImplicitly]
         public static bool NoHardFalls;
 
         public override void Initialize()

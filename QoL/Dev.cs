@@ -23,7 +23,6 @@ namespace QoL
         private static readonly int[] HASHES;
 
         [SerializeToSetting]
-        [UsedImplicitly]
         public static bool LogUnityErrors = true;
 
         static Dev()
