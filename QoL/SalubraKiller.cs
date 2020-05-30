@@ -16,11 +16,8 @@ namespace QoL
             ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;
             ModHooks.Instance.NewGameHook += AddComponent;
 
-            // in game
-            if (HeroController.instance == null && GameManager.instance.gameObject.GetComponent<SalubraBehaviour>() == null)
-            {
+            if (GameManager.instance && !GameManager.instance.gameObject.GetComponent<SalubraBehaviour>())
                 AddComponent();
-            }
         }
 
         private static void AddSaveGame(SaveGameData data) => AddComponent();
@@ -35,11 +32,8 @@ namespace QoL
             ModHooks.Instance.AfterSavegameLoadHook -= AddSaveGame;
             ModHooks.Instance.NewGameHook -= AddComponent;
 
-            // in game
-            if (GameManager.instance != null)
-            {
+            if (GameManager.instance)
                 UObject.Destroy(GameManager.instance.gameObject.GetComponent<SalubraBehaviour>());
-            }
         }
     }
 
