@@ -13,6 +13,12 @@ namespace QoL
         {
             DefaultState = enabled;
         }
+
+        [PublicAPI]
+        internal void Log(object obj)
+        {
+            Modding.Logger.Log($"[QoL : {GetType().Name}] - {obj}");
+        }
         
         internal bool IsLoaded { get; set; }
         

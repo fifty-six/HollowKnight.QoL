@@ -1,5 +1,5 @@
-﻿using HutongGames.PlayMaker.Actions;
-using Modding;
+﻿using System.Collections;
+using HutongGames.PlayMaker.Actions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -11,57 +11,34 @@ namespace QoL
     {
         public override void Initialize()
         {
-            ModHooks.Instance.AfterSavegameLoadHook += AddSaveGame;
-            ModHooks.Instance.NewGameHook += AddComponent;
-
-            if (GameManager.instance && !GameManager.instance.gameObject.GetComponent<SalubraBehaviour>())
-                AddComponent();
+            USceneManager.activeSceneChanged += SceneChanged;
         }
 
-        private static void AddSaveGame(SaveGameData data) => AddComponent();
-
-        private static void AddComponent()
+        private static void SceneChanged(Scene arg0, Scene arg1)
         {
-            GameManager.instance.gameObject.AddComponent<SalubraBehaviour>();
+            if (HeroController.instance == null) return;
+
+            IEnumerator KillSalubra()
+            {
+                yield return null;
+
+                GameObject bg = GameObject.Find("Blessing Ghost");
+
+                if (bg == null) yield break;
+
+                bg
+                    .LocateMyFSM("Blessing Control")
+                    .GetAction<ActivateGameObject>("Start Blessing", 0)
+                    .activate
+                    .Value = false;
+            }
+
+            HeroController.instance.StartCoroutine(KillSalubra());
         }
 
         public override void Unload()
         {
-            ModHooks.Instance.AfterSavegameLoadHook -= AddSaveGame;
-            ModHooks.Instance.NewGameHook -= AddComponent;
-
-            if (GameManager.instance)
-                UObject.Destroy(GameManager.instance.gameObject.GetComponent<SalubraBehaviour>());
-        }
-    }
-
-    internal class SalubraBehaviour : MonoBehaviour
-    {
-        private GameObject _blessingGhost;
-
-        public void Start()
-        {
-            USceneManager.activeSceneChanged += ResetScene;
-        }
-
-        private void ResetScene(Scene arg0, Scene arg1)
-        {
-            _blessingGhost = null;
-        }
-
-        public void Update()
-        {
-            if (_blessingGhost != null) return;
-
-            _blessingGhost = GameObject.Find("Blessing Ghost");
-
-            if (_blessingGhost == null) return;
-
-            _blessingGhost
-                .LocateMyFSM("Blessing Control")
-                .GetAction<ActivateGameObject>("Start Blessing", 0)
-                .activate
-                .Value = false;
+            USceneManager.activeSceneChanged -= SceneChanged;
         }
     }
 }
