@@ -1,10 +1,8 @@
-using JetBrains.Annotations;
 using Modding;
 using TMPro;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class FastText : FauxMod
     {
         public override void Initialize()

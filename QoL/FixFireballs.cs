@@ -1,11 +1,9 @@
 ﻿using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class FixFireballs : FauxMod
     {
         private const float NO_COLLISION_TIME = 0.05f;

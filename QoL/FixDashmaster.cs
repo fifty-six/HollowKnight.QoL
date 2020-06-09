@@ -1,10 +1,8 @@
 ﻿using InControl;
-using JetBrains.Annotations;
 using Modding;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class FixDashmaster : FauxMod
     {
         public override void Initialize() => Hook();

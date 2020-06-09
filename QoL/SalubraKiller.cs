@@ -1,5 +1,4 @@
 ﻿using HutongGames.PlayMaker.Actions;
-using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,7 +7,6 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class SalubraKiller : FauxMod
     {
         public override void Initialize()

@@ -1,11 +1,9 @@
-﻿using JetBrains.Annotations;
-using Modding;
+﻿using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class InfinitePoP : FauxMod
     {
         public override void Initialize()

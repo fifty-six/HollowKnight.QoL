@@ -3,14 +3,12 @@ using System.Collections;
 using System.Linq;
 using GlobalEnums;
 using HutongGames.PlayMaker.Actions;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class SkipCutscenes : FauxMod
     {
         private const string GUARDIAN = "Dream_Guardian_";

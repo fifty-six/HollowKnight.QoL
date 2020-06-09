@@ -1,12 +1,10 @@
-﻿using JetBrains.Annotations;
-using ModCommon.Util;
+﻿using ModCommon.Util;
 using UnityEngine;
 
 using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class SpeedBroke : FauxMod
     {
         [SerializeToSetting]

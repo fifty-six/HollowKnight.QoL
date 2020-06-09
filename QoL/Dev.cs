@@ -1,9 +1,7 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class Dev : FauxMod
     {
         [SerializeToSetting]

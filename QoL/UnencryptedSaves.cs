@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using ModCommon.Util;
 using Modding;
 using MonoMod.Cil;
@@ -11,7 +10,6 @@ using UnityEngine;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class UnencryptedSaves : FauxMod
     {
         private static readonly MethodInfo GET_SAVE_FILE_NAME = typeof(ModHooks).GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic);

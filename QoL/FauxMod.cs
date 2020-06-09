@@ -1,5 +1,8 @@
+using JetBrains.Annotations;
+
 namespace QoL 
 {
+    [UsedImplicitly]
     public abstract class FauxMod
     {
         public bool DefaultState { get; } = true;

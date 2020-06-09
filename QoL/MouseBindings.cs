@@ -1,11 +1,9 @@
 ﻿using InControl;
-using JetBrains.Annotations;
 using UObject = UnityEngine.Object;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class MouseBindings : FauxMod
     {
         // F13, F14, and F15

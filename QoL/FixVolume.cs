@@ -1,12 +1,10 @@
 using System.Collections;
 using GlobalEnums;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace QoL
 {
-    [UsedImplicitly]
     public class FixVolume : FauxMod
     {
         [SerializeToSetting]

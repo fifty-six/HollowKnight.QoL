@@ -1,8 +1,5 @@
-using JetBrains.Annotations;
-
 namespace QoL
 {
-    [UsedImplicitly]
     public class NoHardSaves : FauxMod
     {
         public NoHardSaves() : base(false) { }
