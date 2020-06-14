@@ -39,9 +39,6 @@
       <HintPath>..\..\..\References\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="DreamRespawner.cs" />
-  </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="@echo on" />
     <Exec Command="echo Copying mod" />
