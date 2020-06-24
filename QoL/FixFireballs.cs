@@ -1,5 +1,6 @@
 ﻿using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using QoL.Util;
 using UnityEngine;
 
 namespace QoL
@@ -30,18 +31,19 @@ namespace QoL
             
             // Store the terrain checker reference, prevent it from being enabled
             GameObject terrainChecker = self.GetAction<ActivateGameObject>("Pause", 3).gameObject.GameObject.Value;
-            self.RemoveAction("Pause", 3);
+            self.GetState("Pause").RemoveAction(3);
             
             // Create a new state before the regular idle
-            self.CopyState("R", "Idle (No Collision)");
-            self.RemoveAction("Idle (No Collision)", 0);
+            FsmState idleNoCol = self.CopyState("R", "Idle (No Collision)");
+            idleNoCol.RemoveAction(0);
             
-            self.ChangeTransition("L", "FINISHED", "Idle (No Collision)");
-            self.ChangeTransition("R", "FINISHED", "Idle (No Collision)");
-            self.AddTransition("Idle (No Collision)", "FINISHED", "Idle");
+            self.GetState("L").ChangeTransition("FINISHED", "Idle (No Collision)");
+            self.GetState("R").ChangeTransition("FINISHED", "Idle (No Collision)");
+            
+            idleNoCol.AddTransition("FINISHED", "Idle");
             
             // New state needs to start the fireball moving
-            self.AddAction("Idle (No Collision)", new SetVelocity2d
+            idleNoCol.AddAction(new SetVelocity2d
             {
                 gameObject = new FsmOwnerDefault(),
                 vector = Vector2.zero,
@@ -51,15 +53,17 @@ namespace QoL
             });
             
             // Small waiting period before proceeding to the old idle state
-            self.AddAction("Idle (No Collision)", new Wait
+            idleNoCol.AddAction(new Wait
             {
                 time = NO_COLLISION_TIME,
                 finishEvent = FsmEvent.FindEvent("FINISHED"),
                 realTime = false
             });
+
+            var idle = self.GetState("Idle");
             
             // Idle state needs to activate the collision now
-            self.InsertAction("Idle", new ActivateGameObject
+            idle.InsertAction(new ActivateGameObject
             {
                 gameObject = new FsmOwnerDefault
                 {
@@ -73,7 +77,7 @@ namespace QoL
             }, 0);
             
             // Account for the additional waiting time before Idle
-            self.GetAction<Wait>("Idle", 8).time.Value -= NO_COLLISION_TIME;
+            idle.GetAction<Wait>(8).time.Value -= NO_COLLISION_TIME;
             
             orig(self);
         }

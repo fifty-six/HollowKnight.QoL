@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Linq;
 using GlobalEnums;
+using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using QoL.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
@@ -90,10 +92,10 @@ namespace QoL
 
             foreach (PlayMakerFSM fsm in UObject.FindObjectsOfType<PlayMakerFSM>().Where(x => x.FsmName == "GG Boss UI"))
             {
-                fsm.ChangeTransition("On Left", "FINISHED", "Dream Box Down");
-                fsm.ChangeTransition("On Right", "FINISHED", "Dream Box Down");
+                fsm.GetState("On Left").ChangeTransition("FINISHED", "Dream Box Down");
+                fsm.GetState("On Right").ChangeTransition("FINISHED", "Dream Box Down");
 
-                fsm.InsertAction("Dream Box Down", fsm.GetAction<SetPlayerDataString>("Impact", 2), 0);
+                fsm.GetState("Dream Box Down").InsertAction(fsm.GetAction<SetPlayerDataString>("Impact", 2), 0);
             }
         }
 
@@ -105,7 +107,7 @@ namespace QoL
 
             PlayMakerFSM control = GameObject.Find("HK Prime").LocateMyFSM("Control");
 
-            control.ChangeTransition("Init", "FINISHED", "Intro Roar");
+            control.GetState("Init").ChangeTransition("FINISHED", "Intro Roar");
             control.GetAction<Wait>("Intro 2", 3).time = 0.01f;
             control.GetAction<Wait>("Intro 1", 0).time = 0.01f;
             control.GetAction<Wait>("Intro Roar", 7).time = 1f;
@@ -122,10 +124,13 @@ namespace QoL
             UObject.Destroy(GameObject.Find("Sun"));
             UObject.Destroy(GameObject.Find("feather_particles"));
 
-            control.GetAction<Wait>("Setup", 6).time = 1.5f;
-            control.RemoveAction("Setup", 5);
-            control.RemoveAction("Setup", 4);
-            control.ChangeTransition("Setup", "FINISHED", "Eye Flash");
+            FsmState setup = control.GetState("Setup");
+
+            setup.GetAction<Wait>(6).time = 1.5f;
+            setup.RemoveAction(5);
+            setup.RemoveAction(4);
+            setup.ChangeTransition( "FINISHED", "Eye Flash");
+            
             control.GetAction<Wait>("Title Up", 6).time = 1f;
         }
 
@@ -135,7 +140,7 @@ namespace QoL
 
             yield return null;
 
-            GameObject.Find("Dream Enter").LocateMyFSM("Control").ChangeTransition("Idle", "DREAM HIT", "Change Scene");
+            GameObject.Find("Dream Enter").LocateMyFSM("Control").GetState("Idle").ChangeTransition("DREAM HIT", "Change Scene");
         }
 
         private static IEnumerator Dreamers(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
