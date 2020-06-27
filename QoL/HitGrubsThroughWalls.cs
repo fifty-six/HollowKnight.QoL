@@ -17,6 +17,11 @@ namespace QoL
             On.PlayMakerFSM.OnEnable += FixGrubBottle;
         }
 
+        public override void Unload()
+        {
+            On.PlayMakerFSM.OnEnable -= FixGrubBottle;
+        }
+
         private void FixGrubBottle(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
             orig(self);

@@ -19,6 +19,11 @@ namespace QoL
             On.PlayMakerFSM.OnEnable += FixLevers;
         }
 
+        public override void Unload()
+        {
+            On.PlayMakerFSM.OnEnable -= FixLevers;
+        }
+
         private static void FixLevers(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
             orig(self);
