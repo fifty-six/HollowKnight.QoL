@@ -4,6 +4,7 @@ using System.Linq;
 using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using Modding;
 using QoL.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -37,6 +38,17 @@ namespace QoL
             "metIselda"
         };
 
+        // Boss cutscenes, mostly.
+        private static readonly string[] PD_BOOLS =
+        {
+            "hasCharm",
+            "unchainedHollowKnight",
+            "encounteredMimicSpider",
+            "infectedKnightEncountered",
+            "mageLordEncountered",
+            "mageLordEncountered_2"
+        };
+
         public override void Initialize()
         {
             On.CinematicSequence.Begin += CinematicBegin;
@@ -44,26 +56,12 @@ namespace QoL
             On.AnimatorSequence.Begin += AnimatorBegin;
             On.InputHandler.SetSkipMode += OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
-            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += EaseColorSucks;
+            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += FastEaseColor;
             On.GameManager.FadeSceneInWithDelay += NoFade;
+            ModHooks.Instance.NewGameHook += OnNewGame;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
         }
-
-        private static IEnumerator NoFade(On.GameManager.orig_FadeSceneInWithDelay orig, GameManager self, float delay)
-        {
-            yield return orig(self, 0);
-        }
-
-        private static void EaseColorSucks(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
-        {
-            if (self.Owner.name == "Blanker White" && Math.Abs(self.time.Value - 0.3) < .05)
-            {
-                self.time.Value = 0.066f;
-            }
-
-            orig(self);
-        }
-
+        
         public override void Unload()
         {
             On.CinematicSequence.Begin -= CinematicBegin;
@@ -71,9 +69,33 @@ namespace QoL
             On.AnimatorSequence.Begin -= AnimatorBegin;
             On.InputHandler.SetSkipMode -= OnSetSkip;
             On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
-            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= EaseColorSucks;
+            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= FastEaseColor;
             On.GameManager.FadeSceneInWithDelay -= NoFade;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
+            ModHooks.Instance.NewGameHook -= OnNewGame;
+        }
+
+        private static void OnNewGame()
+        {
+            foreach (string @bool in PD_BOOLS)
+            {
+                PlayerData.instance.SetBool(@bool, true);
+            }
+        }
+
+        private static IEnumerator NoFade(On.GameManager.orig_FadeSceneInWithDelay orig, GameManager self, float delay)
+        {
+            yield return orig(self, 0);
+        }
+
+        private static void FastEaseColor(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
+        {
+            if (self.Owner.name == "Blanker White" && Math.Abs(self.time.Value - 0.3) < .05)
+            {
+                self.time.Value = 0.066f;
+            }
+
+            orig(self);
         }
 
         private static void FsmSkips(Scene arg0, Scene arg1)
