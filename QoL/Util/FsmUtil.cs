@@ -22,6 +22,11 @@ namespace QoL.Util
             state.Actions = state.Actions.RemoveFirst(x => x is T).ToArray();
         }
 
+        public static void RemoveAllOfType<T>(this FsmState state) where T : FsmStateAction
+        {
+            state.Actions = state.Actions.Where(x => !(x is T)).ToArray();
+        }
+
         [PublicAPI]
         public static void RemoveAnim(this PlayMakerFSM fsm, string stateName, int index)
         {

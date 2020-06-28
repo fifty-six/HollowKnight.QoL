@@ -1,9 +1,5 @@
 ﻿using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using HutongGames.PlayMaker;
+using QoL.Util;
 using UnityEngine;
 
 namespace QoL
@@ -11,9 +7,11 @@ namespace QoL
     [UsedImplicitly]
     public class LemmSellAll : FauxMod
     {
+        private static readonly int[] RELIC_COST = { 200, 450, 800, 1200 };
+        
         public override void Initialize()
         {
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += LemmSell;   
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += LemmSell;
         }
 
         public override void Unload()
@@ -21,46 +19,36 @@ namespace QoL
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= LemmSell;
         }
 
-        private void LemmSell(UnityEngine.SceneManagement.Scene from, UnityEngine.SceneManagement.Scene to)
+        private static void LemmSell(UnityEngine.SceneManagement.Scene from, UnityEngine.SceneManagement.Scene to)
         {
-            if (to.name == "Ruins1_05b")
-            {
-                FsmState convo = GameObject.Find("Relic Dealer").LocateMyFSM("npc_control").GetState("Convo End");
-                List<FsmStateAction> actions = convo.Actions.ToList();
-                actions.Add(new SellAllRelics());
-                convo.Actions = actions.ToArray();
-            }
+            if (to.name != "Ruins1_05b") return;
+
+            GameObject.Find("Relic Dealer")
+                      .LocateMyFSM("npc_control")
+                      .GetState("Convo End")
+                      .AddMethod(SellRelics);
         }
-    }
 
-    class SellAllRelics : FsmStateAction
-    {
-        public override void OnEnter()
+        private static void SellRelics()
         {
-            if (!PlayerData.instance.GetBool("equippedCharm_10"))
+            PlayerData pd = PlayerData.instance;
+            
+            if (pd.GetBool("equippedCharm_10")) return;
+
+            for (int i = 1; i <= 4; i++)
             {
-                int money = PlayerData.instance.trinket1 * 200;
-                money += PlayerData.instance.trinket2 * 450;
-                money += PlayerData.instance.trinket3 * 800;
-                money += PlayerData.instance.trinket4 * 1200;
+                int amount = pd.GetInt($"trinket{i}");
+                
+                if (amount == 0) continue;
+                
+                int price = amount * RELIC_COST[i - 1];
 
-                if (money > 0)
-                {
-                    HeroController.instance.AddGeo(money);
-                }
+                pd.SetInt($"soldTrinket{i}", pd.GetInt($"soldTrinket{i}") + amount);
 
-                PlayerData.instance.soldTrinket1 += PlayerData.instance.trinket1;
-                PlayerData.instance.soldTrinket2 += PlayerData.instance.trinket2;
-                PlayerData.instance.soldTrinket3 += PlayerData.instance.trinket3;
-                PlayerData.instance.soldTrinket4 += PlayerData.instance.trinket4;
-
-                PlayerData.instance.trinket1 = 0;
-                PlayerData.instance.trinket2 = 0;
-                PlayerData.instance.trinket3 = 0;
-                PlayerData.instance.trinket4 = 0;
+                HeroController.instance.AddGeo(price);
+                
+                pd.SetInt($"trinket{i}", 0);
             }
-
-            Finish();
         }
     }
 }

@@ -1,13 +1,6 @@
 ﻿using JetBrains.Annotations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
-using HutongGames.PlayMaker;
-using UnityEngine.SceneManagement;
 using HutongGames.PlayMaker.Actions;
-using ModCommon.Util;
+using QoL.Util;
 
 namespace QoL
 {
@@ -26,19 +19,13 @@ namespace QoL
 
         private static void FixLevers(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
-            orig(self);
             if (self.FsmName == "Switch Control" && self.gameObject.name.Contains("Ruins Lever"))
             {
-                RemoveBoolTests(self.GetState("Range"));
-                RemoveBoolTests(self.GetState("Check If Nail"));
+                self.GetState("Range").RemoveAllOfType<BoolTest>();
+                self.GetState("Check If Nail").RemoveAllOfType<BoolTest>();
             }
+            
+            orig(self);
         }
-
-        private static void RemoveBoolTests(FsmState state)
-        {
-            List<FsmStateAction> actions = state.Actions.ToList();
-            state.Actions = actions.Where(a => !(a is BoolTest test)).ToArray();
-        }
-
     }
 }
