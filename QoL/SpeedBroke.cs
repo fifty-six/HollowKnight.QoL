@@ -8,7 +8,7 @@ namespace QoL
     public class SpeedBroke : FauxMod
     {
         [SerializeToSetting]
-        public static bool EnableMenuDrop = true;
+        public static bool MenuDrop = true;
 
         [SerializeToSetting]
         public static bool Storage = true;
@@ -24,7 +24,7 @@ namespace QoL
 
         public override void Initialize()
         {
-            On.HeroController.CanOpenInventory += MenuDrop;
+            On.HeroController.CanOpenInventory += CanOpenInventory;
             On.HeroController.CanQuickMap += CanQuickMap;
             On.TutorialEntryPauser.Start += AllowPause;
             On.HeroController.ShouldHardLand += CanHardLand;
@@ -34,7 +34,7 @@ namespace QoL
 
         public override void Unload()
         {
-            On.HeroController.CanOpenInventory -= MenuDrop;
+            On.HeroController.CanOpenInventory -= CanOpenInventory;
             On.HeroController.CanQuickMap -= CanQuickMap;
             On.TutorialEntryPauser.Start -= AllowPause;
             On.HeroController.ShouldHardLand -= CanHardLand;
@@ -61,9 +61,9 @@ namespace QoL
                 : orig(self);
         }
 
-        private static bool MenuDrop(On.HeroController.orig_CanOpenInventory orig, HeroController self)
+        private static bool CanOpenInventory(On.HeroController.orig_CanOpenInventory orig, HeroController self)
         {
-            return EnableMenuDrop
+            return MenuDrop
                 ? !GameManager.instance.isPaused
                 && !self.controlReqlinquished
                 && !self.cState.recoiling
