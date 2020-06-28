@@ -104,6 +104,12 @@ namespace QoL.Util
 
             action.Init(state);
         }
+        
+        [PublicAPI]
+        public static void ChangeTransition(this PlayMakerFSM self, string state, string eventName, string toState)
+        {
+            self.GetState(state).ChangeTransition(eventName, toState);
+        }
 
         [PublicAPI]
         public static void ChangeTransition(this FsmState state, string eventName, string toState)

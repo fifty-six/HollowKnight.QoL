@@ -1,4 +1,8 @@
-﻿using ModCommon.Util;
+﻿using GlobalEnums;
+using HutongGames.PlayMaker;
+using HutongGames.PlayMaker.Actions;
+using Modding;
+using QoL.Util;
 using UnityEngine;
 
 using ReflectionHelper = Modding.ReflectionHelper;
@@ -18,6 +22,15 @@ namespace QoL
 
         [SerializeToSetting]
         public static bool Televator = true;
+        
+        [SerializeToSetting]
+        public static bool ExplosionPogo = true;
+
+        [SerializeToSetting]
+        public static bool GrubsThroughWalls = true;
+        
+        [SerializeToSetting]
+        public static bool LeverSkips = true;
 
         [SerializeToSetting]
         public static bool NoHardFalls;
@@ -30,6 +43,7 @@ namespace QoL
             On.HeroController.ShouldHardLand += CanHardLand;
             On.PlayMakerFSM.OnEnable += ModifyFSM;
             On.InputHandler.Update += EnableSuperslides;
+            ModHooks.Instance.ObjectPoolSpawnHook += OnObjectPoolSpawn;
         }
 
         public override void Unload()
@@ -40,6 +54,7 @@ namespace QoL
             On.HeroController.ShouldHardLand -= CanHardLand;
             On.PlayMakerFSM.OnEnable -= ModifyFSM;
             On.InputHandler.Update -= EnableSuperslides;
+            ModHooks.Instance.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
@@ -54,7 +69,7 @@ namespace QoL
                 && !self.cState.onConveyor
                 && !self.cState.dashing
                 && !self.cState.backDashing
-                && (!self.cState.attacking || self.GetAttr<HeroController, float>("attack_time") >= self.ATTACK_RECOVERY_TIME)
+                && (!self.cState.attacking || ReflectionHelper.GetAttr<HeroController, float>(self, "attack_time") >= self.ATTACK_RECOVERY_TIME)
                 && !self.cState.recoiling
                 && !self.cState.hazardDeath
                 && !self.cState.hazardRespawning
@@ -118,9 +133,40 @@ namespace QoL
                     self.ChangeTransition("Left", "FINISHED", "Send Msg");
                     self.ChangeTransition("Right", "FINISHED", "Send Msg");
                     break;
+
+                case "Bottle Control" when self.GetState("Shatter") is FsmState shatter && GrubsThroughWalls:
+                {
+                    shatter.RemoveAllOfType<BoolTest>();
+                    break;
+                }
+
+                case "Switch Control" when self.name.Contains("Ruins Lever") && LeverSkips:
+                {
+                    self.GetState("Range").RemoveAllOfType<BoolTest>();
+                    self.GetState("Check If Nail").RemoveAllOfType<BoolTest>();
+                    break;
+                }
             }
 
             orig(self);
+        }
+        
+        private static GameObject OnObjectPoolSpawn(GameObject go)
+        {
+            if (!ExplosionPogo)
+                return go;
+            
+            if (!go.name.StartsWith("Gas Explosion Recycle M"))
+                return go;
+
+            go.layer = (int) PhysLayers.ENEMIES;
+            
+            var bouncer = go.GetComponent<NonBouncer>();
+
+            if (bouncer) 
+                bouncer.active = false;
+
+            return go;
         }
     }
 }
