@@ -1,4 +1,6 @@
+using Modding;
 using UnityEngine;
+using ILogger = Modding.ILogger;
 
 namespace QoL
 {
@@ -9,6 +11,8 @@ namespace QoL
 
         [SerializeToSetting]
         public static bool EnableStacktrace = true;
+
+        private static readonly ILogger UnityLogger = new SimpleLogger("UNITY");
         
         public override void Initialize()
         {
@@ -27,7 +31,8 @@ namespace QoL
         {
             if (type != LogType.Exception) return;
             
-            Modding.Logger.LogError($"[UNITY]:\n{condition}\n{stacktrace}");
+            UnityLogger.LogError(condition);
+            UnityLogger.LogError(stacktrace);
         }
     }
 }
