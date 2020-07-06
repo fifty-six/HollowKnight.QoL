@@ -86,9 +86,15 @@ namespace QoL.Util
         }
         
         [PublicAPI]
-        public static T GetAction<T>(this FsmState state, string stateName) where T : FsmStateAction
+        public static T GetAction<T>(this FsmState state) where T : FsmStateAction
         {
             return state.Actions.OfType<T>().FirstOrDefault();
+        }
+        
+        [PublicAPI]
+        public static T GetAction<T>(this PlayMakerFSM fsm, string stateName) where T : FsmStateAction
+        {
+            return fsm.GetState(stateName).GetAction<T>();
         }
 
         [PublicAPI]

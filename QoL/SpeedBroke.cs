@@ -1,4 +1,5 @@
-﻿using GlobalEnums;
+﻿using System.Linq;
+using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using Modding;
@@ -148,11 +149,13 @@ namespace QoL
                 }
 
                 case "Dream Nail" when self.name == "Knight" && Storage:
-                    ((ListenForDreamNail)self.GetState("Cancelable").Actions.First(a => a.GetType() == typeof(ListenForDreamNail))).activeBool = true;
-                    ((ListenForDreamNail)self.GetState("Cancelable Dash").Actions.First(a => a.GetType() == typeof(ListenForDreamNail))).activeBool = true;
-                    ((ListenForDreamNail)self.GetState("Queuing").Actions.First(a => a.GetType() == typeof(ListenForDreamNail))).activeBool = true;
-                    self.GetState("Queuing").Actions = self.GetState("Queuing").Actions.Where(a => a.GetType() != typeof(BoolTest)).ToArray();
+                {
+                    self.GetState("Cancelable").GetAction<ListenForDreamNail>().activeBool = true;
+                    self.GetState("Cancelable Dash").GetAction<ListenForDreamNail>().activeBool = true;
+                    self.GetState("Queuing").GetAction<ListenForDreamNail>().activeBool = true;
+                    self.GetState("Queuing").RemoveAllOfType<BoolTest>();
                     break;
+                }
             }
 
             orig(self);
