@@ -146,6 +146,13 @@ namespace QoL
                     self.GetState("Check If Nail").RemoveAllOfType<BoolTest>();
                     break;
                 }
+
+                case "Dream Nail" when self.name == "Knight" && Storage:
+                    ((ListenForDreamNail)self.GetState("Cancelable").Actions.First(a => a.GetType() == typeof(ListenForDreamNail))).activeBool = true;
+                    ((ListenForDreamNail)self.GetState("Cancelable Dash").Actions.First(a => a.GetType() == typeof(ListenForDreamNail))).activeBool = true;
+                    ((ListenForDreamNail)self.GetState("Queuing").Actions.First(a => a.GetType() == typeof(ListenForDreamNail))).activeBool = true;
+                    self.GetState("Queuing").Actions = self.GetState("Queuing").Actions.Where(a => a.GetType() != typeof(BoolTest)).ToArray();
+                    break;
             }
 
             orig(self);
