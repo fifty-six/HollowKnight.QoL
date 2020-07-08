@@ -5,7 +5,9 @@ using System.Reflection;
 using System.Text;
 using ModCommon.Util;
 using Modding;
+using Modding.Patches;
 using MonoMod.Cil;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace QoL
@@ -47,7 +49,10 @@ namespace QoL
             
             string path = GetSavePath(id, "json");
             
-            string text = JsonUtility.ToJson(data, true);
+            string text = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings
+            {
+                ContractResolver = ShouldSerializeContractResolver.Instance
+            });
 
             File.WriteAllText(path, text);
 
@@ -64,7 +69,10 @@ namespace QoL
             {
                 try
                 {
-                    var saveGameData = JsonUtility.FromJson<SaveGameData>(text);
+                    var saveGameData = JsonConvert.DeserializeObject<SaveGameData>(text, new JsonSerializerSettings
+                    {
+                        ContractResolver = ShouldSerializeContractResolver.Instance
+                    });
 
                     gm.playerData = PlayerData.instance = saveGameData.playerData;
                     gm.sceneData = SceneData.instance = saveGameData.sceneData;
