@@ -51,7 +51,8 @@ namespace QoL
             
             string text = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings
             {
-                ContractResolver = ShouldSerializeContractResolver.Instance
+                ContractResolver = ShouldSerializeContractResolver.Instance,
+                TypeNameHandling = TypeNameHandling.Auto
             });
 
             File.WriteAllText(path, text);
@@ -71,7 +72,8 @@ namespace QoL
                 {
                     var saveGameData = JsonConvert.DeserializeObject<SaveGameData>(text, new JsonSerializerSettings
                     {
-                        ContractResolver = ShouldSerializeContractResolver.Instance
+                        ContractResolver = ShouldSerializeContractResolver.Instance,
+                        TypeNameHandling = TypeNameHandling.Auto
                     });
 
                     gm.playerData = PlayerData.instance = saveGameData.playerData;
