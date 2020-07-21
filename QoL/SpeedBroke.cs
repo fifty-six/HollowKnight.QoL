@@ -65,27 +65,31 @@ namespace QoL
 
         private static bool CanQuickMap(On.HeroController.orig_CanQuickMap orig, HeroController self)
         {
+            HeroControllerStates cs = self.cState;
+            
             return Storage
                 ? !GameManager.instance.isPaused
-                && !self.cState.onConveyor
-                && !self.cState.dashing
-                && !self.cState.backDashing
-                && (!self.cState.attacking || ReflectionHelper.GetAttr<HeroController, float>(self, "attack_time") >= self.ATTACK_RECOVERY_TIME)
-                && !self.cState.recoiling
-                && !self.cState.hazardDeath
-                && !self.cState.hazardRespawning
+                && !cs.onConveyor
+                && !cs.dashing
+                && !cs.backDashing
+                && (!cs.attacking || ReflectionHelper.GetAttr<HeroController, float>(self, "attack_time") >= self.ATTACK_RECOVERY_TIME)
+                && !cs.recoiling
+                && !cs.hazardDeath
+                && !cs.hazardRespawning
                 : orig(self);
         }
 
         private static bool CanOpenInventory(On.HeroController.orig_CanOpenInventory orig, HeroController self)
         {
+            HeroControllerStates cs = self.cState;
+            
             return MenuDrop
                 ? !GameManager.instance.isPaused
                 && !self.controlReqlinquished
-                && !self.cState.recoiling
-                && !self.cState.transitioning
-                && !self.cState.hazardDeath
-                && !self.cState.hazardRespawning
+                && !cs.recoiling
+                && !cs.transitioning
+                && !cs.hazardDeath
+                && !cs.hazardRespawning
                 && !self.playerData.disablePause
                 && self.CanInput()
                 || self.playerData.atBench
@@ -100,13 +104,16 @@ namespace QoL
                 ReflectionHelper.SetAttr(HeroController.instance, "recoilSteps", 0);
 
                 // Kill the thing that kills superslides
-                int timeSlowedCount = ReflectionHelper.GetAttr<GameManager, int>(GameManager.instance, "timeSlowedCount");
-                ReflectionHelper.SetAttr(GameManager.instance, "timeSlowedCount", 0);
+                ref int timeSlowedCount = ref Mirror.GetFieldRef<GameManager, int>(GameManager.instance, "timeSlowedCount");
 
+                int origCount = timeSlowedCount;
+
+                timeSlowedCount = 0;
+                
                 orig(self);
 
                 // Restore to old value
-                ReflectionHelper.SetAttr(GameManager.instance, "timeSlowedCount", timeSlowedCount);
+                timeSlowedCount = origCount;
             }
             else
             {

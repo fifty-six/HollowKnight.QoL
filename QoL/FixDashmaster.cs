@@ -1,6 +1,7 @@
 ﻿using InControl;
 using JetBrains.Annotations;
 using Modding;
+using Vasi;
 
 namespace QoL
 {
@@ -20,13 +21,15 @@ namespace QoL
 
             if (input.inputActions.left.IsPressed || input.inputActions.right.IsPressed)
             {
-                bool downEnabled = ReflectionHelper.GetAttr<OneAxisInputControl, bool>(input.inputActions.down, "Enabled");
+                ref bool down_enabled = ref Mirror.GetFieldRef<OneAxisInputControl, bool>(input.inputActions.down, "Enabled");
 
-                ReflectionHelper.SetAttr(input.inputActions.down, "Enabled", false);
+                bool orig_enabled = down_enabled;
+
+                down_enabled = false;
 
                 orig(self);
 
-                ReflectionHelper.SetAttr(input.inputActions.down, "Enabled", downEnabled);
+                down_enabled = orig_enabled;
             }
             else
             {
