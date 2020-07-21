@@ -3,9 +3,8 @@ using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using Modding;
-using QoL.Util;
 using UnityEngine;
-
+using Vasi;
 using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL

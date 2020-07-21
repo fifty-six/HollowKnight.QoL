@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
-using ModCommon.Util;
 using Modding;
 using Modding.Patches;
 using MonoMod.Cil;
@@ -25,37 +24,47 @@ namespace QoL
             IL.DesktopPlatform.WriteSaveSlot += RemoveStupidSave;
         }
 
-        private static void RemoveStupidSave(ILContext il)
+        private void RemoveStupidSave(ILContext il)
         {
             ILCursor c = new ILCursor(il).Goto(0);
-            while (c.TryFindNext(out ILCursor[] cursors,
-                      /* 0 */    x => x.MatchLdstr("_1.4.3.2.dat"),
-                      /* 1 */    x => x.MatchCall(typeof(string), nameof(string.Concat)),
-                      /* 2 */    x => true, // stloc.s V_5 (5)
-                      /* 3 */    x => true, // ldloc.s V_5 (5)
-                      /* 4 */    x => x.MatchLdarg(2),
-                      /* 5 */    x => x.MatchCall(typeof(File), nameof(File.WriteAllBytes)),
-                      /* 6 */    x => true // leave.s 51 (008C) ldloc.1
+
+            while (c.TryFindNext
+            (
+                out ILCursor[] cursors,
+                x => x.MatchLdstr("_1.4.3.2.dat"),
+                x => x.MatchCall(typeof(string), nameof(string.Concat)),
+                x => x.MatchStloc(5),
+                x => x.MatchLdloc(5),
+                x => x.MatchLdarg(2),
+                x => x.MatchCall(typeof(File), nameof(File.WriteAllBytes)),
+                x => x.MatchLeaveS(out _)
             ))
             {
+                Log("Matched save.");
+
                 for (int i = cursors.Length - 1; i >= 0; i--)
                 {
                     cursors[i].Remove();
                 }
             }
         }
-        
+
         private static void OnSaveSave(SaveGameData data)
         {
             int id = GetRealID(data.playerData.profileID);
-            
+
             string path = GetSavePath(id, "json");
-            
-            string text = JsonConvert.SerializeObject(data, Formatting.Indented, new JsonSerializerSettings
-            {
-                ContractResolver = ShouldSerializeContractResolver.Instance,
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+
+            string text = JsonConvert.SerializeObject
+            (
+                data,
+                Formatting.Indented,
+                new JsonSerializerSettings
+                {
+                    ContractResolver = ShouldSerializeContractResolver.Instance,
+                    TypeNameHandling = TypeNameHandling.Auto
+                }
+            );
 
             File.WriteAllText(path, text);
 
@@ -72,11 +81,15 @@ namespace QoL
             {
                 try
                 {
-                    var saveGameData = JsonConvert.DeserializeObject<SaveGameData>(text, new JsonSerializerSettings
-                    {
-                        ContractResolver = ShouldSerializeContractResolver.Instance,
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    var saveGameData = JsonConvert.DeserializeObject<SaveGameData>
+                    (
+                        text,
+                        new JsonSerializerSettings
+                        {
+                            ContractResolver = ShouldSerializeContractResolver.Instance,
+                            TypeNameHandling = TypeNameHandling.Auto
+                        }
+                    );
 
                     gm.playerData = PlayerData.instance = saveGameData.playerData;
                     gm.sceneData = SceneData.instance = saveGameData.sceneData;
@@ -117,7 +130,7 @@ namespace QoL
 
         private static string GetSavePath(int saveSlot, string ending)
         {
-            return Path.Combine(((DesktopPlatform) Platform.Current).GetAttr<DesktopPlatform, string>("saveDirPath"), $"user{saveSlot}.{ending}");
+            return Path.Combine(ReflectionHelper.GetAttr<DesktopPlatform, string>(Platform.Current as DesktopPlatform, "saveDirPath"), $"user{saveSlot}.{ending}");
         }
 
         private static int GetRealID(int id)

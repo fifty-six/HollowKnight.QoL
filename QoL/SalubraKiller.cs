@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
-using QoL.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Vasi;
 using UObject = UnityEngine.Object;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 

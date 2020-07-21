@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
-using QoL.Util;
 using UnityEngine;
+using Vasi;
 
 namespace QoL
 {

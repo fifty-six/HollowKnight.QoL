@@ -1,8 +1,8 @@
 ﻿using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
-using QoL.Util;
 using UnityEngine;
+using Vasi;
 
 namespace QoL
 {
@@ -65,7 +65,7 @@ namespace QoL
             FsmState idle = self.GetState("Idle");
             
             // Idle state needs to activate the collision now
-            idle.InsertAction(new ActivateGameObject
+            idle.InsertAction(0, new ActivateGameObject
             {
                 gameObject = new FsmOwnerDefault
                 {
@@ -76,7 +76,7 @@ namespace QoL
                 recursive = false,
                 resetOnExit = false,
                 everyFrame = false
-            }, 0);
+            });
             
             // Account for the additional waiting time before Idle
             idle.GetAction<Wait>(8).time.Value -= NO_COLLISION_TIME;

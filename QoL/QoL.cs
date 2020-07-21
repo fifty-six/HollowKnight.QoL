@@ -1,30 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography;
 using Modding;
 
 namespace QoL
 {
     public class QoL : Mod, ITogglableMod
     {
-        public override string GetVersion()
-        {
-            var asm = Assembly.GetExecutingAssembly();
-            
-            string ver = asm.GetName().Version.ToString();
-
-            using var sha1 = SHA1.Create();
-            using FileStream stream = File.OpenRead(asm.Location);
-
-            byte[] hashBytes = sha1.ComputeHash(stream);
-            
-            string hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-
-            return $"{ver}-{hash.Substring(0, 6)}";
-        }
+        public override string GetVersion() => Vasi.VersionUtil.GetVersion<QoL>();
 
         public override ModSettings GlobalSettings
         {

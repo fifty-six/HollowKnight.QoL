@@ -6,9 +6,9 @@ using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using Modding;
-using QoL.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Vasi;
 using UObject = UnityEngine.Object;
 
 namespace QoL
@@ -119,7 +119,7 @@ namespace QoL
                 fsm.GetState("On Left").ChangeTransition("FINISHED", "Dream Box Down");
                 fsm.GetState("On Right").ChangeTransition("FINISHED", "Dream Box Down");
 
-                fsm.GetState("Dream Box Down").InsertAction(fsm.GetAction<SetPlayerDataString>("Impact", 2), 0);
+                fsm.GetState("Dream Box Down").InsertAction(0, fsm.GetAction<SetPlayerDataString>("Impact", 2));
             }
         }
 
