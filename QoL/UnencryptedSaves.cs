@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using JetBrains.Annotations;
 using ModCommon.Util;
 using Modding;
 using Modding.Patches;
@@ -12,6 +13,7 @@ using UnityEngine;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class UnencryptedSaves : FauxMod
     {
         private static readonly MethodInfo GET_SAVE_FILE_NAME = typeof(ModHooks).GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -23,7 +25,7 @@ namespace QoL
             IL.DesktopPlatform.WriteSaveSlot += RemoveStupidSave;
         }
 
-        private void RemoveStupidSave(ILContext il)
+        private static void RemoveStupidSave(ILContext il)
         {
             ILCursor c = new ILCursor(il).Goto(0);
             while (c.TryFindNext(out ILCursor[] cursors,
@@ -64,7 +66,7 @@ namespace QoL
         {
             saveSlot = GetRealID(saveSlot);
 
-            GameManager gm = GameManager.instance;
+            var gm = GameManager.instance;
 
             void DoLoad(string text)
             {

@@ -1,9 +1,11 @@
+using JetBrains.Annotations;
 using Modding;
 using UnityEngine;
 using ILogger = Modding.ILogger;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class Dev : FauxMod
     {
         [SerializeToSetting]

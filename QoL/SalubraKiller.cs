@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using HutongGames.PlayMaker.Actions;
+using JetBrains.Annotations;
 using QoL.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,7 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class SalubraKiller : FauxMod
     {
         public override void Initialize()
@@ -19,7 +21,7 @@ namespace QoL
         {
             if (HeroController.instance == null) return;
 
-            IEnumerator KillSalubra()
+            static IEnumerator KillSalubra()
             {
                 yield return null;
 

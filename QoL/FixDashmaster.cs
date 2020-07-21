@@ -1,11 +1,18 @@
 ﻿using InControl;
+using JetBrains.Annotations;
 using Modding;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class FixDashmaster : FauxMod
     {
-        public override void Initialize() => Hook();
+        public override void Initialize()
+        {
+            Unload();
+            
+            On.HeroController.HeroDash += KillDiagonals;
+        }
 
         private static void KillDiagonals(On.HeroController.orig_HeroDash orig, HeroController self)
         {
@@ -27,17 +34,9 @@ namespace QoL
             }
         }
 
-        private static void Hook()
-        {
-            UnHook();
-            On.HeroController.HeroDash += KillDiagonals;
-        }
-
-        private static void UnHook()
+        public override void Unload()
         {
             On.HeroController.HeroDash -= KillDiagonals;
         }
-
-        public override void Unload() => UnHook();
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using UnityEngine;
@@ -10,6 +11,7 @@ using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class FastMenus : FauxMod
     {
         private readonly (Type, string, ILContext.Manipulator)[] ILHooks =

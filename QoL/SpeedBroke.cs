@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using GlobalEnums;
+﻿using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using JetBrains.Annotations;
 using Modding;
 using QoL.Util;
 using UnityEngine;
@@ -10,6 +10,7 @@ using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class SpeedBroke : FauxMod
     {
         [SerializeToSetting]

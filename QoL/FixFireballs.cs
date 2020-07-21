@@ -1,10 +1,12 @@
 ﻿using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using JetBrains.Annotations;
 using QoL.Util;
 using UnityEngine;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class FixFireballs : FauxMod
     {
         private const float NO_COLLISION_TIME = 0.05f;
@@ -60,7 +62,7 @@ namespace QoL
                 realTime = false
             });
 
-            var idle = self.GetState("Idle");
+            FsmState idle = self.GetState("Idle");
             
             // Idle state needs to activate the collision now
             idle.InsertAction(new ActivateGameObject

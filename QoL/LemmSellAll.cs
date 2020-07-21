@@ -31,7 +31,7 @@ namespace QoL
 
         private static void SellRelics()
         {
-            PlayerData pd = PlayerData.instance;
+            var pd = PlayerData.instance;
             
             if (pd.GetBool("equippedCharm_10")) return;
 

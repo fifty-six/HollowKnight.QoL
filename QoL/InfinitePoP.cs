@@ -1,9 +1,11 @@
-﻿using Modding;
+﻿using JetBrains.Annotations;
+using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class InfinitePoP : FauxMod
     {
         public override void Initialize()
@@ -30,7 +32,7 @@ namespace QoL
         {
             PlayerData.instance.SetBoolInternal(originalset, value);
 
-            if (originalset != "newDataBindingSeal" || !value) return;
+            if (originalset != nameof(PlayerData.newDataBindingSeal) || !value) return;
 
             SceneData sd = GameManager.instance.sceneData;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -8,6 +9,7 @@ using UnityEngine;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class FasterLoads : FauxMod
     {
         private static readonly float[] SKIP = {0.4f, .165f};

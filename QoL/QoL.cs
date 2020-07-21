@@ -12,11 +12,11 @@ namespace QoL
     {
         public override string GetVersion()
         {
-            Assembly asm = Assembly.GetExecutingAssembly();
+            var asm = Assembly.GetExecutingAssembly();
             
             string ver = asm.GetName().Version.ToString();
 
-            using SHA1 sha1 = SHA1.Create();
+            using var sha1 = SHA1.Create();
             using FileStream stream = File.OpenRead(asm.Location);
 
             byte[] hashBytes = sha1.ComputeHash(stream);
