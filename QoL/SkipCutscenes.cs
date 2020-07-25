@@ -22,33 +22,34 @@ namespace QoL
 
         private static readonly string[] ALL_DREAMER_BOOLS =
         {
-            "corniferAtHome",
-            "iseldaConvo1",
-            "dungDefenderSleeping",
-            "corn_crossroadsLeft",
-            "corn_greenpathLeft",
-            "corn_fogCanyonLeft",
-            "corn_fungalWastesLeft",
-            "corn_cityLeft",
-            "corn_waterwaysLeft",
-            "corn_minesLeft",
-            "corn_cliffsLeft",
-            "corn_deepnestLeft",
-            "corn_outskirtsLeft",
-            "corn_royalGardensLeft",
-            "corn_abyssLeft",
-            "metIselda"
+            nameof(PlayerData.corniferAtHome),
+            nameof(PlayerData.iseldaConvo1),
+            nameof(PlayerData.dungDefenderSleeping),
+            nameof(PlayerData.corn_crossroadsLeft),
+            nameof(PlayerData.corn_greenpathLeft),
+            nameof(PlayerData.corn_fogCanyonLeft),
+            nameof(PlayerData.corn_fungalWastesLeft),
+            nameof(PlayerData.corn_cityLeft),
+            nameof(PlayerData.corn_waterwaysLeft),
+            nameof(PlayerData.corn_minesLeft),
+            nameof(PlayerData.corn_cliffsLeft),
+            nameof(PlayerData.corn_deepnestLeft),
+            nameof(PlayerData.corn_outskirtsLeft),
+            nameof(PlayerData.corn_royalGardensLeft),
+            nameof(PlayerData.corn_abyssLeft),
+            nameof(PlayerData.metIselda),
         };
 
         // Boss cutscenes, mostly.
         private static readonly string[] PD_BOOLS =
         {
-            "hasCharm",
-            "unchainedHollowKnight",
-            "encounteredMimicSpider",
-            "infectedKnightEncountered",
-            "mageLordEncountered",
-            "mageLordEncountered_2"
+            nameof(PlayerData.hasCharm),
+            nameof(PlayerData.unchainedHollowKnight),
+            nameof(PlayerData.encounteredMimicSpider),
+            nameof(PlayerData.infectedKnightEncountered),
+            nameof(PlayerData.mageLordEncountered),
+            nameof(PlayerData.mageLordEncountered_2),
+            nameof(PlayerData.enteredGGAtrium)
         };
 
         public override void Initialize()
