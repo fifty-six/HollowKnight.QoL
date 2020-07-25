@@ -18,7 +18,7 @@ namespace QoL
     {
         private const string GUARDIAN = "Dream_Guardian_";
 
-        private static readonly string[] DREAMERS = {"Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room"};
+        private static readonly string[] DREAMERS = { "Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room" };
 
         private static readonly string[] ALL_DREAMER_BOOLS =
         {
@@ -64,7 +64,7 @@ namespace QoL
             ModHooks.Instance.NewGameHook += OnNewGame;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
         }
-        
+
         public override void Unload()
         {
             On.CinematicSequence.Begin -= CinematicBegin;
@@ -103,12 +103,45 @@ namespace QoL
 
         private static void FsmSkips(Scene arg0, Scene arg1)
         {
-            if (HeroController.instance == null) return;
+            var hc = HeroController.instance;
 
-            HeroController.instance.StartCoroutine(DreamerFsm(arg1));
-            HeroController.instance.StartCoroutine(AbsRadSkip(arg1));
-            HeroController.instance.StartCoroutine(HKPrimeSkip(arg1));
-            HeroController.instance.StartCoroutine(StatueWait(arg1));
+            if (hc == null) return;
+
+            hc.StartCoroutine(DreamerFsm(arg1));
+            hc.StartCoroutine(AbsRadSkip(arg1));
+            hc.StartCoroutine(HKPrimeSkip(arg1));
+            hc.StartCoroutine(StatueWait(arg1));
+            hc.StartCoroutine(StagCutscene());
+        }
+
+        private static IEnumerator StagCutscene()
+        {
+            yield return null;
+
+            GameObject stag = GameObject.Find("Stag");
+
+            if (stag == null)
+                yield break;
+
+            Modding.Logger.Log("Found stag.");
+
+            PlayMakerFSM ctrl = stag.LocateMyFSM("Stag Control");
+
+            // Remove the wait on the stag animation start, and before being able to interact.
+            ctrl.GetState("Arrive Pause").RemoveAction<Wait>();
+            ctrl.GetState("Activate").RemoveAction<Wait>();
+
+            var anim = stag.GetComponent<tk2dSpriteAnimator>();
+
+            // Speed up the actual arrival animation.
+            anim.GetClipByName("Arrive").fps *= 600;
+
+            // Speed up the grate coming up, mostly a thing because of randomizer.
+            GameObject grate = ctrl.GetState("Open Grate").GetAction<Tk2dPlayAnimationWithEvents>().gameObject.GameObject.Value;
+
+            var grate_anim = grate.GetComponent<tk2dSpriteAnimator>();
+
+            grate_anim.GetClipByName("Grate_disappear").fps *= 600;
         }
 
         private static IEnumerator StatueWait(Scene arg1)
@@ -154,8 +187,8 @@ namespace QoL
             setup.GetAction<Wait>(6).time = 1.5f;
             setup.RemoveAction(5);
             setup.RemoveAction(4);
-            setup.ChangeTransition( "FINISHED", "Eye Flash");
-            
+            setup.ChangeTransition("FINISHED", "Eye Flash");
+
             control.GetAction<Wait>("Title Up", 6).time = 1f;
         }
 
@@ -182,7 +215,7 @@ namespace QoL
             string @bool = info.SceneName.Substring(15);
 
             PlayerData pd = PlayerData.instance;
-            
+
             pd.SetBool($"{@bool.ToLower()}Defeated", true);
             pd.SetBool($"maskBroken{@bool}", true);
             pd.guardiansDefeated++;
@@ -192,8 +225,8 @@ namespace QoL
             {
                 pd.mrMushroomState = 1;
                 pd.brettaState++;
-                
-                foreach(string pdBool in ALL_DREAMER_BOOLS)
+
+                foreach (string pdBool in ALL_DREAMER_BOOLS)
                     pd.SetBool(pdBool, true);
             }
 
