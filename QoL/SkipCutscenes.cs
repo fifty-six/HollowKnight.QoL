@@ -123,8 +123,6 @@ namespace QoL
             if (stag == null)
                 yield break;
 
-            Modding.Logger.Log("Found stag.");
-
             PlayMakerFSM ctrl = stag.LocateMyFSM("Stag Control");
 
             // Remove the wait on the stag animation start, and before being able to interact.
@@ -134,14 +132,17 @@ namespace QoL
             var anim = stag.GetComponent<tk2dSpriteAnimator>();
 
             // Speed up the actual arrival animation.
-            anim.GetClipByName("Arrive").fps *= 600;
+            anim.GetClipByName("Arrive").fps = 600;
 
             // Speed up the grate coming up, mostly a thing because of randomizer.
             GameObject grate = ctrl.GetState("Open Grate").GetAction<Tk2dPlayAnimationWithEvents>().gameObject.GameObject.Value;
 
+            if (grate == null)
+                yield break;
+
             var grate_anim = grate.GetComponent<tk2dSpriteAnimator>();
 
-            grate_anim.GetClipByName("Grate_disappear").fps *= 600;
+            grate_anim.GetClipByName("Grate_disappear").fps = 600;
         }
 
         private static IEnumerator StatueWait(Scene arg1)
