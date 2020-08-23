@@ -199,7 +199,10 @@ namespace QoL
 
             yield return null;
 
-            GameObject.Find("Dream Enter").LocateMyFSM("Control").GetState("Idle").ChangeTransition("DREAM HIT", "Change Scene");
+            GameObject dreamEnter = GameObject.Find("Dream Enter");
+            if(dreamEnter == null)
+                yield break;
+            dreamEnter.LocateMyFSM("Control").GetState("Idle").ChangeTransition("DREAM HIT", "Change Scene");
         }
 
         private static IEnumerator Dreamers(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
