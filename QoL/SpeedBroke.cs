@@ -26,19 +26,19 @@ namespace QoL
 
         [SerializeToSetting]
         public static bool Televator = true;
-        
+
         [SerializeToSetting]
         public static bool ExplosionPogo = true;
 
         [SerializeToSetting]
         public static bool GrubsThroughWalls = true;
-        
+
         [SerializeToSetting]
         public static bool LeverSkips = true;
 
         [SerializeToSetting]
         public static bool NoHardFalls;
-        
+
         [SerializeToSetting]
         public static bool ShadeSoulLeverSkip;
 
@@ -76,7 +76,7 @@ namespace QoL
         private static bool CanQuickMap(On.HeroController.orig_CanQuickMap orig, HeroController self)
         {
             HeroControllerStates cs = self.cState;
-            
+
             return Storage
                 ? !GameManager.instance.isPaused
                 && !cs.onConveyor
@@ -92,7 +92,7 @@ namespace QoL
         private static bool CanOpenInventory(On.HeroController.orig_CanOpenInventory orig, HeroController self)
         {
             HeroControllerStates cs = self.cState;
-            
+
             return MenuDrop
                 ? !GameManager.instance.isPaused
                 && !self.controlReqlinquished
@@ -119,7 +119,7 @@ namespace QoL
                 int origCount = timeSlowedCount;
 
                 timeSlowedCount = 0;
-                
+
                 orig(self);
 
                 // Restore to old value
@@ -147,7 +147,7 @@ namespace QoL
                 case "Call Lever" when self.name.StartsWith("Lift Call Lever") && Televator:
                     // Don't change big elevators.
                     if (self.GetState("Check Already Called") == null) break;
-                    
+
                     self.ChangeTransition("Left", "FINISHED", "Send Msg");
                     self.ChangeTransition("Right", "FINISHED", "Send Msg");
                     break;
@@ -177,77 +177,107 @@ namespace QoL
 
             orig(self);
         }
-        
+
         private static GameObject OnObjectPoolSpawn(GameObject go)
         {
             if (!ExplosionPogo)
                 return go;
-            
+
             if (!go.name.StartsWith("Gas Explosion Recycle M"))
                 return go;
 
             go.layer = (int) PhysLayers.ENEMIES;
-            
+
             var bouncer = go.GetComponent<NonBouncer>();
 
-            if (bouncer) 
+            if (bouncer)
                 bouncer.active = false;
 
             return go;
         }
-        
-        private static HitInstance CheckLeverSkip(Fsm owner, HitInstance hit) {
-            if (!ShadeSoulLeverSkip) return hit;
 
-            GameManager gm = GameManager.instance;
+        private static HitInstance CheckLeverSkip(Fsm owner, HitInstance hit)
+        {
+            const string LEVER_SCENE = "Ruins1_31";
+
+            if (!ShadeSoulLeverSkip)
+                return hit;
+
+            var gm = GameManager.instance;
+
+            if (gm.sceneName != LEVER_SCENE)
+                return hit;
+
             GameObject slash = hit.Source;
-            
-            // is right scene
-            if (gm.sceneName != "Ruins1_31") return hit;
-            // is dash slash
-            if (slash.name != "Dash Slash") return hit;
-            // is left direction
-            if (Math.Abs(hit.Direction - 180f) > 0.1) return hit;
-            // is right x pos window
-            if (slash.transform.GetPositionX() < 44.6 || slash.transform.GetPositionX() > 45.0) return hit;
-            // is right y pos window
-            if (slash.transform.GetPositionY() < 56.4 || slash.transform.GetPositionY() > 57.0) return hit;
-            
-            
-            PersistentBoolData lever = gm.sceneData.persistentBoolItems.Find(data => data.sceneName == "Ruins1_31" && data.id == "Ruins Lever");
 
-            // first time entering this scene
-            if (lever == null) {
-                lever = new PersistentBoolData {
+            if (slash.name != "Dash Slash")
+                return hit;
+
+            // Left direction
+            if (Math.Abs(hit.Direction - 180f) > 0.1)
+                return hit;
+
+            // X pos window
+            if (slash.transform.GetPositionX() < 44.6 || slash.transform.GetPositionX() > 45.0)
+                return hit;
+
+            // Y pos window
+            if (slash.transform.GetPositionY() < 56.4 || slash.transform.GetPositionY() > 57.0)
+                return hit;
+
+
+            PersistentBoolData lever = gm.sceneData.persistentBoolItems.Find
+            (
+                data => data.sceneName == LEVER_SCENE
+                     && data.id == "Ruins Lever"
+            );
+
+            // First time entering this scene
+            if (lever == null)
+            {
+                lever = new PersistentBoolData
+                {
                     sceneName = "Ruins1_31",
                     id = "Ruins Lever",
                     activated = false
                 };
-                
+
                 gm.sceneData.SaveMyState(lever);
             }
-            
-            // gate is already opened
-            if (lever.activated) return hit;
-            
-            // open gate
+
+            // Gate is already open
+            if (lever.activated)
+                return hit;
+
+            // Open gate
             lever.activated = true;
+
             GameObject.Find("Ruins Gate").LocateMyFSM("Toll Gate").SendEvent("OPEN");
+
             return hit;
         }
-        
-        private static void SceneChanged(Scene from, Scene to) {
-            if (ShadeSoulLeverSkip && to.name == "Ruins1_31") {
-                HeroController.instance.StartCoroutine(ExtendWall());
+
+        private static void SceneChanged(Scene from, Scene to)
+        {
+            switch (to.name)
+            {
+                case "Ruins1_31" when ShadeSoulLeverSkip:
+                {
+                    HeroController.instance.StartCoroutine(ExtendWall());
+                    break;
+                }
             }
         }
-        
-        // extends a wall in Ruins1_31 to enable climbing it with claw only (like on 1221)
-        private static IEnumerator ExtendWall() {
+
+        // Extends a wall in Ruins1_31 to enable climbing it with claw only (like on 1221)
+        private static IEnumerator ExtendWall()
+        {
             yield return null;
-            
+
             GameObject chunk = GameObject.Find("Chunk 1 1");
-            Vector2[] newPoints = {
+            
+            Vector2[] newPoints =
+            {
                 new Vector2(0, 12),
                 new Vector2(0, 11),
                 new Vector2(12, 11),
@@ -261,10 +291,14 @@ namespace QoL
                 new Vector2(0, 23),
                 new Vector2(0, 12)
             };
-                    
-            foreach (EdgeCollider2D edgeCollider2D in chunk.GetComponents<EdgeCollider2D>()) {
-                if (!(Math.Abs(edgeCollider2D.points[0].y - 12) < 0.1)) continue;
+            
+            foreach (EdgeCollider2D edgeCollider2D in chunk.GetComponents<EdgeCollider2D>())
+            {
+                if (!(Math.Abs(edgeCollider2D.points[0].y - 12) < 0.1)) 
+                    continue;
+                
                 edgeCollider2D.points = newPoints;
+                
                 break;
             }
         }
