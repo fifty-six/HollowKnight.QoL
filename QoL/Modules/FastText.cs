@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 using Modding;
 using TMPro;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class FastText : FauxMod

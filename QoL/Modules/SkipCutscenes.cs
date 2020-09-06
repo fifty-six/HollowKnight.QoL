@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 using Vasi;
 using UObject = UnityEngine.Object;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class SkipCutscenes : FauxMod

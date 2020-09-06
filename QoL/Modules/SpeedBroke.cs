@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 using Vasi;
 using ReflectionHelper = Modding.ReflectionHelper;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class SpeedBroke : FauxMod

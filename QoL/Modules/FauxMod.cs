@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace QoL 
+namespace QoL.Modules 
 {
     [UsedImplicitly]
     public abstract class FauxMod

@@ -7,9 +7,8 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using UnityEngine;
 using UnityEngine.UI;
-using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class FastMenus : FauxMod

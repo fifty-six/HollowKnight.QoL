@@ -3,7 +3,7 @@ using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class InfinitePoP : FauxMod

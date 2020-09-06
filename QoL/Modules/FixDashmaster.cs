@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using Modding;
 using Vasi;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class FixDashmaster : FauxMod

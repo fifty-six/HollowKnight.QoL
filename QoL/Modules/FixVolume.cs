@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class FixVolume : FauxMod

@@ -2,7 +2,7 @@
 using UnityEngine;
 using Vasi;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class LemmSellAll : FauxMod

@@ -3,7 +3,7 @@ using Modding;
 using UnityEngine;
 using ILogger = Modding.ILogger;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class Dev : FauxMod

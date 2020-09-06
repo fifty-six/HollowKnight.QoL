@@ -10,7 +10,7 @@ using MonoMod.Cil;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class UnencryptedSaves : FauxMod

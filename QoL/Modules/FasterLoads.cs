@@ -7,7 +7,7 @@ using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using UnityEngine;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class FasterLoads : FauxMod

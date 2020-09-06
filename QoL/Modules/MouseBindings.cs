@@ -1,9 +1,7 @@
 ﻿using InControl;
 using JetBrains.Annotations;
-using UObject = UnityEngine.Object;
-using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class MouseBindings : FauxMod

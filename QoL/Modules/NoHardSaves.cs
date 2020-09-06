@@ -1,4 +1,4 @@
-namespace QoL
+namespace QoL.Modules
 {
     public class NoHardSaves : FauxMod
     {

@@ -4,10 +4,9 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vasi;
-using UObject = UnityEngine.Object;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
-namespace QoL
+namespace QoL.Modules
 {
     [UsedImplicitly]
     public class SalubraKiller : FauxMod
