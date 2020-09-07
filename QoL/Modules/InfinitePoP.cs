@@ -60,13 +60,15 @@ namespace QoL.Modules
 
         private static bool GetBool(string originalset)
         {
-            return originalset == "newDataBindingSeal" || PlayerData.instance.GetBoolInternal(originalset);
+            return originalset == nameof(PlayerData.newDataBindingSeal) || PlayerData.instance.GetBoolInternal(originalset);
         }
 
         public override void Unload()
         {
             ModHooks.Instance.GetPlayerBoolHook -= GetBool;
             ModHooks.Instance.SetPlayerBoolHook -= SetBool;
+            
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
         }
     }
 }
