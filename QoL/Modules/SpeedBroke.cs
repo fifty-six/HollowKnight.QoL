@@ -143,16 +143,21 @@ namespace QoL.Modules
             switch (self.FsmName)
             {
                 case "Control" when self.name == "Initial Fall Impact" && NoHardFalls:
+                {
+
                     self.ChangeTransition("Idle", "LAND", "Return Control");
                     break;
+                }
 
                 case "Call Lever" when self.name.StartsWith("Lift Call Lever") && Televator:
+                {
                     // Don't change big elevators.
                     if (self.GetState("Check Already Called") == null) break;
 
                     self.ChangeTransition("Left", "FINISHED", "Send Msg");
                     self.ChangeTransition("Right", "FINISHED", "Send Msg");
                     break;
+                }
 
                 case "Bottle Control" when self.GetState("Shatter") is FsmState shatter && GrubsThroughWalls:
                 {
