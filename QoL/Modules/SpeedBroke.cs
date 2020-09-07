@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using Modding;
+using QoL.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vasi;
 using ReflectionHelper = Modding.ReflectionHelper;
+using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace QoL.Modules
 {
@@ -51,8 +55,7 @@ namespace QoL.Modules
             On.PlayMakerFSM.OnEnable += ModifyFSM;
             On.InputHandler.Update += EnableSuperslides;
             ModHooks.Instance.ObjectPoolSpawnHook += OnObjectPoolSpawn;
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneChanged;
-            ModHooks.Instance.HitInstanceHook += CheckLeverSkip;
+            USceneManager.activeSceneChanged += SceneChanged;
         }
 
         public override void Unload()
@@ -64,8 +67,7 @@ namespace QoL.Modules
             On.PlayMakerFSM.OnEnable -= ModifyFSM;
             On.InputHandler.Update -= EnableSuperslides;
             ModHooks.Instance.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SceneChanged;
-            ModHooks.Instance.HitInstanceHook -= CheckLeverSkip;
+            USceneManager.activeSceneChanged -= SceneChanged;
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
@@ -196,67 +198,6 @@ namespace QoL.Modules
             return go;
         }
 
-        private static HitInstance CheckLeverSkip(Fsm owner, HitInstance hit)
-        {
-            const string LEVER_SCENE = "Ruins1_31";
-
-            if (!ShadeSoulLeverSkip)
-                return hit;
-
-            var gm = GameManager.instance;
-
-            if (gm.sceneName != LEVER_SCENE)
-                return hit;
-
-            GameObject slash = hit.Source;
-
-            if (slash.name != "Dash Slash")
-                return hit;
-
-            // Left direction
-            if (Math.Abs(hit.Direction - 180f) > 0.1)
-                return hit;
-
-            // X pos window
-            if (slash.transform.GetPositionX() < 44.6 || slash.transform.GetPositionX() > 45.0)
-                return hit;
-
-            // Y pos window
-            if (slash.transform.GetPositionY() < 56.4 || slash.transform.GetPositionY() > 57.0)
-                return hit;
-
-
-            PersistentBoolData lever = gm.sceneData.persistentBoolItems.Find
-            (
-                data => data.sceneName == LEVER_SCENE
-                     && data.id == "Ruins Lever"
-            );
-
-            // First time entering this scene
-            if (lever == null)
-            {
-                lever = new PersistentBoolData
-                {
-                    sceneName = "Ruins1_31",
-                    id = "Ruins Lever",
-                    activated = false
-                };
-
-                gm.sceneData.SaveMyState(lever);
-            }
-
-            // Gate is already open
-            if (lever.activated)
-                return hit;
-
-            // Open gate
-            lever.activated = true;
-
-            GameObject.Find("Ruins Gate").LocateMyFSM("Toll Gate").SendEvent("OPEN");
-
-            return hit;
-        }
-
         private static void SceneChanged(Scene from, Scene to)
         {
             switch (to.name)
@@ -264,6 +205,7 @@ namespace QoL.Modules
                 case "Ruins1_31" when ShadeSoulLeverSkip:
                 {
                     HeroController.instance.StartCoroutine(ExtendWall());
+                    
                     break;
                 }
             }
@@ -275,32 +217,41 @@ namespace QoL.Modules
             yield return null;
 
             GameObject chunk = GameObject.Find("Chunk 1 1");
+
+            var lever_go = new GameObject
+            (
+                "Ruins Lever",
+                typeof(Lever),
+                typeof(BoxCollider2D)
+            );
             
-            Vector2[] newPoints =
+            lever_go.transform.position = new Vector3(38f, 56.7f);
+            lever_go.layer = (int) PhysLayers.TERRAIN;
+
+            var lever = lever_go.GetComponent<Lever>();
+            lever.OnHit = () => GameObject.Find("Ruins Gate").LocateMyFSM("Toll Gate").SendEvent("OPEN");
+            
+            var bcol = lever_go.GetComponent<BoxCollider2D>();
+            bcol.size = new Vector2(.4f, .6f);
+            bcol.isTrigger = true;
+
+            Vector2[] points = 
             {
-                new Vector2(0, 12),
-                new Vector2(0, 11),
-                new Vector2(12, 11),
-                new Vector2(12, 12),
-                new Vector2(13, 12),
-                new Vector2(13, 16),
+                new Vector2(21.4f, 19),
                 new Vector2(21.5f, 16),
                 new Vector2(21.5f, 19),
-                new Vector2(23, 19),
-                new Vector2(23, 23),
-                new Vector2(0, 23),
-                new Vector2(0, 12)
             };
+
+            EdgeCollider2D col = chunk
+                                 .GetComponents<EdgeCollider2D>()
+                                 .First(x => x.points[0] == new Vector2(0, 12));
+
+            List<Vector2> pts = col.points.ToList();
             
-            foreach (EdgeCollider2D edgeCollider2D in chunk.GetComponents<EdgeCollider2D>())
-            {
-                if (!(Math.Abs(edgeCollider2D.points[0].y - 12) < 0.1)) 
-                    continue;
-                
-                edgeCollider2D.points = newPoints;
-                
-                break;
-            }
+            pts.RemoveRange(6, 2);
+            pts.InsertRange(6, points);
+
+            col.points = pts.ToArray();
         }
     }
 }
