@@ -7,15 +7,19 @@ using JetBrains.Annotations;
 using Modding;
 using Modding.Patches;
 using MonoMod.Cil;
+using MonoMod.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
+using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL.Modules
 {
     [UsedImplicitly]
     public class UnencryptedSaves : FauxMod
     {
-        private static readonly MethodInfo GET_SAVE_FILE_NAME = typeof(ModHooks).GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FastReflectionDelegate GetSaveFileName = typeof(ModHooks)
+                                                                         .GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic)
+                                                                         .GetFastDelegate();
 
         public override void Initialize()
         {
@@ -40,8 +44,6 @@ namespace QoL.Modules
                 x => x.MatchLeaveS(out _)
             ))
             {
-                Log("Matched save.");
-
                 for (int i = cursors.Length - 1; i >= 0; i--)
                 {
                     cursors[i].Remove();
@@ -71,7 +73,7 @@ namespace QoL.Modules
             File.SetLastWriteTime(path, new DateTime(1999, 6, 11));
         }
 
-        private static void OnSaveLoad(int saveSlot)
+        private void OnSaveLoad(int saveSlot)
         {
             saveSlot = GetRealID(saveSlot);
 
@@ -112,7 +114,7 @@ namespace QoL.Modules
                 LoadJson(jsonPath, DoLoad);
         }
 
-        private static void LoadJson(string jsonPath, Action<string> callback)
+        private void LoadJson(string jsonPath, Action<string> callback)
         {
             string res = null;
 
@@ -120,9 +122,9 @@ namespace QoL.Modules
             {
                 res = Encoding.UTF8.GetString(File.ReadAllBytes(jsonPath));
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                Debug.LogException(exception);
+                Log($"Failed to read json!: {e.Message}");
             }
 
             CoreLoop.InvokeNext(() => { callback?.Invoke(res); });
@@ -135,7 +137,7 @@ namespace QoL.Modules
 
         private static int GetRealID(int id)
         {
-            string s = (string) GET_SAVE_FILE_NAME.Invoke(ModHooks.Instance, new object[] {id});
+            string s = (string) GetSaveFileName(ModHooks.Instance, id);
 
             return s == null
                 ? id
