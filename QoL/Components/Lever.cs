@@ -7,20 +7,13 @@ namespace QoL.Components
 {
     public class Lever : MonoBehaviour
     {
-        private readonly PersistentBoolData _bool;
-        
-        private string _id;
-        
+        public PersistentBoolData BoolData { get; set; }
+
         public Action OnHit { get; set; }
         
-        public string Id
-        {
-            set => _bool.id = _id = value;
-        }
-
         public Lever()
         {
-            _bool = new PersistentBoolData
+            BoolData = new PersistentBoolData
             {
                 sceneName = USceneManager.GetActiveScene().name,
                 id = name
@@ -37,7 +30,7 @@ namespace QoL.Components
 
             SceneData sd = GameManager.instance.sceneData;
             
-            PersistentBoolData pbd = sd.FindMyState(_bool) ?? _bool;
+            PersistentBoolData pbd = sd.FindMyState(BoolData) ?? BoolData;
             
             if (pbd.activated)
                 return;
