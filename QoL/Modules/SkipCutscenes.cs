@@ -112,6 +112,7 @@ namespace QoL.Modules
             hc.StartCoroutine(HKPrimeSkip(arg1));
             hc.StartCoroutine(StatueWait(arg1));
             hc.StartCoroutine(StagCutscene());
+            hc.StartCoroutine(AbyssShriekPickup(arg1));
         }
 
         private static IEnumerator StagCutscene()
@@ -202,6 +203,18 @@ namespace QoL.Modules
             GameObject.Find("Dream Enter").LocateMyFSM("Control").GetState("Idle").ChangeTransition("DREAM HIT", "Change Scene");
         }
 
+        private static IEnumerator AbyssShriekPickup(Scene arg1)
+        {
+            if (arg1.name != "Abyss_12") yield break;
+            
+            yield return null;
+            
+            PlayMakerFSM shriek = GameObject.Find("Scream 2 Get").LocateMyFSM("Scream Get");
+            shriek.GetState("Move To").ChangeTransition("FINISHED", "Get");
+            shriek.GetState("Get Pause").RemoveAllOfType<Wait>();
+            shriek.GetState("Land").RemoveAllOfType<Wait>();
+        }
+        
         private static IEnumerator Dreamers(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
         {
             info.EntryDelay = 0f;
