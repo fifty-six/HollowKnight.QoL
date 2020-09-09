@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vasi;
+using Object = UnityEngine.Object;
 
 namespace QoL
 {
@@ -38,7 +39,6 @@ namespace QoL
             if (uumuu == null)
                 yield break;
             
-            
             PlayMakerFSM uumuuFSM = uumuu.LocateMyFSM("Mega Jellyfish");
             
             // Fix the waits and the number of attacks
@@ -52,19 +52,16 @@ namespace QoL
             choiceState.AddMethod( () => SetUumuuPattern(uumuuFSM) );
             
             // Reset the multizap counter to 0 so the pattern remains 2 quick 1 optional long
-            uumuuFSM.GetState("Recover").AddMethod( () => uumuuFSM.FsmVariables.GetFsmInt("Ct Multizap").Value = 0 );
-
-            // Done with the FSM, restore her friction to max so she gets stuck on the wall
-            // I've been told to comment the fact that this doesn't get her stuck on the air, only walls and other colliders in general
-            uumuu.GetComponent<BoxCollider2D>().sharedMaterial = new PhysicsMaterial2D {friction = float.PositiveInfinity};
-
-            //TODO Dream nail knockback goes here idk
+            uumuuFSM.GetState("Recover").AddMethod(() => uumuuFSM.FsmVariables.GetFsmInt("Ct Multizap").Value = 0); 
             
+            //TODO knockback in platforms
+
+            // Set the initial RecoilSpeed to 0 so that dream nailing her on the first cycle doesn't push her
+            uumuu.GetComponent<Recoil>().SetRecoilSpeed(0);
+
             // Set her HP to 1028 value
-            uumuu.GetComponent<HealthManager>().hp = 250; 
-
-
-
+            uumuu.GetComponent<HealthManager>().hp = 250;
+            
         }
 
         private static void SetUumuuPattern(PlayMakerFSM uumuuFSM)
