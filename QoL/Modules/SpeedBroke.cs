@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using GlobalEnums;
@@ -11,6 +10,7 @@ using QoL.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Vasi;
+using UObject = UnityEngine.Object;
 using ReflectionHelper = Modding.ReflectionHelper;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
 
@@ -45,6 +45,9 @@ namespace QoL.Modules
 
         [SerializeToSetting]
         public static bool ShadeSoulLeverSkip;
+
+        [SerializeToSetting]
+        public static bool CrystalisedMoundSpikes = true;
 
         public override void Initialize()
         {
@@ -209,15 +212,20 @@ namespace QoL.Modules
             {
                 case "Ruins1_31" when ShadeSoulLeverSkip:
                 {
-                    HeroController.instance.StartCoroutine(ExtendWall());
+                    HeroController.instance.StartCoroutine(EnableShadeSoulLeverSkip());
+                    
+                    break;
+                }
+                case "Mines_35" when CrystalisedMoundSpikes:
+                {
+                    HeroController.instance.StartCoroutine(AddCrystalisedMoundSpikes());
                     
                     break;
                 }
             }
         }
 
-        // Extends a wall in Ruins1_31 to enable climbing it with claw only (like on 1221)
-        private static IEnumerator ExtendWall()
+        private static IEnumerator EnableShadeSoulLeverSkip()
         {
             yield return null;
 
@@ -240,6 +248,7 @@ namespace QoL.Modules
             bcol.size = new Vector2(.4f, .6f);
             bcol.isTrigger = true;
 
+            // Extends a wall in Ruins1_31 to enable climbing it with claw only (like on 1221)
             Vector2[] points = 
             {
                 new Vector2(21.4f, 19),
@@ -257,6 +266,25 @@ namespace QoL.Modules
             pts.InsertRange(6, points);
 
             col.points = pts.ToArray();
+        }
+        
+        private static IEnumerator AddCrystalisedMoundSpikes()
+        {
+            yield return null;
+
+            foreach (NonBouncer nonBounce in UObject.FindObjectsOfType<NonBouncer>())
+            {
+                if (!nonBounce.gameObject.name.StartsWith("Spike Collider"))
+                    continue;
+                
+                nonBounce.active = false;
+                    
+                AudioSource tinkAudio = new GameObject("tinkAudio").AddComponent<AudioSource>();
+                tinkAudio.clip = GameObject.Find("Mines Platform").GetComponent<FlipPlatform>().hitSound;
+                tinkAudio.volume = FixVolume.Volume;
+                    
+                nonBounce.gameObject.AddComponent<TinkEffect>().blockEffect = tinkAudio.gameObject;
+            }
         }
     }
 }
