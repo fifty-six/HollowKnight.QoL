@@ -113,6 +113,9 @@ namespace QoL.Modules
             hc.StartCoroutine(StatueWait(arg1));
             hc.StartCoroutine(StagCutscene());
             hc.StartCoroutine(AbyssShriekPickup(arg1));
+            hc.StartCoroutine(KingsBrandHornet(arg1));
+            hc.StartCoroutine(KingsBrandAvalanche(arg1));
+            hc.StartCoroutine(BlackEgg(arg1));
         }
 
         private static IEnumerator StagCutscene()
@@ -213,6 +216,46 @@ namespace QoL.Modules
             shriek.GetState("Move To").ChangeTransition("FINISHED", "Get");
             shriek.GetState("Get Pause").RemoveAllOfType<Wait>();
             shriek.GetState("Land").RemoveAllOfType<Wait>();
+        }
+        
+        private static IEnumerator KingsBrandHornet(Scene arg1)
+        {
+            if (arg1.name != "Deepnest_East_12") yield break;
+
+            yield return null;
+
+            PlayMakerFSM hornet = GameObject.Find("Hornet Blizzard Return Scene").LocateMyFSM("Control");
+
+            hornet.GetState("Fade Pause").RemoveAllOfType<Wait>();
+            hornet.GetState("Fade In").RemoveAllOfType<Wait>();
+            hornet.GetState("Land").RemoveAllOfType<Wait>();
+        }
+
+        private static IEnumerator KingsBrandAvalanche(Scene arg1)
+        {
+            if (arg1.name != "Room_Wyrm") yield break;
+
+            yield return null;
+
+            PlayMakerFSM avalanche = GameObject.Find("Avalanche End").LocateMyFSM("Control");
+            avalanche.GetState("Fade").GetAction<Wait>().time = 1;
+        }
+        
+        private static IEnumerator BlackEgg(Scene arg1)
+        {
+            if (arg1.name != "Room_temple") yield break;
+
+            yield return null;
+
+            PlayMakerFSM door = GameObject.Find("Final Boss Door").LocateMyFSM("Control");
+
+            door.GetState("Take Control").RemoveAllOfType<Wait>();
+            door.GetState("Shake").GetAction<Wait>().time = 1;
+            door.GetState("Barrier Flash").RemoveAllOfType<Wait>();
+            door.GetState("Blow").RemoveAllOfType<Wait>();
+            door.GetState("Door Off").RemoveAllOfType<Wait>();
+            door.GetState("Roar").RemoveAllOfType<Wait>();
+            door.GetState("Roar End").GetAction<Wait>().time = 1;
         }
         
         private static IEnumerator Dreamers(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
