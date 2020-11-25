@@ -9,7 +9,6 @@ using Modding.Patches;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using Newtonsoft.Json;
-using UnityEngine;
 using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL.Modules

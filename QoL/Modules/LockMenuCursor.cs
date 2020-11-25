@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using Modding;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using MonoMod.RuntimeDetour.HookGen;
 using UnityEngine;
 
 namespace QoL.Modules
