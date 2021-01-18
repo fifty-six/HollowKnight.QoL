@@ -45,9 +45,17 @@
             <HintPath>..\..\..\References\Mods\Vasi.dll</HintPath>
         </Reference>
     </ItemGroup>
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Target Name="CopyMod" AfterTargets="PostBuildEvent">
         <Exec Command="@echo on"/>
         <Exec Command="echo Copying mod"/>
         <Exec Command="copy &quot;$(TargetPath)&quot; &quot;D:\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\&quot;"/>
+    </Target>
+    <Target Name="CreateReleaseZip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+        <MakeDir Directories="$(ProjectDir)Output"/>
+        <Delete Files="$(ProjectDir)/QoL.zip"/>
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)/Output/"/>
+        <Copy SourceFiles="$(SolutionDir)/README.md" DestinationFolder="$(ProjectDir)/Output/"/>
+        <ZipDirectory DestinationFile="$(ProjectDir)/QoL.zip" SourceDirectory="$(ProjectDir)/Output"/>
+        <RemoveDir Directories="$(ProjectDir)Output"/>
     </Target>
 </Project>
