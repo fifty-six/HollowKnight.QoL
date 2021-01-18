@@ -46,9 +46,11 @@
         </Reference>
     </ItemGroup>
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
-        <Exec Command="@echo on"/>
-        <Exec Command="echo Copying mod"/>
-        <Exec Command="copy &quot;$(TargetPath)&quot; &quot;D:\Steam\steamapps\common\Hollow Knight\hollow_knight_Data\Managed\Mods\&quot;"/>
+        <Copy
+                SourceFiles="$(TargetPath)"
+                DestinationFolder="D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods"
+                SkipUnchangedFiles="true"
+        />
     </Target>
     <Target Name="CreateReleaseZip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
         <MakeDir Directories="$(ProjectDir)Output"/>
