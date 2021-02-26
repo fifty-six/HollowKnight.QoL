@@ -251,9 +251,9 @@ namespace QoL.Modules
             // Extends a wall in Ruins1_31 to enable climbing it with claw only (like on 1221)
             Vector2[] points = 
             {
-                new Vector2(21.4f, 19),
-                new Vector2(21.5f, 16),
-                new Vector2(21.5f, 19),
+                new(21.4f, 19),
+                new(21.5f, 16),
+                new(21.5f, 19),
             };
 
             EdgeCollider2D col = chunk

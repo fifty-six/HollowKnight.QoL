@@ -25,7 +25,7 @@ namespace QoL.Modules
             (typeof(SaveSlotButton), "<AnimateToSlotState>d__68", DecreaseWait),
         };
 
-        private readonly List<ILHook> _hooked = new List<ILHook>();
+        private readonly List<ILHook> _hooked = new();
 
         public override void Initialize()
         {

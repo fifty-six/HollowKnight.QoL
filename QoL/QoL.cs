@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Modding;
 using QoL.Modules;
 
 namespace QoL
 {
+    [UsedImplicitly]
     public class QoL : Mod, ITogglableMod
     {
         public override string GetVersion() => Vasi.VersionUtil.GetVersion<QoL>();
@@ -17,9 +19,9 @@ namespace QoL
             set => _globalSettings = (Settings) value;
         }
         
-        private Settings _globalSettings = new Settings();
+        private Settings _globalSettings = new();
 
-        private readonly List<FauxMod> _fauxMods = new List<FauxMod>();
+        private readonly List<FauxMod> _fauxMods = new();
 
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
