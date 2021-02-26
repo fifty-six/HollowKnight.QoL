@@ -20,7 +20,7 @@ namespace QoL
         private Settings _globalSettings = new Settings();
 
         private readonly List<FauxMod> _fauxMods = new List<FauxMod>();
-        
+
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
 
@@ -33,11 +33,11 @@ namespace QoL
                 // If Disable isn't overridden then it can't be toggled.
                 bool cantDisable = t.GetMethod(nameof(FauxMod.Unload))?.DeclaringType == typeof(FauxMod);
 
-                if (!GlobalSettings.BoolValues.TryGetValue(t.Name, out bool enabled))
+                if (!_globalSettings.EnabledModules.TryGetValue(t.Name, out bool enabled))
                 {
                     enabled = fm.DefaultState;
                     
-                    GlobalSettings.BoolValues.Add(t.Name, enabled);
+                    _globalSettings.EnabledModules.Add(t.Name, enabled);
                 }
 
                 if (cantDisable)

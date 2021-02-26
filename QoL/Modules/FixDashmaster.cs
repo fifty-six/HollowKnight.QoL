@@ -21,7 +21,7 @@ namespace QoL.Modules
 
             if (input.inputActions.left.IsPressed || input.inputActions.right.IsPressed)
             {
-                ref bool down_enabled = ref Mirror.GetFieldRef<OneAxisInputControl, bool>(input.inputActions.down, "Enabled");
+                ref bool down_enabled = ref Mirror.GetFieldRef<OneAxisInputControl, bool>(input.inputActions.down, "enabled");
 
                 bool orig_enabled = down_enabled;
 

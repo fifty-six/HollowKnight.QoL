@@ -7,12 +7,19 @@ using UnityEngine;
 
 namespace QoL
 {
+    [Serializable]
     public class Settings : ModSettings, ISerializationCallbackReceiver
     {
         private readonly Assembly _asm = Assembly.GetAssembly(typeof(Settings));
 
-        private readonly Dictionary<FieldInfo, Type> _fields = new Dictionary<FieldInfo, Type>();
+        private readonly Dictionary<FieldInfo, Type> _fields = new();
 
+        public Dictionary<string, bool> EnabledModules { get; set; } = new();
+
+        public Dictionary<string, bool>  Booleans { get; set; } = new();
+        public Dictionary<string, float> Floats   { get; set; } = new();
+        public Dictionary<string, int>   Integers { get; set; } = new();
+        
         public Settings()
         {
             foreach (Type t in _asm.GetTypes())
@@ -32,15 +39,15 @@ namespace QoL
 
                 if (fi.FieldType == typeof(bool))
                 {
-                    BoolValues[$"{pair.Value.Name}:{fi.Name}"] = (bool) fi.GetValue(null);
+                    Booleans[$"{pair.Value.Name}:{fi.Name}"] = (bool) fi.GetValue(null);
                 }
                 else if (fi.FieldType == typeof(float))
                 {
-                    FloatValues[$"{pair.Value.Name}:{fi.Name}"] = (float) fi.GetValue(null);
+                    Floats[$"{pair.Value.Name}:{fi.Name}"] = (float) fi.GetValue(null);
                 }
                 else if (fi.FieldType == typeof(int))
                 {
-                    IntValues[$"{pair.Value.Name}:{fi.Name}"] = (int) fi.GetValue(null);
+                    Integers[$"{pair.Value.Name}:{fi.Name}"] = (int) fi.GetValue(null);
                 }
             }
         }
@@ -53,17 +60,17 @@ namespace QoL
 
                 if (fi.FieldType == typeof(bool))
                 {
-                    if (BoolValues.TryGetValue($"{pair.Value.Name}:{fi.Name}", out bool val))
+                    if (Booleans.TryGetValue($"{pair.Value.Name}:{fi.Name}", out bool val))
                         fi.SetValue(null, val);
                 }
                 else if (fi.FieldType == typeof(float))
                 {
-                    if (FloatValues.TryGetValue($"{pair.Value.Name}:{fi.Name}", out float val))
+                    if (Floats.TryGetValue($"{pair.Value.Name}:{fi.Name}", out float val))
                         fi.SetValue(null, val);
                 }
                 else if (fi.FieldType == typeof(int))
                 {
-                    if (IntValues.TryGetValue($"{pair.Value.Name}:{fi.Name}", out int val))
+                    if (Integers.TryGetValue($"{pair.Value.Name}:{fi.Name}", out int val))
                         fi.SetValue(null, val);
                 }
             }

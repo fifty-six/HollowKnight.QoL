@@ -20,11 +20,11 @@ namespace QoL.Modules
         {
             Unload();
             
-            Type type = typeof(HeroController).GetNestedType("<EnterScene>c__Iterator0", BindingFlags.NonPublic | BindingFlags.Instance);
+            Type type = typeof(HeroController).GetNestedType("<EnterScene>d__469", BindingFlags.NonPublic | BindingFlags.Instance);
             
             _hook = new ILHook
             (
-                type.GetMethod("MoveNext"),
+                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
                 EnterScene
             );
         }

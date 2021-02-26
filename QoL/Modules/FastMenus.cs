@@ -15,27 +15,31 @@ namespace QoL.Modules
     {
         private readonly (Type, string, ILContext.Manipulator)[] ILHooks =
         {
-            (typeof(UIManager), "<HideSaveProfileMenu>c__Iterator1F", DecreaseWait),
-            (typeof(UIManager), "<HideCurrentMenu>c__Iterator1C", DecreaseWait),
-            (typeof(UIManager), "<HideMenu>c__Iterator1E", DecreaseWait),
-            (typeof(UIManager), "<ShowMenu>c__Iterator1D", DecreaseWait),
-            (typeof(UIManager), "<GoToProfileMenu>c__Iterator5", DecreaseWait),
-            (typeof(GameManager), "<PauseGameToggle>c__IteratorA", PauseGameToggle),
-            (typeof(GameManager), "<RunContinueGame>c__Iterator10", RunContinueGame),
-            (typeof(SaveSlotButton), "<AnimateToSlotState>c__Iterator2", DecreaseWait),
+            (typeof(UIManager), "<HideSaveProfileMenu>d__215", DecreaseWait),
+            (typeof(UIManager), "<HideCurrentMenu>d__211", DecreaseWait),
+            (typeof(UIManager), "<HideMenu>d__213", DecreaseWait),
+            (typeof(UIManager), "<ShowMenu>d__212", DecreaseWait),
+            (typeof(UIManager), "<GoToProfileMenu>d__152", DecreaseWait),
+            (typeof(GameManager), "<PauseGameToggle>d__338", PauseGameToggle),
+            (typeof(GameManager), "<RunContinueGame>d__349", RunContinueGame),
+            (typeof(SaveSlotButton), "<AnimateToSlotState>d__68", DecreaseWait),
         };
 
         private readonly List<ILHook> _hooked = new List<ILHook>();
 
         public override void Initialize()
         {
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            
             foreach ((Type t, string nested, ILContext.Manipulator method) in ILHooks)
             {
+                Log(nested);
+                
                 _hooked.Add
                 (
                     new ILHook
                     (
-                        t.GetNestedType(nested, BindingFlags.NonPublic | BindingFlags.Instance).GetMethod("MoveNext"),
+                        t.GetNestedType(nested, flags).GetMethod("MoveNext", flags),
                         method
                     )
                 );

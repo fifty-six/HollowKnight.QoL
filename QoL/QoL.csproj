@@ -1,22 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <ProjectGuid>{F039FA1D-A12D-4672-BF0A-60CF7900EE21}</ProjectGuid>
-        <TargetFramework>net35</TargetFramework>
+        <TargetFramework>net472</TargetFramework>
         <AssemblyTitle>QoL</AssemblyTitle>
         <AssemblyVersion>2.4.0</AssemblyVersion>
         <Product>QoL</Product>
-        <Copyright>Copyright © 2018</Copyright>
+        <Copyright>Copyright © Yusuf Bham 2021</Copyright>
         <OutputPath>bin\$(Configuration)\</OutputPath>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\Assembly-CSharp.dll</HintPath>
+          <HintPath>..\..\..\References\Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="MMHOOK_Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\..\..\References\MMHOOK_Assembly-CSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="MMHOOK_PlayMaker, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\..\..\References\MMHOOK_PlayMaker.dll</HintPath>
+        </Reference>
+        <Reference Include="Mono.Cecil, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+          <HintPath>..\..\..\References\Mono.Cecil.dll</HintPath>
+        </Reference>
+        <Reference Include="MonoMod.RuntimeDetour, Version=21.1.11.1, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\..\..\References\MonoMod.RuntimeDetour.dll</HintPath>
+        </Reference>
+        <Reference Include="MonoMod.Utils, Version=21.1.11.1, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\..\..\References\MonoMod.Utils.dll</HintPath>
+        </Reference>
+        <Reference Include="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <HintPath>..\..\..\References\mscorlib.dll</HintPath>
+        </Reference>
+        <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+          <HintPath>..\..\..\References\netstandard.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=null">
+          <HintPath>..\..\..\References\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\PlayMaker.dll</HintPath>
+          <HintPath>..\..\..\References\PlayMaker.dll</HintPath>
         </Reference>
-        <Reference Include="System.Data.DataSetExtensions"/>
         <Reference Include="UnityEngine">
             <HintPath>..\..\..\References\UnityEngine.dll</HintPath>
         </Reference>
@@ -42,22 +65,20 @@
             <HintPath>..\..\..\References\UnityEngine.UIModule.dll</HintPath>
         </Reference>
         <Reference Include="Vasi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\Mods\Vasi.dll</HintPath>
+          <HintPath>..\..\..\References\Mods\Vasi.dll</HintPath>
         </Reference>
     </ItemGroup>
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
-        <Copy
-                SourceFiles="$(TargetPath)"
-                DestinationFolder="D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods"
-                SkipUnchangedFiles="true"
-        />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods" SkipUnchangedFiles="true" />
     </Target>
     <Target Name="CreateReleaseZip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
-        <MakeDir Directories="$(ProjectDir)Output"/>
-        <Delete Files="$(ProjectDir)/QoL.zip"/>
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)/Output/"/>
-        <Copy SourceFiles="$(SolutionDir)/README.md" DestinationFolder="$(ProjectDir)/Output/"/>
-        <ZipDirectory DestinationFile="$(ProjectDir)/QoL.zip" SourceDirectory="$(ProjectDir)/Output"/>
-        <RemoveDir Directories="$(ProjectDir)Output"/>
+        <MakeDir Directories="$(ProjectDir)Output" />
+        <Delete Files="$(ProjectDir)/QoL.zip" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ProjectDir)/Output/" />
+        <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ProjectDir)/Output/" />
+        <Copy SourceFiles="$(SolutionDir)/README.md" DestinationFolder="$(ProjectDir)/Output/" />
+        <ZipDirectory DestinationFile="$(ProjectDir)/QoL.zip" SourceDirectory="$(ProjectDir)/Output" />
+        <RemoveDir Directories="$(ProjectDir)Output" />
     </Target>
 </Project>
