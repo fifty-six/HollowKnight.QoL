@@ -33,8 +33,6 @@ namespace QoL.Modules
             
             foreach ((Type t, string nested, ILContext.Manipulator method) in ILHooks)
             {
-                Log(nested);
-                
                 _hooked.Add
                 (
                     new ILHook
