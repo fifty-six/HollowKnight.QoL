@@ -39,7 +39,7 @@ namespace QoL.Modules
                 i => i.OpCode == OpCodes.Newobj && i.MatchNewobj<WaitForSeconds>()
             ))
             {
-                if (!(c.Instrs[c.Index].Operand is float f)) continue;
+                if (c.Instrs[c.Index].Operand is not float f) continue;
 
                 if (!SKIP.Contains(f)) continue;
                 
