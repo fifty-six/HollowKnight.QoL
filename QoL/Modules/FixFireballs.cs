@@ -25,25 +25,30 @@ namespace QoL.Modules
         {
             // Wall Impact state doesn't exist in shade soul control
             // Fireballs get recycled so we've gotta check for the state this method adds as well
-            if (self.FsmName != "Fireball Control" || self.GetState("Wall Impact") == null || self.GetState("Idle (No Collision)") != null)
+            if
+            (
+                self.FsmName != "Fireball Control"
+                || !self.TryGetState("Wall Impact", out _)
+                || self.TryGetState("Idle (No Collision)", out _)
+            )
             {
                 orig(self);
                 return;
             }
-            
+
             // Store the terrain checker reference, prevent it from being enabled
             GameObject terrainChecker = self.GetAction<ActivateGameObject>("Pause", 3).gameObject.GameObject.Value;
             self.GetState("Pause").RemoveAction(3);
-            
+
             // Create a new state before the regular idle
             FsmState idleNoCol = self.CopyState("R", "Idle (No Collision)");
             idleNoCol.RemoveAction(0);
-            
+
             self.GetState("L").ChangeTransition("FINISHED", "Idle (No Collision)");
             self.GetState("R").ChangeTransition("FINISHED", "Idle (No Collision)");
-            
+
             idleNoCol.AddTransition("FINISHED", "Idle");
-            
+
             // New state needs to start the fireball moving
             idleNoCol.AddAction(new SetVelocity2d
             {
@@ -80,7 +85,7 @@ namespace QoL.Modules
             
             // Account for the additional waiting time before Idle
             idle.GetAction<Wait>(8).time.Value -= NO_COLLISION_TIME;
-            
+
             orig(self);
         }
     }
