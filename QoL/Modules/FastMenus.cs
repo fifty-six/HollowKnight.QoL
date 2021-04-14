@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MonoMod.Cil;
@@ -15,14 +16,14 @@ namespace QoL.Modules
     {
         private readonly (Type, string, ILContext.Manipulator)[] ILHooks =
         {
-            (typeof(UIManager), "<HideSaveProfileMenu>d__215", DecreaseWait),
-            (typeof(UIManager), "<HideCurrentMenu>d__211", DecreaseWait),
-            (typeof(UIManager), "<HideMenu>d__213", DecreaseWait),
-            (typeof(UIManager), "<ShowMenu>d__212", DecreaseWait),
-            (typeof(UIManager), "<GoToProfileMenu>d__152", DecreaseWait),
-            (typeof(GameManager), "<PauseGameToggle>d__338", PauseGameToggle),
-            (typeof(GameManager), "<RunContinueGame>d__349", RunContinueGame),
-            (typeof(SaveSlotButton), "<AnimateToSlotState>d__68", DecreaseWait),
+            (typeof(UIManager), "<HideSaveProfileMenu>", DecreaseWait),
+            (typeof(UIManager), "<HideCurrentMenu>", DecreaseWait),
+            (typeof(UIManager), "<HideMenu>", DecreaseWait),
+            (typeof(UIManager), "<ShowMenu>", DecreaseWait),
+            (typeof(UIManager), "<GoToProfileMenu>", DecreaseWait),
+            (typeof(GameManager), "<PauseGameToggle>", PauseGameToggle),
+            (typeof(GameManager), "<RunContinueGame>", RunContinueGame),
+            (typeof(SaveSlotButton), "<AnimateToSlotState>", DecreaseWait),
         };
 
         private readonly List<ILHook> _hooked = new();
@@ -33,11 +34,13 @@ namespace QoL.Modules
             
             foreach ((Type t, string nested, ILContext.Manipulator method) in ILHooks)
             {
+                Type nestedType = t.GetNestedTypes(flags).First(x => x.Name.Contains(nested));
+                
                 _hooked.Add
                 (
                     new ILHook
                     (
-                        t.GetNestedType(nested, flags).GetMethod("MoveNext", flags),
+                        nestedType.GetMethod("MoveNext", flags),
                         method
                     )
                 );
