@@ -11,7 +11,7 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class LockMenuCursor : FauxMod
     {
-        private ILHook _hook;
+        private ILHook? _hook;
 
         public LockMenuCursor() : base(false) { }
 

@@ -9,7 +9,7 @@ namespace QoL.Components
     {
         public PersistentBoolData BoolData { get; set; }
 
-        public Action OnHit { get; set; }
+        public Action? OnHit { get; set; }
         
         public Lever()
         {
@@ -34,6 +34,9 @@ namespace QoL.Components
             
             if (pbd.activated)
                 return;
+
+            if (OnHit is null)
+                throw new NullReferenceException(nameof(OnHit));
 
             pbd.activated = true;
 

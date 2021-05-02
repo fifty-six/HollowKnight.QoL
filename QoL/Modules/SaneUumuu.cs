@@ -12,7 +12,7 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class SaneUumuu : FauxMod
     {
-        private NonBouncer _coro;
+        private NonBouncer _coro = null!;
         
         public override void Initialize()
         {

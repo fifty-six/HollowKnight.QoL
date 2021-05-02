@@ -14,7 +14,7 @@ namespace QoL.Modules
     {
         private static readonly float[] SKIP = {0.4f, .165f};
         
-        private ILHook _hook;
+        private ILHook? _hook;
 
         public override void Initialize()
         {

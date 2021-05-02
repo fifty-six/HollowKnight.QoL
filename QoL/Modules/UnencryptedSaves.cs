@@ -92,14 +92,18 @@ namespace QoL.Modules
                         }
                     );
 
+                    if (saveGameData is null)
+                        return;
+
                     gm.playerData = PlayerData.instance = saveGameData.playerData;
                     gm.sceneData = SceneData.instance = saveGameData.sceneData;
                     gm.profileID = saveSlot;
                     gm.inputHandler.RefreshPlayerData();
                 }
-                catch (ArgumentException)
+                catch (ArgumentException e)
                 {
                     // It's fine to just stop here as this is *after* the game loads the dat anyways
+                    Log($"Caught ArgumentException when deserializing SaveGameData! {e}");
                 }
             }
 
@@ -115,7 +119,7 @@ namespace QoL.Modules
 
         private void LoadJson(string jsonPath, Action<string> callback)
         {
-            string res = null;
+            string res;
 
             try
             {
@@ -124,19 +128,25 @@ namespace QoL.Modules
             catch (Exception e)
             {
                 Log($"Failed to read json!: {e.Message}");
+
+                return;
             }
 
-            CoreLoop.InvokeNext(() => { callback?.Invoke(res); });
+            CoreLoop.InvokeNext(() => { callback.Invoke(res); });
         }
 
         private static string GetSavePath(int saveSlot, string ending)
         {
-            return Path.Combine(ReflectionHelper.GetAttr<DesktopPlatform, string>(Platform.Current as DesktopPlatform, "saveDirPath"), $"user{saveSlot}.{ending}");
+            return Path.Combine
+            (
+                ReflectionHelper.GetAttr<DesktopPlatform, string>((DesktopPlatform) Platform.Current, "saveDirPath"),
+                $"user{saveSlot}.{ending}"
+            );
         }
 
         private static int GetRealID(int id)
         {
-            string s = (string) GetSaveFileName(ModHooks.Instance, id);
+            string? s = (string?) GetSaveFileName(ModHooks.Instance, id);
 
             return s == null
                 ? id
