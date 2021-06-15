@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Modding;
 using QoL.Modules;
@@ -14,7 +11,7 @@ using Vasi;
 namespace QoL
 {
     [UsedImplicitly]
-    public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>
+    public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>, IMenuMod
     {
         public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
@@ -25,6 +22,33 @@ namespace QoL
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
         
+        public List<IMenuMod.MenuEntry> GetMenuData()
+        {
+            List<IMenuMod.MenuEntry> li = new();
+
+            string[] bools = { "false", "true" };
+
+            foreach ((FieldInfo fi, Type t) in _globalSettings.Fields)
+            {
+                if (fi.FieldType != typeof(bool))
+                    continue;
+
+                li.Add
+                (
+                    new IMenuMod.MenuEntry
+                    (
+                        Regex.Replace(fi.Name, "([A-Z])", " $1").TrimEnd(),
+                        bools,
+                        $"Comes from {t.Name}",
+                        i => fi.SetValue(null, Convert.ToBoolean(i)),
+                        () => Convert.ToInt32(fi.GetValue(null))
+                    )
+                );
+            }
+
+            return li;
+        }
+
         public void OnLoadGlobal(Settings s) => _globalSettings = s;
 
         public Settings OnSaveGlobal() => _globalSettings;

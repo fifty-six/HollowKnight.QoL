@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Modding;
 using UnityEngine;
 
 namespace QoL
@@ -11,7 +12,7 @@ namespace QoL
     {
         private readonly Assembly _asm = Assembly.GetAssembly(typeof(Settings));
 
-        private readonly Dictionary<FieldInfo, Type> _fields = new();
+        internal readonly Dictionary<FieldInfo, Type> Fields = new();
 
         public Dictionary<string, bool> EnabledModules { get; set; } = new();
 
@@ -25,51 +26,47 @@ namespace QoL
             {
                 foreach (FieldInfo fi in t.GetFields().Where(x => x.GetCustomAttributes(typeof(SerializeToSetting), false).Length > 0))
                 {
-                    _fields.Add(fi, t);
+                    Fields.Add(fi, t);
                 }
             }
         }
 
         public void OnBeforeSerialize()
         {
-            foreach (KeyValuePair<FieldInfo, Type> pair in _fields)
+            foreach (var (fi, type) in Fields)
             {
-                FieldInfo fi = pair.Key;
-
                 if (fi.FieldType == typeof(bool))
                 {
-                    Booleans[$"{pair.Value.Name}:{fi.Name}"] = (bool) fi.GetValue(null);
+                    Booleans[$"{type.Name}:{fi.Name}"] = (bool) fi.GetValue(null);
                 }
                 else if (fi.FieldType == typeof(float))
                 {
-                    Floats[$"{pair.Value.Name}:{fi.Name}"] = (float) fi.GetValue(null);
+                    Floats[$"{type.Name}:{fi.Name}"] = (float) fi.GetValue(null);
                 }
                 else if (fi.FieldType == typeof(int))
                 {
-                    Integers[$"{pair.Value.Name}:{fi.Name}"] = (int) fi.GetValue(null);
+                    Integers[$"{type.Name}:{fi.Name}"] = (int) fi.GetValue(null);
                 }
             }
         }
 
         public void OnAfterDeserialize()
         {
-            foreach (KeyValuePair<FieldInfo, Type> pair in _fields)
+            foreach (var (fi, type) in Fields)
             {
-                FieldInfo fi = pair.Key;
-
                 if (fi.FieldType == typeof(bool))
                 {
-                    if (Booleans.TryGetValue($"{pair.Value.Name}:{fi.Name}", out bool val))
+                    if (Booleans.TryGetValue($"{type.Name}:{fi.Name}", out bool val))
                         fi.SetValue(null, val);
                 }
                 else if (fi.FieldType == typeof(float))
                 {
-                    if (Floats.TryGetValue($"{pair.Value.Name}:{fi.Name}", out float val))
+                    if (Floats.TryGetValue($"{type.Name}:{fi.Name}", out float val))
                         fi.SetValue(null, val);
                 }
                 else if (fi.FieldType == typeof(int))
                 {
-                    if (Integers.TryGetValue($"{pair.Value.Name}:{fi.Name}", out int val))
+                    if (Integers.TryGetValue($"{type.Name}:{fi.Name}", out int val))
                         fi.SetValue(null, val);
                 }
             }
