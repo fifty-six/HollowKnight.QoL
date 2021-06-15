@@ -10,7 +10,6 @@ using MonoMod.Cil;
 using MonoMod.Utils;
 using Newtonsoft.Json;
 using Vasi;
-using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL.Modules
 {
@@ -147,7 +146,7 @@ namespace QoL.Modules
 
         private static int GetRealID(int id)
         {
-            string? s = (string?) GetSaveFileName(id);
+            string? s = (string?) GetSaveFileName(null, id);
 
             return s == null
                 ? id
