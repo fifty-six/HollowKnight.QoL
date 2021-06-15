@@ -9,6 +9,7 @@ using Modding.Patches;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using Newtonsoft.Json;
+using Vasi;
 using ReflectionHelper = Modding.ReflectionHelper;
 
 namespace QoL.Modules
@@ -17,13 +18,13 @@ namespace QoL.Modules
     public class UnencryptedSaves : FauxMod
     {
         private static readonly FastReflectionDelegate GetSaveFileName = typeof(ModHooks)
-                                                                         .GetMethod("GetSaveFileName", BindingFlags.Instance | BindingFlags.NonPublic)
+                                                                         .GetMethod("GetSaveFileName", BindingFlags.Static | BindingFlags.NonPublic)
                                                                          .GetFastDelegate();
 
         public override void Initialize()
         {
-            ModHooks.Instance.SavegameLoadHook += OnSaveLoad;
-            ModHooks.Instance.BeforeSavegameSaveHook += OnSaveSave;
+            ModHooks.SavegameLoadHook += OnSaveLoad;
+            ModHooks.BeforeSavegameSaveHook += OnSaveSave;
             IL.DesktopPlatform.WriteSaveSlot += RemoveStupidSave;
         }
 
@@ -139,14 +140,14 @@ namespace QoL.Modules
         {
             return Path.Combine
             (
-                ReflectionHelper.GetAttr<DesktopPlatform, string>((DesktopPlatform) Platform.Current, "saveDirPath"),
+                Mirror.GetField<DesktopPlatform, string>((DesktopPlatform) Platform.Current, "saveDirPath"),
                 $"user{saveSlot}.{ending}"
             );
         }
 
         private static int GetRealID(int id)
         {
-            string? s = (string?) GetSaveFileName(ModHooks.Instance, id);
+            string? s = (string?) GetSaveFileName(id);
 
             return s == null
                 ? id

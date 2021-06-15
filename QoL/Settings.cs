@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Modding;
 using UnityEngine;
 
 namespace QoL
 {
     [Serializable]
-    public class Settings : ModSettings, ISerializationCallbackReceiver
+    public class Settings : ISerializationCallbackReceiver
     {
         private readonly Assembly _asm = Assembly.GetAssembly(typeof(Settings));
 

@@ -1,31 +1,34 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using Modding;
 using QoL.Modules;
+using Vasi;
 
 namespace QoL
 {
     [UsedImplicitly]
-    public class QoL : Mod, ITogglableMod
+    public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>
     {
-        public override string GetVersion() => Vasi.VersionUtil.GetVersion<QoL>();
+        public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
-        public override ModSettings GlobalSettings
-        {
-            get => _globalSettings;
-            set => _globalSettings = (Settings) value;
-        }
-        
         private Settings _globalSettings = new();
 
         private readonly List<FauxMod> _fauxMods = new();
 
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
+        
+        public void OnLoadGlobal(Settings s) => _globalSettings = s;
 
+        public Settings OnSaveGlobal() => _globalSettings;
+        
         public override void Initialize()
         {
             foreach (Type t in Assembly.GetAssembly(typeof(QoL)).GetTypes().Where(x => x.IsSubclassOf(typeof(FauxMod))))

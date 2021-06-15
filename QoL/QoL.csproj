@@ -24,17 +24,11 @@
         <Reference Include="Mono.Cecil, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
           <HintPath>..\..\..\References\Mono.Cecil.dll</HintPath>
         </Reference>
-        <Reference Include="MonoMod.RuntimeDetour, Version=21.1.11.1, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="MonoMod.RuntimeDetour, Version=21.4.29.1, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\..\References\MonoMod.RuntimeDetour.dll</HintPath>
         </Reference>
-        <Reference Include="MonoMod.Utils, Version=21.1.11.1, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="MonoMod.Utils, Version=21.4.29.1, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\..\References\MonoMod.Utils.dll</HintPath>
-        </Reference>
-        <Reference Include="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <HintPath>..\..\..\References\mscorlib.dll</HintPath>
-        </Reference>
-        <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
-          <HintPath>..\..\..\References\netstandard.dll</HintPath>
         </Reference>
         <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\..\References\Newtonsoft.Json.dll</HintPath>
@@ -66,7 +60,7 @@
         <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>..\..\..\References\UnityEngine.UIModule.dll</HintPath>
         </Reference>
-        <Reference Include="Vasi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Reference Include="Vasi, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\..\References\Mods\Vasi.dll</HintPath>
         </Reference>
     </ItemGroup>

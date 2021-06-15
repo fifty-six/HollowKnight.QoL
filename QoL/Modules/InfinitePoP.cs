@@ -10,8 +10,8 @@ namespace QoL.Modules
     {
         public override void Initialize()
         {
-            ModHooks.Instance.GetPlayerBoolHook += GetBool;
-            ModHooks.Instance.SetPlayerBoolHook += SetBool;
+            ModHooks.GetPlayerBoolHook += GetBool;
+            ModHooks.SetPlayerBoolHook += SetBool;
 
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
         }
@@ -28,11 +28,10 @@ namespace QoL.Modules
             }
         }
 
-        private static void SetBool(string originalset, bool value)
+        private static bool? SetBool(string field, bool value)
         {
-            PlayerData.instance.SetBoolInternal(originalset, value);
-
-            if (originalset != nameof(PlayerData.newDataBindingSeal) || !value) return;
+            if (field != nameof(PlayerData.newDataBindingSeal) || !value) 
+                return value;
 
             SceneData sd = GameManager.instance.sceneData;
 
@@ -56,17 +55,20 @@ namespace QoL.Modules
                 id = "Breakable Wall Ruin Lift",
                 activated = false
             });
+
+            // Make sure the set doesn't change the save.
+            return PlayerData.instance.newDataBindingSeal;
         }
 
-        private static bool GetBool(string originalset)
+        private static bool? GetBool(string originalset, bool orig)
         {
-            return originalset == nameof(PlayerData.newDataBindingSeal) || PlayerData.instance.GetBoolInternal(originalset);
+            return originalset == nameof(PlayerData.newDataBindingSeal) ? true : null;
         }
 
         public override void Unload()
         {
-            ModHooks.Instance.GetPlayerBoolHook -= GetBool;
-            ModHooks.Instance.SetPlayerBoolHook -= SetBool;
+            ModHooks.GetPlayerBoolHook -= GetBool;
+            ModHooks.SetPlayerBoolHook -= SetBool;
             
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
         }

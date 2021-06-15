@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
-using Modding;
 using TMPro;
+using Vasi;
 
 namespace QoL.Modules
 {
@@ -19,7 +19,8 @@ namespace QoL.Modules
 
         private static void OnNextChar(On.DialogueBox.orig_ShowNextChar orig, DialogueBox self)
         {
-            TextMeshPro text = ReflectionHelper.GetAttr<DialogueBox, TextMeshPro>(self, "textMesh");
+            TextMeshPro text = Mirror.GetField<DialogueBox, TextMeshPro>(self, "textMesh");
+            
             text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
         }
     }

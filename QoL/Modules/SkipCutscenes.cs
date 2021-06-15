@@ -61,7 +61,7 @@ namespace QoL.Modules
             On.GameManager.BeginSceneTransitionRoutine += Dreamers;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += FastEaseColor;
             On.GameManager.FadeSceneInWithDelay += NoFade;
-            ModHooks.Instance.NewGameHook += OnNewGame;
+            ModHooks.NewGameHook += OnNewGame;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
         }
 
@@ -75,7 +75,7 @@ namespace QoL.Modules
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= FastEaseColor;
             On.GameManager.FadeSceneInWithDelay -= NoFade;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
-            ModHooks.Instance.NewGameHook -= OnNewGame;
+            ModHooks.NewGameHook -= OnNewGame;
         }
 
         private static void OnNewGame()

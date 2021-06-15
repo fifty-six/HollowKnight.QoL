@@ -57,7 +57,7 @@ namespace QoL.Modules
             On.HeroController.ShouldHardLand += CanHardLand;
             On.PlayMakerFSM.OnEnable += ModifyFSM;
             On.InputHandler.Update += EnableSuperslides;
-            ModHooks.Instance.ObjectPoolSpawnHook += OnObjectPoolSpawn;
+            ModHooks.ObjectPoolSpawnHook += OnObjectPoolSpawn;
             USceneManager.activeSceneChanged += SceneChanged;
         }
 
@@ -69,7 +69,7 @@ namespace QoL.Modules
             On.HeroController.ShouldHardLand -= CanHardLand;
             On.PlayMakerFSM.OnEnable -= ModifyFSM;
             On.InputHandler.Update -= EnableSuperslides;
-            ModHooks.Instance.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
+            ModHooks.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
             USceneManager.activeSceneChanged -= SceneChanged;
         }
 
@@ -87,7 +87,7 @@ namespace QoL.Modules
                 && !cs.onConveyor
                 && !cs.dashing
                 && !cs.backDashing
-                && (!cs.attacking || ReflectionHelper.GetAttr<HeroController, float>(self, "attack_time") >= self.ATTACK_RECOVERY_TIME)
+                && (!cs.attacking || Mirror.GetField<HeroController, float>(self, "attack_time") >= self.ATTACK_RECOVERY_TIME)
                 && !cs.recoiling
                 && !cs.hazardDeath
                 && !cs.hazardRespawning
@@ -116,7 +116,7 @@ namespace QoL.Modules
             if (Superslides && GameManager.instance.TimeSlowed)
             {
                 // Ensure the slide has the correct speed
-                ReflectionHelper.SetAttr(HeroController.instance, "recoilSteps", 0);
+                Mirror.SetField(HeroController.instance, "recoilSteps", 0);
 
                 // Kill the thing that kills superslides
                 ref int timeSlowedCount = ref Mirror.GetFieldRef<GameManager, int>(GameManager.instance, "timeSlowedCount");
