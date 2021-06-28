@@ -28,7 +28,7 @@ namespace QoL.Modules
             }
         }
 
-        private static bool? SetBool(string field, bool value)
+        private static bool SetBool(string field, bool value)
         {
             if (field != nameof(PlayerData.newDataBindingSeal) || !value) 
                 return value;
@@ -60,9 +60,9 @@ namespace QoL.Modules
             return PlayerData.instance.newDataBindingSeal;
         }
 
-        private static bool? GetBool(string originalset, bool orig)
+        private static bool GetBool(string originalset, bool orig)
         {
-            return originalset == nameof(PlayerData.newDataBindingSeal) ? true : null;
+            return originalset == nameof(PlayerData.newDataBindingSeal) || orig;
         }
 
         public override void Unload()
