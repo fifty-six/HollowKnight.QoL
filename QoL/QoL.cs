@@ -21,32 +21,34 @@ namespace QoL
 
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
-        
-        public List<IMenuMod.MenuEntry> GetMenuData()
+
+        bool IMenuMod.ToggleButtonInsideMenu => true;
+
+        public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? button) 
         {
-            List<IMenuMod.MenuEntry> li = new();
+            List<IMenuMod.MenuEntry> li = new() { button ?? throw new NullReferenceException(nameof(button)) };
 
             string[] bools = { "false", "true" };
-
-            foreach ((FieldInfo fi, Type t) in _globalSettings.Fields)
-            {
-                if (fi.FieldType != typeof(bool))
-                    continue;
-
-                li.Add
-                (
-                    new IMenuMod.MenuEntry
-                    (
-                        Regex.Replace(fi.Name, "([A-Z])", " $1").TrimEnd(),
-                        bools,
-                        $"Comes from {t.Name}",
-                        i => fi.SetValue(null, Convert.ToBoolean(i)),
-                        () => Convert.ToInt32(fi.GetValue(null))
-                    )
-                );
-            }
-
-            return li;
+ 
+             foreach ((FieldInfo fi, Type t) in _globalSettings.Fields)
+             {
+                 if (fi.FieldType != typeof(bool))
+                     continue;
+ 
+                 li.Add
+                 (
+                     new IMenuMod.MenuEntry
+                     (
+                         Regex.Replace(fi.Name, "([A-Z])", " $1").TrimEnd(),
+                         bools,
+                         $"Comes from {t.Name}",
+                         i => fi.SetValue(null, Convert.ToBoolean(i)),
+                         () => Convert.ToInt32(fi.GetValue(null))
+                     )
+                 );
+             }
+ 
+             return li;   
         }
 
         public void OnLoadGlobal(Settings s) => _globalSettings = s;
