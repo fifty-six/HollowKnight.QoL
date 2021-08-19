@@ -87,6 +87,17 @@ namespace QoL.Modules
             nameof(PlayerData.metIselda),
         };
 
+        private static readonly (Func<bool>, Func<Scene, IEnumerator>)[] FSM_SKIPS = {
+            (() => DreamersGet, DreamerFsm),
+            (() => AbsoluteRadiance, AbsRadSkip),
+            (() => PureVesselRoar, HKPrimeSkip),
+            (() => HallOfGodsStatues, StatueWait),
+            (() => StagArrive, StagCutscene),
+            (() => AbyssShriekGet, AbyssShriekPickup),
+            (() => AfterKingsBrandGet, KingsBrand),
+            (() => BlackEggOpen, BlackEgg)
+        };
+
         // Boss cutscenes
         private static readonly string[] PD_BOOLS =
         {
@@ -162,42 +173,14 @@ namespace QoL.Modules
 
             if (hc == null) return;
 
-            if (DreamersGet)
+            foreach (var (check, coro) in FSM_SKIPS)
             {
-                hc.StartCoroutine(DreamerFsm(arg1));
-            }
-            if (AbsoluteRadiance)
-            {
-                hc.StartCoroutine(AbsRadSkip(arg1));
-            }
-            if (PureVesselRoar)
-            {
-                hc.StartCoroutine(HKPrimeSkip(arg1));
-            }
-            if (HallOfGodsStatues)
-            {
-                hc.StartCoroutine(StatueWait(arg1));
-            }
-            if (StagArrive)
-            {
-                hc.StartCoroutine(StagCutscene());
-            }
-            if (AbyssShriekGet)
-            {
-                hc.StartCoroutine(AbyssShriekPickup(arg1));
-            }
-            if (AfterKingsBrandGet)
-            {
-                hc.StartCoroutine(KingsBrandHornet(arg1));
-                hc.StartCoroutine(KingsBrandAvalanche(arg1));
-            }
-            if (BlackEggOpen)
-            {
-                hc.StartCoroutine(BlackEgg(arg1));
+                if (check())
+                    hc.StartCoroutine(coro(arg1));
             }
         }
 
-        private static IEnumerator StagCutscene()
+        private static IEnumerator StagCutscene(Scene _)
         {
             yield return null;
 
@@ -300,6 +283,12 @@ namespace QoL.Modules
             shriek.GetState("Move To").ChangeTransition("FINISHED", "Get");
             shriek.GetState("Get Pause").RemoveAllOfType<Wait>();
             shriek.GetState("Land").RemoveAllOfType<Wait>();
+        }
+
+        private static IEnumerator KingsBrand(Scene arg1)
+        {
+            yield return KingsBrandHornet(arg1);
+            yield return KingsBrandAvalanche(arg1);
         }
         
         private static IEnumerator KingsBrandHornet(Scene arg1)
