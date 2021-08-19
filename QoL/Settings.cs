@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace QoL
 {
     [Serializable]
-    public class Settings : ISerializationCallbackReceiver
+    public class Settings
     {
         private readonly Assembly _asm = Assembly.GetAssembly(typeof(Settings));
 
@@ -20,7 +20,7 @@ namespace QoL
         public Dictionary<string, bool>  Booleans { get; set; } = new();
         public Dictionary<string, float> Floats   { get; set; } = new();
         public Dictionary<string, int>   Integers { get; set; } = new();
-        
+
         public Settings()
         {
             foreach (Type t in _asm.GetTypes())
@@ -33,19 +33,15 @@ namespace QoL
         }
 
         [OnSerializing]
-        public void OnBeforeSerialize(StreamingContext context)
-        {
-            OnBeforeSerialize();
-        }
-
-        public void OnBeforeSerialize()
+        public void OnBeforeSerialize(StreamingContext _)
         {
             foreach (var (fi, type) in Fields)
             {
                 if (fi.FieldType == typeof(bool))
                 {
-                    Booleans[$"{type.Name}:{fi.Name}"] = SettingsOverride.TryGetOrigSetting($"{type.Name}:{fi.Name}", out bool value) ? 
-                        value : (bool) fi.GetValue(null);
+                    Booleans[$"{type.Name}:{fi.Name}"] = SettingsOverride.TryGetOrigSetting($"{type.Name}:{fi.Name}", out bool value)
+                        ? value
+                        : (bool) fi.GetValue(null);
                 }
                 else if (fi.FieldType == typeof(float))
                 {
@@ -60,19 +56,17 @@ namespace QoL
 
 
         [OnDeserialized]
-        public void OnAfterDeserialize(StreamingContext context)
-        {
-            OnAfterDeserialize();
-        }
-
-        public void OnAfterDeserialize()
+        public void OnAfterDeserialize(StreamingContext _)
         {
             foreach (var (fi, type) in Fields)
             {
                 if (fi.FieldType == typeof(bool))
                 {
-                    if (SettingsOverride.TryGetSettingOverride($"{type.Name}:{fi.Name}", out bool val) 
-                        || Booleans.TryGetValue($"{type.Name}:{fi.Name}", out val))
+                    if
+                    (
+                        SettingsOverride.TryGetSettingOverride($"{type.Name}:{fi.Name}", out bool val)
+                        || Booleans.TryGetValue($"{type.Name}:{fi.Name}", out val)
+                    )
                         fi.SetValue(null, val);
                 }
                 else if (fi.FieldType == typeof(float))
