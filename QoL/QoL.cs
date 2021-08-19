@@ -64,8 +64,11 @@ namespace QoL
                 // If Disable isn't overridden then it can't be toggled.
                 bool cantDisable = t.GetMethod(nameof(FauxMod.Unload))?.DeclaringType == typeof(FauxMod);
 
-                if (!SettingsOverride.TryGetModuleOverride(t.Name, out bool enabled)
-                    && !_globalSettings.EnabledModules.TryGetValue(t.Name, out enabled))
+                if
+                (
+                    !SettingsOverride.TryGetModuleOverride(t.Name, out bool enabled)
+                    && !_globalSettings.EnabledModules.TryGetValue(t.Name, out enabled)
+                )
                 {
                     enabled = fm.DefaultState;
 
@@ -89,9 +92,9 @@ namespace QoL
         {
             FauxMod? fm = _fauxMods.FirstOrDefault(f => f.GetType().Name == name);
 
-            if (fm == null || fm.IsLoaded == enable) 
+            if (fm == null || fm.IsLoaded == enable)
                 return;
-            
+
             if (enable)
             {
                 fm.Initialize();

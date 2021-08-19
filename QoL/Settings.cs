@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Modding;
-using UnityEngine;
 using System.Runtime.Serialization;
 
 namespace QoL
@@ -25,7 +24,7 @@ namespace QoL
         {
             foreach (Type t in _asm.GetTypes())
             {
-                foreach (FieldInfo fi in t.GetFields().Where(x => x.GetCustomAttributes(typeof(SerializeToSetting), false).Length > 0))
+                foreach (FieldInfo fi in t.GetFields().Where(x => Attribute.IsDefined(x, typeof(SerializeToSetting))))
                 {
                     Fields.Add(fi, t);
                 }
