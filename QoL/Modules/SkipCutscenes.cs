@@ -16,6 +16,7 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class SkipCutscenes : FauxMod
     {
+        #region Settings
         [SerializeToSetting]
         public static bool DreamersGet = true;
 
@@ -60,6 +61,7 @@ namespace QoL.Modules
 
         [SerializeToSetting]
         public static bool InstantSceneFadeIns = true;
+        #endregion
 
         private const string GUARDIAN = "Dream_Guardian_";
 
@@ -123,33 +125,25 @@ namespace QoL.Modules
 
         private static void OnNewGame()
         {
-            if (FirstTimeBosses)
-            {
-                foreach (string @bool in PD_BOOLS)
-                {
-                    PlayerData.instance.SetBool(@bool, true);
-                }
-            }
-            if (FirstCharm)
-            {
+            if (FirstCharm) 
                 PlayerData.instance.SetBool(nameof(PlayerData.hasCharm), true);
-            }
-            if (GodhomeEntry)
-            {
+            
+            if (GodhomeEntry) 
                 PlayerData.instance.SetBool(nameof(PlayerData.enteredGGAtrium), true);
+
+            if (!FirstTimeBosses) 
+                return;
+            
+            foreach (string @bool in PD_BOOLS)
+            {
+                PlayerData.instance.SetBool(@bool, true);
             }
+
         }
 
         private static IEnumerator NoFade(On.GameManager.orig_FadeSceneInWithDelay orig, GameManager self, float delay)
         {
-            if (InstantSceneFadeIns)
-            {
-                yield return orig(self, 0);
-            }
-            else
-            {
-                yield return orig(self, delay);
-            }
+            yield return orig(self, InstantSceneFadeIns ? 0 : delay);
         }
 
         private static void FastEaseColor(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
@@ -289,8 +283,10 @@ namespace QoL.Modules
             yield return null;
 
             GameObject dreamEnter = GameObject.Find("Dream Enter");
+            
             if(dreamEnter == null)
                 yield break;
+            
             dreamEnter.LocateMyFSM("Control").GetState("Idle").ChangeTransition("DREAM HIT", "Change Scene");
         }
 
@@ -409,7 +405,7 @@ namespace QoL.Modules
 
         private static void OnSetSkip(On.InputHandler.orig_SetSkipMode orig, InputHandler self, SkipPromptMode newmode)
         {
-            if (AllowSkippingNonskippable && newmode != SkipPromptMode.SKIP_INSTANT && newmode != SkipPromptMode.SKIP_PROMPT)
+            if (AllowSkippingNonskippable && newmode is not (SkipPromptMode.SKIP_INSTANT or SkipPromptMode.SKIP_PROMPT))
             {
                 newmode = SkipCutscenesWithoutPrompt ? SkipPromptMode.SKIP_INSTANT : SkipPromptMode.SKIP_PROMPT;
             }
@@ -424,28 +420,25 @@ namespace QoL.Modules
         private static void AnimatorBegin(On.AnimatorSequence.orig_Begin orig, AnimatorSequence self)
         {
             if (AutoSkipCinematics)
-            {
                 self.Skip();
-            }
-            else orig(self);
+            else 
+                orig(self);
         }
 
         private static void FadeBegin(On.FadeSequence.orig_Begin orig, FadeSequence self)
         {
             if (AutoSkipCinematics)
-            {
                 self.Skip();
-            }
-            else orig(self);
+            else 
+                orig(self);
         }
 
         private static void CinematicBegin(On.CinematicSequence.orig_Begin orig, CinematicSequence self)
         {
             if (AutoSkipCinematics)
-            {
                 self.Skip();
-            }
-            else orig(self);
+            else 
+                orig(self);
         }
     }
 }
