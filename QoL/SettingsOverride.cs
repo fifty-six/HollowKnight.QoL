@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using QoL.Modules;
 
 namespace QoL
 {
+    [PublicAPI]
     public static class SettingsOverride
     {
         private static readonly Dictionary<string, bool?> _moduleOverrides;
@@ -21,9 +23,7 @@ namespace QoL
                 throw new ArgumentException("Name does not correspond to any togglable QoL module.", nameof(name));
 
             if (QoL._globalSettings.EnabledModules.TryGetValue(name, out bool value))
-            {
                 _origEnabledModules[name] = value;
-            }
 
             _moduleOverrides[name] = enable;
             QoL.ToggleModule(name, enable);
@@ -100,13 +100,13 @@ namespace QoL
         {
             Type[] types = typeof(SettingsOverride).Assembly.GetTypes();
 
-            _moduleOverrides = types.Where(t => t.IsSubclassOf(typeof(FauxMod)) && t.GetMethod(nameof(FauxMod.Unload)).DeclaringType != typeof(FauxMod))
+            _moduleOverrides = types.Where(t => t.IsSubclassOf(typeof(FauxMod)) && t.GetMethod(nameof(FauxMod.Unload))!.DeclaringType != typeof(FauxMod))
                                     .Select(t => t.Name)
                                     .ToDictionary<string, string, bool?>(s => s, _ => null);
 
             _fields = types.SelectMany(t => t.GetFields())
                            .Where(f => f.FieldType == typeof(bool) && Attribute.IsDefined(f, typeof(SerializeToSetting)))
-                           .ToDictionary(f => $"{f.DeclaringType.Name}:{f.Name}");
+                           .ToDictionary(f => $"{f.DeclaringType!.Name}:{f.Name}");
 
             _settingOverrides = _fields.Keys.ToDictionary<string, string, bool?>(key => key, _ => null);
         }
