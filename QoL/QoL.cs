@@ -15,9 +15,10 @@ namespace QoL
     {
         public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
-        private Settings _globalSettings = new();
+        internal static Settings _globalSettings = new();
 
-        private readonly List<FauxMod> _fauxMods = new();
+        private static readonly List<FauxMod> _fauxMods = new();
+
 
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
@@ -32,7 +33,7 @@ namespace QoL
  
              foreach ((FieldInfo fi, Type t) in _globalSettings.Fields)
              {
-                 if (fi.FieldType != typeof(bool))
+                 if (fi.FieldType != typeof(bool) || SettingsOverride.TryGetSettingOverride($"{t.Name}:{fi.Name}", out _))
                      continue;
  
                  li.Add
@@ -64,7 +65,8 @@ namespace QoL
                 // If Disable isn't overridden then it can't be toggled.
                 bool cantDisable = t.GetMethod(nameof(FauxMod.Unload))?.DeclaringType == typeof(FauxMod);
 
-                if (!_globalSettings.EnabledModules.TryGetValue(t.Name, out bool enabled))
+                if (!SettingsOverride.TryGetModuleOverride(t.Name, out bool enabled)
+                    && !_globalSettings.EnabledModules.TryGetValue(t.Name, out enabled))
                 {
                     enabled = fm.DefaultState;
 
@@ -83,6 +85,27 @@ namespace QoL
                 _fauxMods.Add(fm);
             }
         }
+
+        internal static void ToggleModule(string name, bool enable)
+        {
+            var fm = _fauxMods.FirstOrDefault(f => f.GetType().Name == name);
+            if (fm != null && fm.IsLoaded != enable)
+            {
+                if (enable)
+                {
+                    fm.Initialize();
+                    fm.IsLoaded = true;
+                    _globalSettings.EnabledModules[name] = true;
+                }
+                else
+                {
+                    fm.Unload();
+                    fm.IsLoaded = false;
+                    _globalSettings.EnabledModules[name] = false;
+                }
+            }
+        }
+
 
         public void Unload()
         {

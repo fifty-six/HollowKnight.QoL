@@ -44,7 +44,8 @@ namespace QoL
             {
                 if (fi.FieldType == typeof(bool))
                 {
-                    Booleans[$"{type.Name}:{fi.Name}"] = (bool) fi.GetValue(null);
+                    Booleans[$"{type.Name}:{fi.Name}"] = SettingsOverride.TryGetOrigSetting($"{type.Name}:{fi.Name}", out bool value) ? 
+                        value : (bool) fi.GetValue(null);
                 }
                 else if (fi.FieldType == typeof(float))
                 {
@@ -70,7 +71,8 @@ namespace QoL
             {
                 if (fi.FieldType == typeof(bool))
                 {
-                    if (Booleans.TryGetValue($"{type.Name}:{fi.Name}", out bool val))
+                    if (SettingsOverride.TryGetSettingOverride($"{type.Name}:{fi.Name}", out bool val) 
+                        || Booleans.TryGetValue($"{type.Name}:{fi.Name}", out val))
                         fi.SetValue(null, val);
                 }
                 else if (fi.FieldType == typeof(float))
