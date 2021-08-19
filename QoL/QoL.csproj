@@ -3,7 +3,7 @@
         <ProjectGuid>{F039FA1D-A12D-4672-BF0A-60CF7900EE21}</ProjectGuid>
         <TargetFramework>net472</TargetFramework>
         <AssemblyTitle>QoL</AssemblyTitle>
-        <AssemblyVersion>3.0.0</AssemblyVersion>
+        <AssemblyVersion>4.0.0</AssemblyVersion>
         <Product>QoL</Product>
         <Copyright>Copyright © Yusuf Bham 2021</Copyright>
         <OutputPath>bin\$(Configuration)\</OutputPath>
