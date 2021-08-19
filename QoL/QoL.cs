@@ -51,7 +51,7 @@ namespace QoL
              return li;   
         }
 
-        public void OnLoadGlobal(Settings s) => _globalSettings = s;
+        public void OnLoadGlobal(Settings? s) => _globalSettings = s ?? _globalSettings;
 
         public Settings OnSaveGlobal() => _globalSettings;
         
@@ -67,7 +67,7 @@ namespace QoL
                 if (!_globalSettings.EnabledModules.TryGetValue(t.Name, out bool enabled))
                 {
                     enabled = fm.DefaultState;
-                    
+
                     _globalSettings.EnabledModules.Add(t.Name, enabled);
                 }
 

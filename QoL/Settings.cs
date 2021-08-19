@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Modding;
 using UnityEngine;
+using System.Runtime.Serialization;
 
 namespace QoL
 {
@@ -31,6 +32,12 @@ namespace QoL
             }
         }
 
+        [OnSerializing]
+        public void OnBeforeSerialize(StreamingContext context)
+        {
+            OnBeforeSerialize();
+        }
+
         public void OnBeforeSerialize()
         {
             foreach (var (fi, type) in Fields)
@@ -48,6 +55,13 @@ namespace QoL
                     Integers[$"{type.Name}:{fi.Name}"] = (int) fi.GetValue(null);
                 }
             }
+        }
+
+
+        [OnDeserialized]
+        public void OnAfterDeserialize(StreamingContext context)
+        {
+            OnAfterDeserialize();
         }
 
         public void OnAfterDeserialize()

@@ -16,6 +16,51 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class SkipCutscenes : FauxMod
     {
+        [SerializeToSetting]
+        public static bool DreamersGet = true;
+
+        [SerializeToSetting]
+        public static bool AbsoluteRadiance = true;
+
+        [SerializeToSetting]
+        public static bool AbyssShriekGet = true;
+
+        [SerializeToSetting]
+        public static bool AfterKingsBrandGet = true;
+
+        [SerializeToSetting]
+        public static bool BlackEggOpen = true;
+
+        [SerializeToSetting]
+        public static bool StagArrive = true;
+
+        [SerializeToSetting]
+        public static bool HallOfGodsStatues = true;
+
+        [SerializeToSetting]
+        public static bool GodhomeEntry = true;
+
+        [SerializeToSetting]
+        public static bool PureVesselRoar = true;
+
+        [SerializeToSetting]
+        public static bool FirstTimeBosses = true;
+
+        [SerializeToSetting]
+        public static bool FirstCharm = true;
+
+        [SerializeToSetting]
+        public static bool AutoSkipCinematics = true;
+
+        [SerializeToSetting]
+        public static bool AllowSkippingNonskippable = true;
+
+        [SerializeToSetting]
+        public static bool SkipCutscenesWithoutPrompt = true;
+
+        [SerializeToSetting]
+        public static bool InstantSceneFadeIns = true;
+
         private const string GUARDIAN = "Dream_Guardian_";
 
         private static readonly string[] DREAMERS = { "Deepnest_Spider_Town", "Fungus3_archive_02", "Ruins2_Watcher_Room" };
@@ -40,16 +85,14 @@ namespace QoL.Modules
             nameof(PlayerData.metIselda),
         };
 
-        // Boss cutscenes, mostly.
+        // Boss cutscenes
         private static readonly string[] PD_BOOLS =
         {
-            nameof(PlayerData.hasCharm),
             nameof(PlayerData.unchainedHollowKnight),
             nameof(PlayerData.encounteredMimicSpider),
             nameof(PlayerData.infectedKnightEncountered),
             nameof(PlayerData.mageLordEncountered),
             nameof(PlayerData.mageLordEncountered_2),
-            nameof(PlayerData.enteredGGAtrium)
         };
 
         public override void Initialize()
@@ -58,7 +101,7 @@ namespace QoL.Modules
             On.FadeSequence.Begin += FadeBegin;
             On.AnimatorSequence.Begin += AnimatorBegin;
             On.InputHandler.SetSkipMode += OnSetSkip;
-            On.GameManager.BeginSceneTransitionRoutine += Dreamers;
+            On.GameManager.BeginSceneTransitionRoutine += OnBeginSceneTransition;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += FastEaseColor;
             On.GameManager.FadeSceneInWithDelay += NoFade;
             ModHooks.NewGameHook += OnNewGame;
@@ -71,7 +114,7 @@ namespace QoL.Modules
             On.FadeSequence.Begin -= FadeBegin;
             On.AnimatorSequence.Begin -= AnimatorBegin;
             On.InputHandler.SetSkipMode -= OnSetSkip;
-            On.GameManager.BeginSceneTransitionRoutine -= Dreamers;
+            On.GameManager.BeginSceneTransitionRoutine -= OnBeginSceneTransition;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= FastEaseColor;
             On.GameManager.FadeSceneInWithDelay -= NoFade;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
@@ -80,20 +123,38 @@ namespace QoL.Modules
 
         private static void OnNewGame()
         {
-            foreach (string @bool in PD_BOOLS)
+            if (FirstTimeBosses)
             {
-                PlayerData.instance.SetBool(@bool, true);
+                foreach (string @bool in PD_BOOLS)
+                {
+                    PlayerData.instance.SetBool(@bool, true);
+                }
+            }
+            if (FirstCharm)
+            {
+                PlayerData.instance.SetBool(nameof(PlayerData.hasCharm), true);
+            }
+            if (GodhomeEntry)
+            {
+                PlayerData.instance.SetBool(nameof(PlayerData.enteredGGAtrium), true);
             }
         }
 
         private static IEnumerator NoFade(On.GameManager.orig_FadeSceneInWithDelay orig, GameManager self, float delay)
         {
-            yield return orig(self, 0);
+            if (InstantSceneFadeIns)
+            {
+                yield return orig(self, 0);
+            }
+            else
+            {
+                yield return orig(self, delay);
+            }
         }
 
         private static void FastEaseColor(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
         {
-            if (self.Owner.name == "Blanker White" && Math.Abs(self.time.Value - 0.3) < .05)
+            if (InstantSceneFadeIns && self.Owner.name == "Blanker White" && Math.Abs(self.time.Value - 0.3) < .05)
             {
                 self.time.Value = 0.066f;
             }
@@ -107,15 +168,39 @@ namespace QoL.Modules
 
             if (hc == null) return;
 
-            hc.StartCoroutine(DreamerFsm(arg1));
-            hc.StartCoroutine(AbsRadSkip(arg1));
-            hc.StartCoroutine(HKPrimeSkip(arg1));
-            hc.StartCoroutine(StatueWait(arg1));
-            hc.StartCoroutine(StagCutscene());
-            hc.StartCoroutine(AbyssShriekPickup(arg1));
-            hc.StartCoroutine(KingsBrandHornet(arg1));
-            hc.StartCoroutine(KingsBrandAvalanche(arg1));
-            hc.StartCoroutine(BlackEgg(arg1));
+            if (DreamersGet)
+            {
+                hc.StartCoroutine(DreamerFsm(arg1));
+            }
+            if (AbsoluteRadiance)
+            {
+                hc.StartCoroutine(AbsRadSkip(arg1));
+            }
+            if (PureVesselRoar)
+            {
+                hc.StartCoroutine(HKPrimeSkip(arg1));
+            }
+            if (HallOfGodsStatues)
+            {
+                hc.StartCoroutine(StatueWait(arg1));
+            }
+            if (StagArrive)
+            {
+                hc.StartCoroutine(StagCutscene());
+            }
+            if (AbyssShriekGet)
+            {
+                hc.StartCoroutine(AbyssShriekPickup(arg1));
+            }
+            if (AfterKingsBrandGet)
+            {
+                hc.StartCoroutine(KingsBrandHornet(arg1));
+                hc.StartCoroutine(KingsBrandAvalanche(arg1));
+            }
+            if (BlackEggOpen)
+            {
+                hc.StartCoroutine(BlackEgg(arg1));
+            }
         }
 
         private static IEnumerator StagCutscene()
@@ -261,11 +346,14 @@ namespace QoL.Modules
             door.GetState("Roar End").GetAction<Wait>().time = 1;
         }
         
-        private static IEnumerator Dreamers(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
+        private static IEnumerator OnBeginSceneTransition(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
         {
-            info.EntryDelay = 0f;
+            if (InstantSceneFadeIns)
+            {
+                info.EntryDelay = 0f;
+            }
 
-            if (info.SceneName.Length <= 15 || info.SceneName.Substring(0, 15) != GUARDIAN)
+            if (!DreamersGet || info.SceneName.Length <= 15 || info.SceneName.Substring(0, 15) != GUARDIAN)
             {
                 yield return orig(self, info);
 
@@ -321,13 +409,43 @@ namespace QoL.Modules
 
         private static void OnSetSkip(On.InputHandler.orig_SetSkipMode orig, InputHandler self, SkipPromptMode newmode)
         {
-            orig(self, SkipPromptMode.SKIP_INSTANT);
+            if (AllowSkippingNonskippable && newmode != SkipPromptMode.SKIP_INSTANT && newmode != SkipPromptMode.SKIP_PROMPT)
+            {
+                newmode = SkipCutscenesWithoutPrompt ? SkipPromptMode.SKIP_INSTANT : SkipPromptMode.SKIP_PROMPT;
+            }
+            else if (SkipCutscenesWithoutPrompt && newmode == SkipPromptMode.SKIP_PROMPT)
+            {
+                newmode = SkipPromptMode.SKIP_INSTANT;
+            }
+
+            orig(self, newmode);
         }
 
-        private static void AnimatorBegin(On.AnimatorSequence.orig_Begin orig, AnimatorSequence self) => self.Skip();
+        private static void AnimatorBegin(On.AnimatorSequence.orig_Begin orig, AnimatorSequence self)
+        {
+            if (AutoSkipCinematics)
+            {
+                self.Skip();
+            }
+            else orig(self);
+        }
 
-        private static void FadeBegin(On.FadeSequence.orig_Begin orig, FadeSequence self) => self.Skip();
+        private static void FadeBegin(On.FadeSequence.orig_Begin orig, FadeSequence self)
+        {
+            if (AutoSkipCinematics)
+            {
+                self.Skip();
+            }
+            else orig(self);
+        }
 
-        private static void CinematicBegin(On.CinematicSequence.orig_Begin orig, CinematicSequence self) => self.Skip();
+        private static void CinematicBegin(On.CinematicSequence.orig_Begin orig, CinematicSequence self)
+        {
+            if (AutoSkipCinematics)
+            {
+                self.Skip();
+            }
+            else orig(self);
+        }
     }
 }
