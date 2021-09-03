@@ -70,7 +70,7 @@ namespace QoL.Modules
             ModHooks.GetPlayerBoolHook -= GetBool;
             ModHooks.SetPlayerBoolHook -= SetBool;
             
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
         }
     }
 }
