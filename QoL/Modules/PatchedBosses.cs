@@ -69,6 +69,9 @@ namespace QoL.Modules
 
             GameObject miner = GameObject.Find("Mega Zombie Beam Miner (1)");
 
+            if (miner == null)
+                yield break;
+
             if (miner.LocateMyFSM("Beam Miner").TryGetState("Sleep", out FsmState? sleep))
                 sleep.Transitions = sleep.Transitions.Where(x => x.FsmEvent.Name != "EXTRA DAMAGED" && x.FsmEvent.Name != "TOOK DAMAGE").ToArray();
         }
