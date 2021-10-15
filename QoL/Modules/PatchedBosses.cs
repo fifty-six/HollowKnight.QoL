@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using HutongGames.PlayMaker;
 using MonoMod.Cil;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Vasi;
 
 namespace QoL.Modules
@@ -13,10 +15,10 @@ namespace QoL.Modules
         public static bool SporeShroomHollowKnight = true;
 
         [SerializeToSetting]
-        public static bool NoBackrolls = false;
+        public static bool NoBackrolls;
 
         [SerializeToSetting]
-        public static bool SleepyCrystalGuardian = false;
+        public static bool SleepyCrystalGuardian;
 
 
         public override void Initialize()
@@ -24,7 +26,7 @@ namespace QoL.Modules
             IL.ExtraDamageable.RecieveExtraDamage += AllowRecieveExtraDamage;
             On.DamageEffectTicker.OnTriggerExit2D += KeepDamagingInactives;
 
-            On.PlayMakerFSM.OnEnable += BossFsmChanges;
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += BossFsmChanges;
         }
 
         public override void Unload()
@@ -32,24 +34,43 @@ namespace QoL.Modules
             IL.ExtraDamageable.RecieveExtraDamage -= AllowRecieveExtraDamage;
             On.DamageEffectTicker.OnTriggerExit2D -= KeepDamagingInactives;
 
-            On.PlayMakerFSM.OnEnable -= BossFsmChanges;
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded -= BossFsmChanges;
         }
 
-        private void BossFsmChanges(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+
+        private void BossFsmChanges(Scene scene, LoadSceneMode lsm)
         {
-            orig(self);
-            if (self.FsmName == "Black Knight" && NoBackrolls)
+            switch (scene.name)
             {
-                self.GetState("In Range Choice").RemoveTransition("In Range Double");
+                case "Ruins2_03_boss" when NoBackrolls:
+                case "GG_Watcher_Knights" when NoBackrolls:
+                    GameManager.instance.StartCoroutine(FixWatchers(scene));
+                    break;
+                case "Mines_18_boss" when SleepyCrystalGuardian:
+                    GameManager.instance.StartCoroutine(FixCrystalGuardian());
+                    break;
             }
-            if (self.FsmName == "Beam Miner" && self.gameObject.name.StartsWith("Mega Zombie Beam Miner") && SleepyCrystalGuardian)
+        }
+        private IEnumerator FixWatchers(Scene scene)
+        {
+            yield return null;
+
+            GameObject battleControl = scene.GetRootGameObjects().First(obj => obj.name == "Battle Control");
+
+            foreach (PlayMakerFSM pfsm in battleControl.GetComponentsInChildren<PlayMakerFSM>())
             {
-                if (!self.TryGetState("Sleep", out FsmState? sleep))
-                {
-                    return;
-                }
+                if (pfsm.FsmName == "Black Knight")
+                    pfsm.GetState("In Range Choice").RemoveTransition("In Range Double");
+            }
+        }
+        private IEnumerator FixCrystalGuardian()
+        {
+            yield return null;
+
+            GameObject miner = GameObject.Find("Mega Zombie Beam Miner (1)");
+
+            if (miner.LocateMyFSM("Beam Miner").TryGetState("Sleep", out FsmState? sleep))
                 sleep.Transitions = sleep.Transitions.Where(x => x.FsmEvent.Name != "EXTRA DAMAGED" && x.FsmEvent.Name != "TOOK DAMAGE").ToArray();
-            }
         }
 
         private void AllowRecieveExtraDamage(ILContext il)
@@ -63,7 +84,7 @@ namespace QoL.Modules
                 i => i.MatchLdfld<ExtraDamageable>("damagedThisFrame")
             ))
             {
-                cursor.EmitDelegate<Func<bool, bool>>(x => x & !SporeShroomHollowKnight);
+                cursor.EmitDelegate<Func<bool, bool>>(x => x && !SporeShroomHollowKnight);
             }
         }
 
