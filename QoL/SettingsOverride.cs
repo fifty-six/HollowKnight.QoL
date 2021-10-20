@@ -22,7 +22,7 @@ namespace QoL
             if (name == null || !_moduleOverrides.ContainsKey(name))
                 throw new ArgumentException("Name does not correspond to any togglable QoL module.", nameof(name));
 
-            if (QoL._globalSettings.EnabledModules.TryGetValue(name, out bool value))
+            if (QoL._globalSettings.EnabledModules.TryGetValue(name, out bool value) && !_origEnabledModules.ContainsKey(name))
                 _origEnabledModules[name] = value;
 
             _moduleOverrides[name] = enable;
@@ -53,7 +53,9 @@ namespace QoL
             if (!_fields.TryGetValue(key, out FieldInfo fi))
                 throw new ArgumentException($"QoL setting {key} not found.", nameof(field));
 
-            _origSettings[key] = (bool) fi.GetValue(null);
+            if (!_origSettings.ContainsKey(key))
+                _origSettings[key] = (bool) fi.GetValue(null);
+
             _settingOverrides[key] = enable;
             fi.SetValue(null, enable);
         }
