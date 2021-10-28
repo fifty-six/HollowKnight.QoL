@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Linq;
+﻿using System.Linq;
+using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,7 +15,6 @@ namespace QoL.Modules
 
         [SerializeToSetting]
         public static bool JinnSellAll = true;
-
 
         private static readonly int[] RELIC_COST = { 200, 450, 800, 1200 };
         private const int EGG_COST = 450;
@@ -35,21 +34,20 @@ namespace QoL.Modules
             switch (scene.name)
             {
                 case "Ruins1_05b" when LemmSellAll:
-                    GameManager.instance.StartCoroutine(LemmSell(scene));
+                    LemmSell(scene);
                     break;
                 case "Room_Jinn" when JinnSellAll:
-                    GameManager.instance.StartCoroutine(JinnSell(scene));
+                    JinnSell(scene);
                     break;
             }
         }
 
-        private static IEnumerator LemmSell(Scene scene)
+        private static void LemmSell(Scene scene)
         {
-            yield return null;
-
             GameObject lemm = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Relic Dealer");
-            if (lemm == null) 
-                yield break;
+
+            if (lemm == null)
+                return;
                  
             lemm.LocateMyFSM("npc_control")
                 .GetState("Convo End")
@@ -78,13 +76,16 @@ namespace QoL.Modules
             }
         }
 
-        private static IEnumerator JinnSell(Scene scene)
+        private static void JinnSell(Scene scene)
         {
-            yield return null;
-
             GameObject jinn = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Jinn NPC");
+
             if (jinn == null)
-                yield break;
+                return;
+
+            jinn.LocateMyFSM("Wake and Animate")
+                .GetState("Talk NPC?")
+                .RemoveAction<PlayerDataBoolTest>();
 
             jinn.transform.Find("Talk NPC").gameObject
                 .LocateMyFSM("Conversation Control")
