@@ -11,7 +11,7 @@ using Vasi;
 namespace QoL
 {
     [UsedImplicitly]
-    public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>, IMenuMod
+    public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>, ICustomMenuMod
     {
         public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
@@ -22,33 +22,11 @@ namespace QoL
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
 
-        bool IMenuMod.ToggleButtonInsideMenu => true;
+        bool ICustomMenuMod.ToggleButtonInsideMenu => true;
 
-        public List<IMenuMod.MenuEntry> GetMenuData(IMenuMod.MenuEntry? button)
+        public MenuScreen GetMenuScreen(MenuScreen returnScreen, ModToggleDelegates? dels)
         {
-            List<IMenuMod.MenuEntry> li = new() { button ?? throw new NullReferenceException(nameof(button)) };
-
-            string[] bools = { "false", "true" };
-
-            foreach ((FieldInfo fi, Type t) in _globalSettings.Fields)
-            {
-                if (fi.FieldType != typeof(bool) || SettingsOverride.TryGetSettingOverride($"{t.Name}:{fi.Name}", out _))
-                    continue;
-
-                li.Add
-                (
-                    new IMenuMod.MenuEntry
-                    (
-                        Regex.Replace(fi.Name, "([A-Z])", " $1").TrimEnd(),
-                        bools,
-                        $"Comes from {t.Name}",
-                        i => fi.SetValue(null, Convert.ToBoolean(i)),
-                        () => Convert.ToInt32(fi.GetValue(null))
-                    )
-                );
-            }
-
-            return li;
+            return ModMenu.GetMenuScreen(returnScreen, dels!.Value);
         }
 
         public void OnLoadGlobal(Settings? s) => _globalSettings = s ?? _globalSettings;
