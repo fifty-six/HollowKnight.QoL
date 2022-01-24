@@ -54,8 +54,11 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool CrystalisedMoundSpikes = true;
 
-        private static readonly MethodInfo _DieFromHazardIteratorMethod = typeof(HeroController).GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget();
-        private ILHook? _elevatorStorageHook;
+        private static readonly MethodInfo _DieFromHazardIteratorMethod = typeof(HeroController)
+                                                                          .GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance)
+                                                                          .GetStateMachineTarget();
+        
+        private ILHook? _elevatorStorage;
 
         public override void Initialize()
         {
@@ -67,7 +70,8 @@ namespace QoL.Modules
             On.InputHandler.Update += EnableSuperslides;
             ModHooks.ObjectPoolSpawnHook += OnObjectPoolSpawn;
             USceneManager.activeSceneChanged += SceneChanged;
-            _elevatorStorageHook = new(_DieFromHazardIteratorMethod, RestoreElevatorStorage);
+            
+            _elevatorStorage = new ILHook(_DieFromHazardIteratorMethod, RestoreElevatorStorage);
         }
 
         public override void Unload()
@@ -80,24 +84,24 @@ namespace QoL.Modules
             On.InputHandler.Update -= EnableSuperslides;
             ModHooks.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
             USceneManager.activeSceneChanged -= SceneChanged;
-            _elevatorStorageHook?.Dispose();
-            _elevatorStorageHook = null;
+            
+            _elevatorStorage?.Dispose();
         }
 
-        private void RestoreElevatorStorage(ILContext il)
+        private static void RestoreElevatorStorage(ILContext il)
         {
             ILCursor cursor = new(il);
 
-            if (cursor.TryGotoNext(
+            cursor.GotoNext
+            (
                 i => i.Match(OpCodes.Ldloc_1),
                 i => i.MatchLdnull(),
                 i => i.MatchCallvirt<HeroController>(nameof(HeroController.SetHeroParent))
-                ))
-            {
-                cursor.GotoNext();
-                cursor.RemoveRange(2);
-                cursor.EmitDelegate<Action<HeroController>>(hc => { if (!Storage) hc.SetHeroParent(null); });
-            }
+            );
+            
+            cursor.GotoNext();
+            cursor.RemoveRange(2);
+            cursor.EmitDelegate<Action<HeroController>>(hc => { if (!Storage) hc.SetHeroParent(null); });
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
