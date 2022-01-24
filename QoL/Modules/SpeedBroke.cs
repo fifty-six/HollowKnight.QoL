@@ -1,11 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using Modding;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
+using MonoMod.Utils;
 using QoL.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -48,6 +54,9 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool CrystalisedMoundSpikes = true;
 
+        private static readonly MethodInfo _DieFromHazardIteratorMethod = typeof(HeroController).GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget();
+        private ILHook? _elevatorStorageHook;
+
         public override void Initialize()
         {
             On.HeroController.CanOpenInventory += CanOpenInventory;
@@ -58,6 +67,7 @@ namespace QoL.Modules
             On.InputHandler.Update += EnableSuperslides;
             ModHooks.ObjectPoolSpawnHook += OnObjectPoolSpawn;
             USceneManager.activeSceneChanged += SceneChanged;
+            _elevatorStorageHook = new(_DieFromHazardIteratorMethod, RestoreElevatorStorage);
         }
 
         public override void Unload()
@@ -70,6 +80,24 @@ namespace QoL.Modules
             On.InputHandler.Update -= EnableSuperslides;
             ModHooks.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
             USceneManager.activeSceneChanged -= SceneChanged;
+            _elevatorStorageHook?.Dispose();
+            _elevatorStorageHook = null;
+        }
+
+        private void RestoreElevatorStorage(ILContext il)
+        {
+            ILCursor cursor = new(il);
+
+            if (cursor.TryGotoNext(
+                i => i.Match(OpCodes.Ldloc_1),
+                i => i.MatchLdnull(),
+                i => i.MatchCallvirt<HeroController>(nameof(HeroController.SetHeroParent))
+                ))
+            {
+                cursor.GotoNext();
+                cursor.RemoveRange(2);
+                cursor.EmitDelegate<Action<HeroController>>(hc => { if (!Storage) hc.SetHeroParent(null); });
+            }
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
