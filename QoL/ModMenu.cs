@@ -1,100 +1,112 @@
-﻿using Modding;
-using Modding.Menu;
-using Modding.Menu.Config;
-using QoL.Modules;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Modding;
+using Modding.Menu;
+using Modding.Menu.Config;
+using QoL.Modules;
+using UnityEngine.UI;
+using Lang = Language.Language;
 
 namespace QoL
 {
     public static class ModMenu
     {
-        private static readonly List<string> togglableModuleNames;
+        private static readonly string[] Bools = { "false", "true" };
+        
+        private static readonly List<string> _TogglableModuleNames;
 
-        private static MenuScreen? ModMenuScreen;
-        private static MenuScreen? ModuleToggleScreen;
-        private static MenuScreen? ModuleFieldToggleScreen;
+        private static MenuScreen? _ModMenuScreen;
+        private static MenuScreen? _ModuleToggleScreen;
+        private static MenuScreen? _ModuleFieldToggleScreen;
 
         public static MenuScreen GetMenuScreen(MenuScreen returnScreen, ModToggleDelegates dels)
         {
             MenuBuilder builder = MenuUtils.CreateMenuBuilderWithBackButton("QoL", returnScreen, out _);
 
+            void Return(MenuSelectable _)         => UIManager.instance.UIGoToDynamicMenu(returnScreen);
+            static void Fields(MenuSelectable _)  => UIManager.instance.UIGoToDynamicMenu(_ModuleFieldToggleScreen);
+            static void Modules(MenuSelectable _) => UIManager.instance.UIGoToDynamicMenu(_ModuleToggleScreen);
+            
             builder.AddContent
             (
                 RegularGridLayout.CreateVerticalLayout(105f),
                 c =>
                 {
-                    c.AddHorizontalOption("QoL", new HorizontalOptionConfig()
+                    c.AddHorizontalOption("QoL", new HorizontalOptionConfig
                     {
                         Label = "QoL",
-                        Options = new[] { "On", "Off" },
-                        ApplySetting = (_, i) => dels.SetModEnabled(Convert.ToBoolean(i)),
+                        Options = new[]
+                        {
+                            Lang.Get("MOH_OFF", "MainMenu"),
+                            Lang.Get("MOH_ON", "MainMenu")
+                        },
+                        ApplySetting   = (_, i) => dels.SetModEnabled(Convert.ToBoolean(i)),
                         RefreshSetting = (s, _) => s.optionList.SetOptionTo(Convert.ToInt32(dels.GetModEnabled())),
-                        CancelAction = _ => UIManager.instance.UIGoToDynamicMenu(returnScreen),
+                        CancelAction = Return,
                         Style = HorizontalOptionStyle.VanillaStyle
                     });
 
-                    c.AddMenuButton("Module Toggles", new MenuButtonConfig()
+                    c.AddMenuButton("Module Toggles", new MenuButtonConfig
                     {
                         Label = "Module Toggles",
                         Proceed = true,
-                        SubmitAction = _ => UIManager.instance.UIGoToDynamicMenu(ModuleToggleScreen),
-                        CancelAction = _ => UIManager.instance.UIGoToDynamicMenu(returnScreen),
+                        SubmitAction = Modules,
+                        CancelAction = Return,
                     });
 
-                    c.AddMenuButton("Module Field Toggles", new MenuButtonConfig()
+                    c.AddMenuButton("Module Field Toggles", new MenuButtonConfig
                     {
                         Label = "Module Field Toggles",
                         Proceed = true,
-                        SubmitAction = _ => UIManager.instance.UIGoToDynamicMenu(ModuleFieldToggleScreen),
-                        CancelAction = _ => UIManager.instance.UIGoToDynamicMenu(returnScreen),
+                        SubmitAction = Fields,
+                        CancelAction = Return,
                     });
                 }
             );
 
-            ModMenuScreen = builder.Build();
+            _ModMenuScreen = builder.Build();
 
-            ModuleToggleScreen = MenuUtils.CreateMenuScreen("Module Toggles", GetModuleToggleMenuData(), ModMenuScreen);
-            ModuleFieldToggleScreen = MenuUtils.CreateMenuScreen("Module Field Toggles", GetModuleFieldMenuData(), ModMenuScreen);
+            _ModuleToggleScreen = MenuUtils.CreateMenuScreen
+            (
+                "Module Toggles",
+                GetModuleToggleMenuData(),
+                _ModMenuScreen
+            );
+            _ModuleFieldToggleScreen = MenuUtils.CreateMenuScreen
+            (
+                "Module Field Toggles",
+                GetModuleFieldMenuData(),
+                _ModMenuScreen
+            );
 
-            return ModMenuScreen;
+            return _ModMenuScreen;
         }
 
-        public static List<IMenuMod.MenuEntry> GetModuleToggleMenuData()
+        private static List<IMenuMod.MenuEntry> GetModuleToggleMenuData()
         {
-            List<IMenuMod.MenuEntry> li = new();
+            IMenuMod.MenuEntry CreateEntry(string name) => new
+            (
+                    name,
+                    Bools,
+                    string.Empty,
+                    i => QoL.ToggleModule(name, Convert.ToBoolean(i)),
+                    () => Convert.ToInt32(QoL._globalSettings.EnabledModules[name])
+            );
 
-            string[] bools = { "false", "true" };
-
-            foreach (string name in togglableModuleNames)
-            {
-                if (SettingsOverride.TryGetModuleOverride(name, out _))
-                    continue;
-
-                li.Add
-                (
-                    new IMenuMod.MenuEntry
-                    (
-                        name,
-                        bools,
-                        String.Empty,
-                        i => QoL.ToggleModule(name, Convert.ToBoolean(i)),
-                        () => Convert.ToInt32(QoL._globalSettings.EnabledModules[name])
-                    )
-                );
-            }
-
-            return li;
+            return _TogglableModuleNames
+                   .Where(x => !SettingsOverride.TryGetModuleOverride(x, out _))
+                   .Select(CreateEntry)
+                   .ToList();
         }
 
-        public static List<IMenuMod.MenuEntry> GetModuleFieldMenuData()
+        private static List<IMenuMod.MenuEntry> GetModuleFieldMenuData()
         {
-            List<IMenuMod.MenuEntry> li = new();
-
-            string[] bools = { "false", "true" };
+            static string PascalToSpaces(string s) => Regex.Replace(s, "([A-Z])", " $1").TrimStart();
+            
+            List<IMenuMod.MenuEntry> li = new ();
 
             foreach ((FieldInfo fi, Type t) in QoL._globalSettings.Fields)
             {
@@ -105,8 +117,8 @@ namespace QoL
                 (
                     new IMenuMod.MenuEntry
                     (
-                        Regex.Replace(fi.Name, "([A-Z])", " $1").TrimEnd(),
-                        bools,
+                        PascalToSpaces(fi.Name),
+                        Bools,
                         $"Comes from {t.Name}",
                         i => fi.SetValue(null, Convert.ToBoolean(i)),
                         () => Convert.ToInt32(fi.GetValue(null))
@@ -121,9 +133,11 @@ namespace QoL
         {
             Type[] types = typeof(ModMenu).Assembly.GetTypes();
 
-            togglableModuleNames = types.Where(t => t.IsSubclassOf(typeof(FauxMod)) && t.GetMethod(nameof(FauxMod.Unload))!.DeclaringType != typeof(FauxMod))
-                                   .Select(t => t.Name)
-                                   .ToList();
+            static bool Toggleable(Type t) => t.IsSubclassOf(typeof(FauxMod)) && t.GetMethod(nameof(FauxMod.Unload))!.DeclaringType != typeof(FauxMod);
+
+            _TogglableModuleNames = types.Where(Toggleable)
+                                        .Select(t => t.Name)
+                                        .ToList();
         }
     }
 }
