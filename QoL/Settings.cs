@@ -24,7 +24,7 @@ namespace QoL
         {
             foreach (Type t in _asm.GetTypes())
             {
-                foreach (FieldInfo fi in t.GetFields().Where(x => Attribute.IsDefined(x, typeof(SerializeToSetting))))
+                foreach (FieldInfo fi in t.GetFields().Where(SerializeToSetting.ShouldSerialize))
                 {
                     Fields.Add(fi, t);
                 }

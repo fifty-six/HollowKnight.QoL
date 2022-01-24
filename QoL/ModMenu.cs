@@ -133,9 +133,7 @@ namespace QoL
         {
             Type[] types = typeof(ModMenu).Assembly.GetTypes();
 
-            static bool Toggleable(Type t) => t.IsSubclassOf(typeof(FauxMod)) && t.GetMethod(nameof(FauxMod.Unload))!.DeclaringType != typeof(FauxMod);
-
-            _TogglableModuleNames = types.Where(Toggleable)
+            _TogglableModuleNames = types.Where(FauxMod.IsToggleableFauxMod)
                                         .Select(t => t.Name)
                                         .ToList();
         }

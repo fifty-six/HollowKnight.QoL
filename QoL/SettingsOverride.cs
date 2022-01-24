@@ -17,6 +17,25 @@ namespace QoL
         private static readonly Dictionary<string, bool?> _SettingOverrides;
         private static readonly Dictionary<string, bool> _OrigSettings = new();
 
+        public static void RemoveOverride(string key, Dictionary<string, bool?> overrides, Dictionary<string, bool> origSettings, Action<string, bool> toggle)
+        {
+            bool overridden = overrides.TryGetValue(key, out bool? @override);
+            bool hadOrig = origSettings.TryGetValue(key, out bool orig);
+            
+            if (overridden)
+                overrides[key] = null;
+
+            // If we didn't have a state to return to, then we don't need to do anything
+            if (!hadOrig)
+                return;
+
+            origSettings.Remove(key);
+
+            // If overridden to a state different than the original, swap it back to the original
+            if (@override is bool val && val != orig)
+                toggle(key, val);
+        }
+
         public static void OverrideModuleToggle(string name, bool enable)
         {
             if (name == null || !_ModuleOverrides.ContainsKey(name))
@@ -29,23 +48,6 @@ namespace QoL
             QoL.ToggleModule(name, enable);
         }
 
-        public static void RemoveModuleOverride(string name)
-        {
-            bool wasOverwritten = _ModuleOverrides.TryGetValue(name, out bool? value);
-            bool hadOrig = _OrigEnabledModules.TryGetValue(name, out bool orig);
-
-            if (wasOverwritten && value != null)
-                _ModuleOverrides[name] = null;
-
-            if (!hadOrig)
-                return;
-
-            _OrigEnabledModules.Remove(name);
-
-            if (value is bool val && val != orig)
-                QoL.ToggleModule(name, orig);
-        }
-
         public static void OverrideSettingToggle(string type, string field, bool enable)
         {
             string key = $"{type}:{field}";
@@ -53,61 +55,43 @@ namespace QoL
             if (!_Fields.TryGetValue(key, out FieldInfo fi))
                 throw new ArgumentException($"QoL setting {key} not found.", nameof(field));
 
+            // Backup the original value before overriding
             if (!_OrigSettings.ContainsKey(key))
                 _OrigSettings[key] = (bool) fi.GetValue(null);
 
             _SettingOverrides[key] = enable;
             fi.SetValue(null, enable);
         }
+        
+        public static void RemoveModuleOverride(string name) => RemoveOverride(name, _ModuleOverrides, _OrigEnabledModules, QoL.ToggleModule);
 
-        public static void RemoveSettingOverride(string type, string field)
+        public static void RemoveSettingOverride(string type, string field) => 
+            RemoveOverride($"{type}:{field}", _SettingOverrides, _OrigSettings, (k, v) => _Fields[k].SetValue(null, v));
+
+        private static bool TryGetOverride(string name, out bool enabled, Dictionary<string, bool?> overrides)
         {
-            string key = $"{type}:{field}";
-            bool wasOverwritten = _SettingOverrides.TryGetValue(key, out bool? enabled);
-            bool hadOrig = _OrigSettings.TryGetValue(key, out bool orig);
+            bool res = overrides.TryGetValue(name, out bool? value);
+            enabled = value is true;
 
-            if (wasOverwritten)
-                _SettingOverrides[key] = null;
-
-            if (!hadOrig)
-                return;
-
-            _OrigSettings.Remove(key);
-
-            if (enabled is bool val && val != orig)
-                _Fields[key].SetValue(null, orig);
+            return res && value is not null;
         }
-
-        public static bool TryGetModuleOverride(string name, out bool enabled)
-        {
-            bool result = _ModuleOverrides.TryGetValue(name, out bool? value);
-            enabled = value.HasValue && value.Value;
-
-            return result && value.HasValue;
-        }
-
-        public static bool TryGetSettingOverride(string name, out bool enabled)
-        {
-            bool result = _SettingOverrides.TryGetValue(name, out bool? value);
-            enabled = value.HasValue && value.Value;
-
-            return result && value.HasValue;
-        }
-
+        
+        public static bool TryGetModuleOverride(string name, out bool enabled) => TryGetOverride(name, out enabled, _ModuleOverrides);
+        public static bool TryGetSettingOverride(string name, out bool enabled) => TryGetOverride(name, out enabled, _SettingOverrides);
+        
         public static bool TryGetOrigSetting(string name, out bool value) => _OrigSettings.TryGetValue(name, out value);
-
         public static bool TryGetOrigModuleEnabled(string name, out bool value) => _OrigEnabledModules.TryGetValue(name, out value);
 
         static SettingsOverride()
         {
             Type[] types = typeof(SettingsOverride).Assembly.GetTypes();
 
-            _ModuleOverrides = types.Where(t => t.IsSubclassOf(typeof(FauxMod)) && t.GetMethod(nameof(FauxMod.Unload))!.DeclaringType != typeof(FauxMod))
+            _ModuleOverrides = types.Where(FauxMod.IsToggleableFauxMod)
                                     .Select(t => t.Name)
                                     .ToDictionary<string, string, bool?>(s => s, _ => null);
 
             _Fields = types.SelectMany(t => t.GetFields())
-                           .Where(f => f.FieldType == typeof(bool) && Attribute.IsDefined(f, typeof(SerializeToSetting)))
+                           .Where(f => f.FieldType == typeof(bool) && SerializeToSetting.ShouldSerialize(f))
                            .ToDictionary(f => $"{f.DeclaringType!.Name}:{f.Name}");
 
             _SettingOverrides = _Fields.Keys.ToDictionary<string, string, bool?>(key => key, _ => null);

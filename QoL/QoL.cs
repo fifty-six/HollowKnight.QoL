@@ -39,9 +39,6 @@ namespace QoL
             {
                 var fm = (FauxMod) Activator.CreateInstance(t);
 
-                // If Disable isn't overridden then it can't be toggled.
-                bool cantDisable = t.GetMethod(nameof(FauxMod.Unload))?.DeclaringType == typeof(FauxMod);
-
                 if
                 (
                     !SettingsOverride.TryGetModuleOverride(t.Name, out bool enabled)
@@ -53,7 +50,8 @@ namespace QoL
                     GlobalSettings.EnabledModules.Add(t.Name, enabled);
                 }
 
-                if (cantDisable)
+                // If we can't toggle it, it has to be enabled.
+                if (!FauxMod.IsToggleable(t))
                     enabled = true;
 
                 if (enabled)
