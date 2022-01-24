@@ -15,9 +15,9 @@ namespace QoL
     {
         public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
-        internal static Settings _globalSettings = new();
+        internal static Settings GlobalSettings { get; private set; } = new();
 
-        private static readonly List<FauxMod> _fauxMods = new();
+        private static readonly List<FauxMod> _FauxMods = new();
 
         // So that UnencryptedSaves' BeforeSavegameSave runs last, showing all Mod settings.
         public override int LoadPriority() => int.MaxValue;
@@ -29,9 +29,9 @@ namespace QoL
             return ModMenu.GetMenuScreen(returnScreen, dels!.Value);
         }
 
-        public void OnLoadGlobal(Settings? s) => _globalSettings = s ?? _globalSettings;
+        public void OnLoadGlobal(Settings? s) => GlobalSettings = s ?? GlobalSettings;
 
-        public Settings OnSaveGlobal() => _globalSettings;
+        public Settings OnSaveGlobal() => GlobalSettings;
 
         public override void Initialize()
         {
@@ -45,12 +45,12 @@ namespace QoL
                 if
                 (
                     !SettingsOverride.TryGetModuleOverride(t.Name, out bool enabled)
-                    && !_globalSettings.EnabledModules.TryGetValue(t.Name, out enabled)
+                    && !GlobalSettings.EnabledModules.TryGetValue(t.Name, out enabled)
                 )
                 {
                     enabled = fm.DefaultState;
 
-                    _globalSettings.EnabledModules.Add(t.Name, enabled);
+                    GlobalSettings.EnabledModules.Add(t.Name, enabled);
                 }
 
                 if (cantDisable)
@@ -62,13 +62,13 @@ namespace QoL
                     fm.IsLoaded = true;
                 }
 
-                _fauxMods.Add(fm);
+                _FauxMods.Add(fm);
             }
         }
 
         internal static void ToggleModule(string name, bool enable)
         {
-            FauxMod? fm = _fauxMods.FirstOrDefault(f => f.GetType().Name == name);
+            FauxMod? fm = _FauxMods.FirstOrDefault(f => f.GetType().Name == name);
 
             if (fm == null || fm.IsLoaded == enable)
                 return;
@@ -77,20 +77,20 @@ namespace QoL
             {
                 fm.Initialize();
                 fm.IsLoaded = true;
-                _globalSettings.EnabledModules[name] = true;
+                GlobalSettings.EnabledModules[name] = true;
             }
             else
             {
                 fm.Unload();
                 fm.IsLoaded = false;
-                _globalSettings.EnabledModules[name] = false;
+                GlobalSettings.EnabledModules[name] = false;
             }
         }
 
 
         public void Unload()
         {
-            foreach (FauxMod fm in _fauxMods.Where(x => x.IsLoaded))
+            foreach (FauxMod fm in _FauxMods.Where(x => x.IsLoaded))
             {
                 fm.Unload();
             }
