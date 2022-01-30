@@ -15,7 +15,7 @@ namespace QoL.Modules
         public static bool EnableStacktrace = true;
 
         private static readonly ILogger UnityLogger = new SimpleLogger("UNITY");
-        
+
         public override void Initialize()
         {
             if (EnableStacktrace)
@@ -32,7 +32,7 @@ namespace QoL.Modules
         private static void HandleLog(string condition, string stacktrace, LogType type)
         {
             if (type != LogType.Exception) return;
-            
+
             UnityLogger.LogError(condition);
             UnityLogger.LogError(stacktrace);
         }

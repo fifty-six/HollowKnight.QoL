@@ -21,7 +21,7 @@ namespace QoL
         {
             bool overridden = overrides.TryGetValue(key, out bool? @override);
             bool hadOrig = origSettings.TryGetValue(key, out bool orig);
-            
+
             if (overridden)
                 overrides[key] = null;
 
@@ -62,10 +62,10 @@ namespace QoL
             _SettingOverrides[key] = enable;
             fi.SetValue(null, enable);
         }
-        
+
         public static void RemoveModuleOverride(string name) => RemoveOverride(name, _ModuleOverrides, _OrigEnabledModules, QoL.ToggleModule);
 
-        public static void RemoveSettingOverride(string type, string field) => 
+        public static void RemoveSettingOverride(string type, string field) =>
             RemoveOverride($"{type}:{field}", _SettingOverrides, _OrigSettings, (k, v) => _Fields[k].SetValue(null, v));
 
         private static bool TryGetOverride(string name, out bool enabled, Dictionary<string, bool?> overrides)
@@ -75,10 +75,10 @@ namespace QoL
 
             return res && value is not null;
         }
-        
+
         public static bool TryGetModuleOverride(string name, out bool enabled) => TryGetOverride(name, out enabled, _ModuleOverrides);
         public static bool TryGetSettingOverride(string name, out bool enabled) => TryGetOverride(name, out enabled, _SettingOverrides);
-        
+
         public static bool TryGetOrigSetting(string name, out bool value) => _OrigSettings.TryGetValue(name, out value);
         public static bool TryGetOrigModuleEnabled(string name, out bool value) => _OrigEnabledModules.TryGetValue(name, out value);
 

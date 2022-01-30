@@ -13,15 +13,15 @@ namespace QoL.Modules
     public class SaneUumuu : FauxMod
     {
         private NonBouncer _coro = null!;
-        
+
         public override void Initialize()
         {
             var go = new GameObject();
-            
+
             _coro = go.AddComponent<NonBouncer>();
-            
+
             Object.DontDestroyOnLoad(_coro);
-            
+
             UnityEngine.SceneManagement.SceneManager.sceneLoaded += StartRoutine;
         }
 
@@ -34,15 +34,15 @@ namespace QoL.Modules
         private static IEnumerator FixUumuu()
         {
             yield return null;
-            
+
             // Find Uumuu and the FSM
             GameObject uumuu = GameObject.Find("Mega Jellyfish");
-            
+
             if (uumuu == null)
                 yield break;
-            
+
             PlayMakerFSM fsm = uumuu.LocateMyFSM("Mega Jellyfish");
-            
+
             // Fix the waits and the number of attacks
             fsm.GetState("Idle").GetAction<WaitRandom>().timeMax = 1.5f;
             fsm.GetState("Set Timer").GetAction<RandomFloat>().max = 2f;
@@ -52,16 +52,15 @@ namespace QoL.Modules
             FsmState choice = fsm.GetState("Choice");
             choice.RemoveAction<SendRandomEventV2>();
             choice.AddMethod(() => SetUumuuPattern(fsm));
-            
+
             // Reset the multizap counter to 0 so the pattern remains 2 quick 1 optional long
-            fsm.GetState("Recover").AddMethod(() => fsm.FsmVariables.GetFsmInt("Ct Multizap").Value = 0); 
-            
+            fsm.GetState("Recover").AddMethod(() => fsm.FsmVariables.GetFsmInt("Ct Multizap").Value = 0);
+
             // Set the initial RecoilSpeed to 0 so that dream nailing her on the first cycle doesn't push her
             uumuu.GetComponent<Recoil>().SetRecoilSpeed(0);
 
             // Set her HP to 1028 value
             uumuu.GetComponent<HealthManager>().hp = 250;
-            
         }
 
         private static void SetUumuuPattern(PlayMakerFSM fsm)
@@ -80,7 +79,7 @@ namespace QoL.Modules
         public override void Unload()
         {
             Object.Destroy(_coro);
-            
+
             UnityEngine.SceneManagement.SceneManager.sceneLoaded -= StartRoutine;
         }
     }

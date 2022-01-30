@@ -17,6 +17,7 @@ namespace QoL.Modules
     public class SkipCutscenes : FauxMod
     {
         #region Settings
+
         [SerializeToSetting]
         public static bool DreamersGet = true;
 
@@ -61,6 +62,7 @@ namespace QoL.Modules
 
         [SerializeToSetting]
         public static bool InstantSceneFadeIns = true;
+
         #endregion
 
         private const string GUARDIAN = "Dream_Guardian_";
@@ -87,7 +89,8 @@ namespace QoL.Modules
             nameof(PlayerData.metIselda),
         };
 
-        private static readonly (Func<bool>, Func<Scene, IEnumerator>)[] FSM_SKIPS = {
+        private static readonly (Func<bool>, Func<Scene, IEnumerator>)[] FSM_SKIPS =
+        {
             (() => DreamersGet, DreamerFsm),
             (() => AbsoluteRadiance, AbsRadSkip),
             (() => PureVesselRoar, HKPrimeSkip),
@@ -136,20 +139,19 @@ namespace QoL.Modules
 
         private static void OnNewGame()
         {
-            if (FirstCharm) 
+            if (FirstCharm)
                 PlayerData.instance.SetBool(nameof(PlayerData.hasCharm), true);
-            
-            if (GodhomeEntry) 
+
+            if (GodhomeEntry)
                 PlayerData.instance.SetBool(nameof(PlayerData.enteredGGAtrium), true);
 
-            if (!FirstTimeBosses) 
+            if (!FirstTimeBosses)
                 return;
-            
+
             foreach (string @bool in PD_BOOLS)
             {
                 PlayerData.instance.SetBool(@bool, true);
             }
-
         }
 
         private static IEnumerator NoFade(On.GameManager.orig_FadeSceneInWithDelay orig, GameManager self, float delay)
@@ -266,19 +268,19 @@ namespace QoL.Modules
             yield return null;
 
             GameObject dreamEnter = GameObject.Find("Dream Enter");
-            
-            if(dreamEnter == null)
+
+            if (dreamEnter == null)
                 yield break;
-            
+
             dreamEnter.LocateMyFSM("Control").GetState("Idle").ChangeTransition("DREAM HIT", "Change Scene");
         }
 
         private static IEnumerator AbyssShriekPickup(Scene arg1)
         {
             if (arg1.name != "Abyss_12") yield break;
-            
+
             yield return null;
-            
+
             PlayMakerFSM shriek = GameObject.Find("Scream 2 Get").LocateMyFSM("Scream Get");
             shriek.GetState("Move To").ChangeTransition("FINISHED", "Get");
             shriek.GetState("Get Pause").RemoveAllOfType<Wait>();
@@ -290,7 +292,7 @@ namespace QoL.Modules
             yield return KingsBrandHornet(arg1);
             yield return KingsBrandAvalanche(arg1);
         }
-        
+
         private static IEnumerator KingsBrandHornet(Scene arg1)
         {
             if (arg1.name != "Deepnest_East_12") yield break;
@@ -313,7 +315,7 @@ namespace QoL.Modules
             PlayMakerFSM avalanche = GameObject.Find("Avalanche End").LocateMyFSM("Control");
             avalanche.GetState("Fade").GetAction<Wait>().time = 1;
         }
-        
+
         private static IEnumerator BlackEgg(Scene arg1)
         {
             if (arg1.name != "Room_temple") yield break;
@@ -330,7 +332,7 @@ namespace QoL.Modules
             door.GetState("Roar").RemoveAllOfType<Wait>();
             door.GetState("Roar End").GetAction<Wait>().time = 1;
         }
-        
+
         private static IEnumerator OnBeginSceneTransition(On.GameManager.orig_BeginSceneTransitionRoutine orig, GameManager self, GameManager.SceneLoadInfo info)
         {
             if (InstantSceneFadeIns)
@@ -410,7 +412,7 @@ namespace QoL.Modules
         {
             if (AutoSkipCinematics)
                 self.Skip();
-            else 
+            else
                 orig(self);
         }
 
@@ -418,7 +420,7 @@ namespace QoL.Modules
         {
             if (AutoSkipCinematics)
                 self.Skip();
-            else 
+            else
                 orig(self);
         }
 
@@ -426,7 +428,7 @@ namespace QoL.Modules
         {
             if (AutoSkipCinematics)
                 self.Skip();
-            else 
+            else
                 orig(self);
         }
     }

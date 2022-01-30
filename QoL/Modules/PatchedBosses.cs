@@ -51,6 +51,7 @@ namespace QoL.Modules
                     break;
             }
         }
+
         private IEnumerator FixWatchers(Scene scene)
         {
             yield return null;
@@ -63,6 +64,7 @@ namespace QoL.Modules
                     pfsm.GetState("In Range Choice").RemoveTransition("In Range Double");
             }
         }
+
         private IEnumerator FixCrystalGuardian()
         {
             yield return null;
@@ -95,6 +97,7 @@ namespace QoL.Modules
         {
             if (!otherCollider.gameObject.activeSelf && SporeShroomHollowKnight)
                 return;
+
             orig(self, otherCollider);
         }
     }

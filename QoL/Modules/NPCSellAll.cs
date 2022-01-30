@@ -48,7 +48,7 @@ namespace QoL.Modules
 
             if (lemm == null)
                 return;
-                 
+
             lemm.LocateMyFSM("npc_control")
                 .GetState("Convo End")
                 .AddMethod(SellRelics);

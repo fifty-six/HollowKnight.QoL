@@ -11,7 +11,7 @@ namespace QoL.Modules
     {
         [SerializeToSetting]
         public static float DoubleDamageVolumeModifier = .8f;
-        
+
         public static float Volume => GameManager.instance.GetImplicitCinematicVolume();
 
         public override void Initialize()

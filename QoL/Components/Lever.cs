@@ -10,7 +10,7 @@ namespace QoL.Components
         public PersistentBoolData BoolData { get; set; }
 
         public Action? OnHit { get; set; }
-        
+
         public Lever()
         {
             BoolData = new PersistentBoolData
@@ -19,7 +19,7 @@ namespace QoL.Components
                 id = name
             };
         }
-        
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.gameObject.layer != (int) PhysLayers.HERO_ATTACK)
@@ -29,9 +29,9 @@ namespace QoL.Components
                 return;
 
             SceneData sd = GameManager.instance.sceneData;
-            
+
             PersistentBoolData pbd = sd.FindMyState(BoolData) ?? BoolData;
-            
+
             if (pbd.activated)
                 return;
 
@@ -41,7 +41,7 @@ namespace QoL.Components
             pbd.activated = true;
 
             OnHit();
-            
+
             sd.SaveMyState(pbd);
         }
     }

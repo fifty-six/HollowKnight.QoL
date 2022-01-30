@@ -31,11 +31,11 @@ namespace QoL.Modules
         public override void Initialize()
         {
             const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-            
+
             foreach ((Type t, string nested, ILContext.Manipulator method) in ILHooks)
             {
                 Type nestedType = t.GetNestedTypes(flags).First(x => x.Name.Contains(nested));
-                
+
                 _hooked.Add
                 (
                     new ILHook

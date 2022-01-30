@@ -15,7 +15,7 @@ namespace QoL
     public static class ModMenu
     {
         private static readonly string[] Bools = { "false", "true" };
-        
+
         private static readonly List<string> _TogglableModuleNames;
 
         private static MenuScreen? _ModMenuScreen;
@@ -29,7 +29,7 @@ namespace QoL
             void Return(MenuSelectable _)         => UIManager.instance.UIGoToDynamicMenu(returnScreen);
             static void Fields(MenuSelectable _)  => UIManager.instance.UIGoToDynamicMenu(_ModuleFieldToggleScreen);
             static void Modules(MenuSelectable _) => UIManager.instance.UIGoToDynamicMenu(_ModuleToggleScreen);
-            
+
             builder.AddContent
             (
                 RegularGridLayout.CreateVerticalLayout(105f),
@@ -89,11 +89,11 @@ namespace QoL
         {
             IMenuMod.MenuEntry CreateEntry(string name) => new
             (
-                    name,
-                    Bools,
-                    string.Empty,
-                    i => QoL.ToggleModule(name, Convert.ToBoolean(i)),
-                    () => Convert.ToInt32(QoL.GlobalSettings.EnabledModules[name])
+                name,
+                Bools,
+                string.Empty,
+                i => QoL.ToggleModule(name, Convert.ToBoolean(i)),
+                () => Convert.ToInt32(QoL.GlobalSettings.EnabledModules[name])
             );
 
             return _TogglableModuleNames
@@ -105,8 +105,8 @@ namespace QoL
         private static List<IMenuMod.MenuEntry> GetModuleFieldMenuData()
         {
             static string PascalToSpaces(string s) => Regex.Replace(s, "([A-Z])", " $1").TrimStart();
-            
-            List<IMenuMod.MenuEntry> li = new ();
+
+            List<IMenuMod.MenuEntry> li = new();
 
             foreach ((FieldInfo fi, Type t) in QoL.GlobalSettings.Fields)
             {
@@ -134,8 +134,8 @@ namespace QoL
             Type[] types = typeof(ModMenu).Assembly.GetTypes();
 
             _TogglableModuleNames = types.Where(FauxMod.IsToggleableFauxMod)
-                                        .Select(t => t.Name)
-                                        .ToList();
+                                         .Select(t => t.Name)
+                                         .ToList();
         }
     }
 }

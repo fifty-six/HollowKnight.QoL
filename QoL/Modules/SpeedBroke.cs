@@ -57,7 +57,7 @@ namespace QoL.Modules
         private static readonly MethodInfo _DieFromHazardIteratorMethod = typeof(HeroController)
                                                                           .GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance)
                                                                           .GetStateMachineTarget();
-        
+
         private ILHook? _elevatorStorage;
 
         public override void Initialize()
@@ -70,7 +70,7 @@ namespace QoL.Modules
             On.InputHandler.Update += EnableSuperslides;
             ModHooks.ObjectPoolSpawnHook += OnObjectPoolSpawn;
             USceneManager.activeSceneChanged += SceneChanged;
-            
+
             _elevatorStorage = new ILHook(_DieFromHazardIteratorMethod, RestoreElevatorStorage);
         }
 
@@ -84,7 +84,7 @@ namespace QoL.Modules
             On.InputHandler.Update -= EnableSuperslides;
             ModHooks.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
             USceneManager.activeSceneChanged -= SceneChanged;
-            
+
             _elevatorStorage?.Dispose();
         }
 
@@ -98,10 +98,16 @@ namespace QoL.Modules
                 i => i.MatchLdnull(),
                 i => i.MatchCallvirt<HeroController>(nameof(HeroController.SetHeroParent))
             );
-            
+
             cursor.GotoNext();
             cursor.RemoveRange(2);
-            cursor.EmitDelegate<Action<HeroController>>(hc => { if (!Storage) hc.SetHeroParent(null); });
+            cursor.EmitDelegate<Action<HeroController>>
+            (
+                hc =>
+                {
+                    if (!Storage) hc.SetHeroParent(null);
+                }
+            );
         }
 
         private static void AllowPause(On.TutorialEntryPauser.orig_Start orig, TutorialEntryPauser self)
@@ -178,7 +184,6 @@ namespace QoL.Modules
             {
                 case "Control" when self.name == "Initial Fall Impact" && NoHardFalls:
                 {
-
                     self.ChangeTransition("Idle", "LAND", "Return Control");
                     break;
                 }
@@ -245,13 +250,13 @@ namespace QoL.Modules
                 case "Ruins1_31" when ShadeSoulLeverSkip:
                 {
                     HeroController.instance.StartCoroutine(EnableShadeSoulLeverSkip());
-                    
+
                     break;
                 }
                 case "Mines_35" when CrystalisedMoundSpikes:
                 {
                     HeroController.instance.StartCoroutine(AddCrystalisedMoundSpikes());
-                    
+
                     break;
                 }
             }
@@ -269,19 +274,19 @@ namespace QoL.Modules
                 typeof(Lever),
                 typeof(BoxCollider2D)
             );
-            
+
             lever_go.transform.position = new Vector3(38f, 56.7f);
             lever_go.layer = (int) PhysLayers.TERRAIN;
 
             var lever = lever_go.GetComponent<Lever>();
             lever.OnHit = () => GameObject.Find("Ruins Gate").LocateMyFSM("Toll Gate").SendEvent("OPEN");
-            
+
             var bcol = lever_go.GetComponent<BoxCollider2D>();
             bcol.size = new Vector2(.4f, .6f);
             bcol.isTrigger = true;
 
             // Extends a wall in Ruins1_31 to enable climbing it with claw only (like on 1221)
-            Vector2[] points = 
+            Vector2[] points =
             {
                 new(21.4f, 19),
                 new(21.5f, 16),
@@ -293,13 +298,13 @@ namespace QoL.Modules
                                  .First(x => x.points[0] == new Vector2(0, 12));
 
             List<Vector2> pts = col.points.ToList();
-            
+
             pts.RemoveRange(6, 2);
             pts.InsertRange(6, points);
 
             col.points = pts.ToArray();
         }
-        
+
         private static IEnumerator AddCrystalisedMoundSpikes()
         {
             yield return null;
@@ -308,13 +313,13 @@ namespace QoL.Modules
             {
                 if (!nonBounce.gameObject.name.StartsWith("Spike Collider"))
                     continue;
-                
+
                 nonBounce.active = false;
-                    
+
                 AudioSource tinkAudio = new GameObject("tinkAudio").AddComponent<AudioSource>();
                 tinkAudio.clip = GameObject.Find("Mines Platform").GetComponent<FlipPlatform>().hitSound;
                 tinkAudio.volume = FixVolume.Volume;
-                    
+
                 nonBounce.gameObject.AddComponent<TinkEffect>().blockEffect = tinkAudio.gameObject;
             }
         }

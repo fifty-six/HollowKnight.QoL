@@ -20,7 +20,7 @@ namespace QoL.Modules
         private static void OnNextChar(On.DialogueBox.orig_ShowNextChar orig, DialogueBox self)
         {
             TextMeshPro text = Mirror.GetField<DialogueBox, TextMeshPro>(self, "textMesh");
-            
+
             text.maxVisibleCharacters = text.textInfo.pageInfo[self.currentPage - 1].lastCharacterIndex + 1;
         }
     }

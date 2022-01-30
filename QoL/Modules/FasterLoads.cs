@@ -12,16 +12,16 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class FasterLoads : FauxMod
     {
-        private static readonly float[] SKIP = {0.4f, .165f};
-        
+        private static readonly float[] SKIP = { 0.4f, .165f };
+
         private ILHook? _hook;
 
         public override void Initialize()
         {
             Unload();
-            
+
             Type type = typeof(HeroController).GetNestedType("<EnterScene>d__469", BindingFlags.NonPublic | BindingFlags.Instance);
-            
+
             _hook = new ILHook
             (
                 type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
@@ -42,10 +42,10 @@ namespace QoL.Modules
                 if (c.Instrs[c.Index].Operand is not float f) continue;
 
                 if (!SKIP.Contains(f)) continue;
-                
+
                 c.Remove();
                 c.Remove();
-                
+
                 // convert to yield return null
                 c.Emit(OpCodes.Ldnull);
             }
