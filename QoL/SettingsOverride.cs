@@ -94,9 +94,11 @@ namespace QoL
         {
             Type[] types = typeof(SettingsOverride).Assembly.GetTypes();
 
-            _Modules = types.Where(FauxMod.IsToggleableFauxMod)
-                            .Select(t => t.Name)
-                            .ToHashSet();
+            _Modules = new HashSet<string>
+            (
+                types.Where(FauxMod.IsToggleableFauxMod)
+                     .Select(t => t.Name)
+            );
 
             _Fields = types.SelectMany(t => t.GetFields())
                            .Where(f => f.FieldType == typeof(bool) && SerializeToSetting.ShouldSerialize(f))
