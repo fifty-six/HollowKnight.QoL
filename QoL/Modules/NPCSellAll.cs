@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -16,8 +17,18 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool JinnSellAll = true;
 
+        [SerializeToSetting]
+        public static bool NailsmithBuyAll = true;
+
         private static readonly int[] RELIC_COST = { 200, 450, 800, 1200 };
         private const int EGG_COST = 450;
+        private static readonly (int ore, int geo)[] NAIL_UPGRADE_COST =
+        {
+            (0, 250),
+            (1, 800),
+            (2, 2000),
+            (3, 4000)
+        };
 
         public override void Initialize()
         {
@@ -38,6 +49,9 @@ namespace QoL.Modules
                     break;
                 case "Room_Jinn" when JinnSellAll:
                     JinnSell(scene);
+                    break;
+                case "Room_nailsmith" when NailsmithBuyAll:
+                    NailsmithBuy(scene);
                     break;
             }
         }
@@ -108,6 +122,66 @@ namespace QoL.Modules
             HeroController.instance.AddGeo(price);
 
             pd.SetInt(nameof(pd.rancidEggs), 0);
+        }
+
+        private static bool _spokeOnRight;
+
+        private static void NailsmithBuy(Scene scene)
+        {
+            GameObject nailsmith = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Nailsmith");
+
+            PlayMakerFSM nailsmithConvo = nailsmith.LocateMyFSM("Conversation Control");
+            FsmState boxUp = nailsmithConvo.GetState("Box Up");
+            boxUp.AddTransition("BOUGHT ALL", "Box Up 4");
+            boxUp.InsertMethod(0, () =>
+            {
+                if (_spokeOnRight && BuyNailUpgrades())
+                {
+                    nailsmithConvo.SendEvent("BOUGHT ALL");
+                }
+            });
+
+            PlayMakerFSM nailsmithRegion = nailsmith.LocateMyFSM("npc_control");
+            nailsmithRegion.GetState("Move Hero Left").InsertMethod(0, () =>
+            {
+                float heroMin = HeroController.instance.GetComponent<Collider2D>().bounds.min.x;
+                // True if the knight is completely to the right of the Nailsmith's dream dialogue hitbox
+                _spokeOnRight = 18.5f < heroMin;
+            });
+        }
+
+        private static bool BuyNailUpgrades()
+        {
+            var pd = PlayerData.instance;
+
+            int current = pd.GetInt(nameof(pd.nailSmithUpgrades));
+            if (current > 3) return false;
+
+            int bought = 0;
+
+            for (int i = current; 
+                i < 4 
+                && NAIL_UPGRADE_COST[i].ore <= pd.GetInt(nameof(pd.ore)) 
+                && NAIL_UPGRADE_COST[i].geo <= pd.GetInt(nameof(pd.geo));
+                i++)
+            {
+                pd.IntAdd(nameof(pd.ore), - NAIL_UPGRADE_COST[i].ore);
+                HeroController.instance.TakeGeo(NAIL_UPGRADE_COST[i].geo);
+                bought++;
+            }
+
+            if (bought > 0)
+            {
+                GameManager.instance.ResetSemiPersistentItems();
+                GameManager.instance.TimePasses();
+                PlayerData.instance.SetBool(nameof(PlayerData.honedNail), true);
+                PlayerData.instance.IntAdd(nameof(PlayerData.nailDamage), bought * 4);
+                PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
+                GameManager.instance.IntAdd(nameof(PlayerData.nailSmithUpgrades), bought);
+                GameManager.instance.StoryRecord_upgradeNail();
+            }
+
+            return bought > 0;
         }
     }
 }
