@@ -20,9 +20,9 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool NailsmithBuyAll = true;
 
-        private static readonly int[] RELIC_COST = { 200, 450, 800, 1200 };
         private const int EGG_COST = 450;
-        private static readonly (int ore, int geo)[] NAIL_UPGRADE_COST =
+        private static readonly int[] RELIC_COST = { 200, 450, 800, 1200 };
+        private static readonly (int ore, int geo)[] NAIL_UPGRADE_COSTS =
         {
             (0, 250),
             (1, 800),
@@ -124,10 +124,10 @@ namespace QoL.Modules
             pd.SetInt(nameof(pd.rancidEggs), 0);
         }
 
-        private static bool _spokeOnRight;
-
         private static void NailsmithBuy(Scene scene)
         {
+            bool _spokeOnRight = false;
+
             GameObject nailsmith = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Nailsmith");
 
             PlayMakerFSM nailsmithConvo = nailsmith.LocateMyFSM("Conversation Control");
@@ -136,9 +136,7 @@ namespace QoL.Modules
             boxUp.InsertMethod(0, () =>
             {
                 if (_spokeOnRight && BuyNailUpgrades())
-                {
                     nailsmithConvo.SendEvent("BOUGHT ALL");
-                }
             });
 
             PlayMakerFSM nailsmithRegion = nailsmith.LocateMyFSM("npc_control");
@@ -155,18 +153,17 @@ namespace QoL.Modules
             var pd = PlayerData.instance;
 
             int current = pd.GetInt(nameof(pd.nailSmithUpgrades));
+
             if (current > 3) return false;
 
             int bought = 0;
 
-            for (int i = current; 
-                i < 4 
-                && NAIL_UPGRADE_COST[i].ore <= pd.GetInt(nameof(pd.ore)) 
-                && NAIL_UPGRADE_COST[i].geo <= pd.GetInt(nameof(pd.geo));
-                i++)
+            foreach (var (ore, geo) in NAIL_UPGRADE_COSTS
+                .Skip(current)
+                .TakeWhile(x => x.ore <= pd.GetInt(nameof(pd.ore)) && x.geo <= pd.GetInt(nameof(pd.geo))))
             {
-                pd.IntAdd(nameof(pd.ore), - NAIL_UPGRADE_COST[i].ore);
-                HeroController.instance.TakeGeo(NAIL_UPGRADE_COST[i].geo);
+                pd.IntAdd(nameof(pd.ore), -ore);
+                HeroController.instance.TakeGeo(geo);
                 bought++;
             }
 
