@@ -72,21 +72,22 @@ namespace QoL.Modules
         {
             var pd = PlayerData.instance;
 
-            if (pd.GetBool("equippedCharm_10")) return;
+            if (pd.GetBool("equippedCharm_10")) 
+                return;
 
             for (int i = 1; i <= 4; i++)
             {
                 int amount = pd.GetInt($"trinket{i}");
 
-                if (amount == 0) continue;
+                if (amount == 0) 
+                    continue;
 
                 int price = amount * RELIC_COST[i - 1];
 
                 pd.SetInt($"soldTrinket{i}", pd.GetInt($"soldTrinket{i}") + amount);
-
-                HeroController.instance.AddGeo(price);
-
                 pd.SetInt($"trinket{i}", 0);
+                
+                HeroController.instance.AddGeo(price);
             }
         }
 
@@ -113,38 +114,38 @@ namespace QoL.Modules
 
             int amount = pd.GetInt(nameof(pd.rancidEggs));
 
-            if (amount == 0) return;
+            if (amount == 0) 
+                return;
 
             int price = amount * EGG_COST;
 
             pd.SetInt(nameof(pd.jinnEggsSold), pd.GetInt(nameof(pd.jinnEggsSold)) + amount);
+            pd.SetInt(nameof(pd.rancidEggs), 0);
 
             HeroController.instance.AddGeo(price);
-
-            pd.SetInt(nameof(pd.rancidEggs), 0);
         }
 
         private static void NailsmithBuy(Scene scene)
         {
-            bool _spokeOnRight = false;
+            bool right = false;
 
             GameObject nailsmith = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Nailsmith");
 
-            PlayMakerFSM nailsmithConvo = nailsmith.LocateMyFSM("Conversation Control");
-            FsmState boxUp = nailsmithConvo.GetState("Box Up");
-            boxUp.AddTransition("BOUGHT ALL", "Box Up 4");
-            boxUp.InsertMethod(0, () =>
+            PlayMakerFSM convo = nailsmith.LocateMyFSM("Conversation Control");
+            FsmState box = convo.GetState("Box Up");
+            
+            box.AddTransition("BOUGHT ALL", "Box Up 4");
+            box.InsertMethod(0, () =>
             {
-                if (_spokeOnRight && BuyNailUpgrades())
-                    nailsmithConvo.SendEvent("BOUGHT ALL");
+                if (right && BuyNailUpgrades())
+                    convo.SendEvent("BOUGHT ALL");
             });
 
-            PlayMakerFSM nailsmithRegion = nailsmith.LocateMyFSM("npc_control");
-            nailsmithRegion.GetState("Move Hero Left").InsertMethod(0, () =>
+            nailsmith.LocateMyFSM("npc_control").GetState("Move Hero Left").InsertMethod(0, () =>
             {
                 float heroMin = HeroController.instance.GetComponent<Collider2D>().bounds.min.x;
-                // True if the knight is completely to the right of the Nailsmith's dream dialogue hitbox
-                _spokeOnRight = 18.5f < heroMin;
+                // Check if the knight is completely to the right of the Nailsmith's dream dialogue hitbox
+                right = 18.5f < heroMin;
             });
         }
 
@@ -154,31 +155,38 @@ namespace QoL.Modules
 
             int current = pd.GetInt(nameof(pd.nailSmithUpgrades));
 
-            if (current > 3) return false;
+            if (current > 3) 
+                return false;
 
             int bought = 0;
 
-            foreach (var (ore, geo) in NAIL_UPGRADE_COSTS
-                .Skip(current)
-                .TakeWhile(x => x.ore <= pd.GetInt(nameof(pd.ore)) && x.geo <= pd.GetInt(nameof(pd.geo))))
+            var upgrades = NAIL_UPGRADE_COSTS.Skip(current).TakeWhile(
+                x => x.ore <= pd.GetInt(nameof(pd.ore)) && x.geo <= pd.GetInt(nameof(pd.geo))
+            );
+
+            foreach (var (ore, geo) in upgrades)
             {
                 pd.IntAdd(nameof(pd.ore), -ore);
                 HeroController.instance.TakeGeo(geo);
                 bought++;
             }
 
-            if (bought > 0)
-            {
-                GameManager.instance.ResetSemiPersistentItems();
-                GameManager.instance.TimePasses();
-                PlayerData.instance.SetBool(nameof(PlayerData.honedNail), true);
-                PlayerData.instance.IntAdd(nameof(PlayerData.nailDamage), bought * 4);
-                PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
-                GameManager.instance.IntAdd(nameof(PlayerData.nailSmithUpgrades), bought);
-                GameManager.instance.StoryRecord_upgradeNail();
-            }
+            if (bought <= 0) 
+                return false;
 
-            return bought > 0;
+            var gm = GameManager.instance;
+            
+            pd.SetBool(nameof(PlayerData.honedNail), true);
+            pd.IntAdd(nameof(PlayerData.nailDamage), bought * 4);
+            pd.IntAdd(nameof(PlayerData.nailSmithUpgrades), bought);
+            
+            PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
+            
+            gm.ResetSemiPersistentItems();
+            gm.TimePasses();
+            gm.StoryRecord_upgradeNail();
+
+            return true;
         }
     }
 }
