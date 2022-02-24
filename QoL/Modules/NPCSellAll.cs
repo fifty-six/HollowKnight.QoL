@@ -58,7 +58,7 @@ namespace QoL.Modules
 
         private static void LemmSell(Scene scene)
         {
-            GameObject lemm = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Relic Dealer");
+            GameObject? lemm = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Relic Dealer");
 
             if (lemm == null)
                 return;
@@ -93,7 +93,7 @@ namespace QoL.Modules
 
         private static void JinnSell(Scene scene)
         {
-            GameObject jinn = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Jinn NPC");
+            GameObject? jinn = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Jinn NPC");
 
             if (jinn == null)
                 return;
@@ -129,7 +129,10 @@ namespace QoL.Modules
         {
             bool right = false;
 
-            GameObject nailsmith = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Nailsmith");
+            GameObject? nailsmith = scene.GetRootGameObjects().FirstOrDefault(obj => obj.name == "Nailsmith");
+            
+            if (nailsmith == null)
+                return;
 
             PlayMakerFSM convo = nailsmith.LocateMyFSM("Conversation Control");
             FsmState box = convo.GetState("Box Up");
