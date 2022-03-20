@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Modding;
+using MonoMod.ModInterop;
 using QoL.Modules;
 using Vasi;
 
@@ -13,6 +14,11 @@ namespace QoL
     [UsedImplicitly]
     public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>, ICustomMenuMod
     {
+        public QoL() : base(null)
+        {
+            typeof(SettingsOverride).ModInterop();
+        }
+
         public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
         internal static Settings GlobalSettings { get; private set; } = new();
