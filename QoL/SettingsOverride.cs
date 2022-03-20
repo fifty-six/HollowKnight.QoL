@@ -43,7 +43,7 @@ namespace QoL
 
             // If overridden to a state different than the original, swap it back to the original
             if (@override != orig)
-                toggle(key, @override);
+                toggle(key, orig);
         }
 
         public static void OverrideModuleToggle(string name, bool enable)
