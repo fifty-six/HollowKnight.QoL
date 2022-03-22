@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +14,7 @@ namespace QoL
 {
     public static class ModMenu
     {
-        private static readonly string[] Bools = { "false", "true" };
+        private static readonly string[] Bools = { I18n.Get("false"), I18n.Get("true") };
 
         private static readonly List<string> _TogglableModuleNames;
 
@@ -51,7 +51,7 @@ namespace QoL
 
                     c.AddMenuButton("Module Toggles", new MenuButtonConfig
                     {
-                        Label = "Module Toggles",
+                        Label = I18n.Get("Module Toggles"),
                         Proceed = true,
                         SubmitAction = Modules,
                         CancelAction = Return,
@@ -59,7 +59,7 @@ namespace QoL
 
                     c.AddMenuButton("Module Field Toggles", new MenuButtonConfig
                     {
-                        Label = "Module Field Toggles",
+                        Label = I18n.Get("Module Field Toggles"),
                         Proceed = true,
                         SubmitAction = Fields,
                         CancelAction = Return,
@@ -71,13 +71,13 @@ namespace QoL
 
             _ModuleToggleScreen = MenuUtils.CreateMenuScreen
             (
-                "Module Toggles",
+                I18n.Get("Module Toggles"),
                 GetModuleToggleMenuData(),
                 _ModMenuScreen
             );
             _ModuleFieldToggleScreen = MenuUtils.CreateMenuScreen
             (
-                "Module Field Toggles",
+                I18n.Get("Module Field Toggles"),
                 GetModuleFieldMenuData(),
                 _ModMenuScreen
             );
@@ -89,7 +89,7 @@ namespace QoL
         {
             IMenuMod.MenuEntry CreateEntry(string name) => new
             (
-                name,
+                I18n.Get(name),
                 Bools,
                 string.Empty,
                 i => QoL.ToggleModule(name, Convert.ToBoolean(i)),
@@ -104,7 +104,7 @@ namespace QoL
 
         private static List<IMenuMod.MenuEntry> GetModuleFieldMenuData()
         {
-            static string PascalToSpaces(string s) => Regex.Replace(s, "([A-Z])", " $1").TrimStart();
+            static string PascalToSpaces(string s) => Regex.Replace(s, "([A-Z])", " $1").Trim();
 
             List<IMenuMod.MenuEntry> li = new();
 
@@ -117,9 +117,9 @@ namespace QoL
                 (
                     new IMenuMod.MenuEntry
                     (
-                        PascalToSpaces(fi.Name),
+                        I18n.needReplace ? I18n.Get(fi.Name) : PascalToSpaces(fi.Name),
                         Bools,
-                        $"Comes from {t.Name}",
+                        string.Format(I18n.Get("Comes from {0}"), I18n.Get(t.Name)),
                         i => fi.SetValue(null, Convert.ToBoolean(i)),
                         () => Convert.ToInt32(fi.GetValue(null))
                     )
