@@ -117,7 +117,7 @@ namespace QoL
                 (
                     new IMenuMod.MenuEntry
                     (
-                        I18n.needReplace ? I18n.Get(fi.Name) : PascalToSpaces(fi.Name),
+                        I18n.Available ? I18n.Get(fi.Name) : PascalToSpaces(fi.Name),
                         Bools,
                         string.Format(I18n.Get("Comes from {0}"), I18n.Get(t.Name)),
                         i => fi.SetValue(null, Convert.ToBoolean(i)),

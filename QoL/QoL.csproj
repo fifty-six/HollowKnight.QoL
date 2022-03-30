@@ -10,9 +10,7 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-     <ItemGroup>
-      <None Remove="Locales\zh.json" />
-    </ItemGroup>
+    
     <ItemGroup>
       <EmbeddedResource Include="Locales\zh.json" />
     </ItemGroup>

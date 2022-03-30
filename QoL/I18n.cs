@@ -2,51 +2,71 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace QoL
 {
     internal class I18n
     {
-        public static Dictionary<string, string>? dict = null;
-        private static void ParseLanguage(string data)
+        private static Dictionary<string, string>? Entries;
+        
+        public static bool Available => Entries is not null;
+        
+        static I18n()
+        {
+            Assembly? asm = typeof(I18n).Assembly;
+            
+            string lang = Language.Language.CurrentLanguage().ToString().ToLower();
+            string? path = Path.GetDirectoryName(asm.Location);
+            
+            if (TryLoadFromFile(path, lang)) 
+                return;
+
+            using Stream? stream = asm.GetManifestResourceStream($"QoL.Locales.{lang}.json");
+            
+            if (stream is null) 
+                return;
+            
+            byte[] bs = new byte[stream.Length];
+            stream.Read(bs, 0, bs.Length);
+            
+            ParseLanguage(Encoding.UTF8.GetString(bs), lang);
+        }
+
+        private static void ParseLanguage(string data, string lang)
         {
             try
             {
-                dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
-            }catch(Exception e)
+                Entries = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
+            }
+            catch (Exception e)
             {
-                Modding.Logger.LogError(e);
+                Modding.Logger.LogError($"[QoL]: Failed to parse {lang} locale! {e}");
             }
         }
-        static I18n()
+        
+        private static bool TryLoadFromFile(string? path, string lang)
         {
-            var ass = typeof(I18n).Assembly;
-            var currentLanguage = Language.Language.CurrentLanguage();
-            var languageCode = currentLanguage.ToString().ToLower();
-            var path = Path.GetDirectoryName(ass.Location);
+            if (path is null)
+                return false;
+            
+            string file = Path.Combine(path, $"QoL.{lang}.json");
 
-            var extLangFile = Path.Combine(path, $"QoL.{languageCode}.json");
-            if(File.Exists(extLangFile))
-            {
-                ParseLanguage(File.ReadAllText(extLangFile));
-                return;
-            }
-
-            using Stream? lang = ass.GetManifestResourceStream($"QoL.Locales.{languageCode}.json");
-            if (lang is not null)
-            {
-                var bs = new byte[lang.Length];
-                lang.Read(bs, 0, bs.Length);
-                ParseLanguage(Encoding.UTF8.GetString(bs));
-            }
+            if (!File.Exists(file)) 
+                return false;
+            
+            ParseLanguage(File.ReadAllText(file), lang);
+            
+            return true;
         }
-        public static bool needReplace => dict is not null;
+
         public static string Get(string key)
         {
-            if (dict is null) return key;
-            if (dict.TryGetValue(key, out var v)) return v;
-            return key;
+            if (Entries is null) 
+                return key;
+            
+            return Entries.TryGetValue(key, out string? v) ? v : key;
         }
     }
 }
