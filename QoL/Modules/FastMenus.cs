@@ -106,6 +106,9 @@ namespace QoL.Modules
 
         private static IEnumerator FadeOutSprite(On.UIManager.orig_FadeOutSprite orig, UIManager self, SpriteRenderer sprite)
         {
+            if (sprite == null) 
+                yield break;
+
             sprite.color = new Color
             (
                 sprite.color.r,
@@ -119,6 +122,9 @@ namespace QoL.Modules
 
         private static IEnumerator FadeInSprite(On.UIManager.orig_FadeInSprite orig, UIManager self, SpriteRenderer sprite)
         {
+            if (sprite == null) 
+                yield break;
+
             sprite.color = new Color
             (
                 sprite.color.r,
@@ -132,6 +138,9 @@ namespace QoL.Modules
 
         private static IEnumerator FadeInAfterDelay(On.UnityEngine.UI.SaveSlotButton.orig_FadeInCanvasGroupAfterDelay orig, SaveSlotButton self, float delay, CanvasGroup cg)
         {
+            if (cg == null) 
+                yield break;
+
             cg.gameObject.SetActive(true);
             cg.alpha = 1;
             cg.interactable = true;
@@ -141,6 +150,9 @@ namespace QoL.Modules
 
         private static IEnumerator FadeOutCanvasGroup(On.UIManager.orig_FadeOutCanvasGroup orig, UIManager self, CanvasGroup cg)
         {
+            if (cg == null) 
+                yield break;
+
             cg.interactable = false;
             cg.alpha = 0f;
             cg.gameObject.SetActive(false);
@@ -150,6 +162,9 @@ namespace QoL.Modules
 
         private static IEnumerator FadeInCanvasGroupAlpha(On.UIManager.orig_FadeInCanvasGroupAlpha orig, UIManager self, CanvasGroup cg, float end)
         {
+            if (cg == null) 
+                yield break;
+
             cg.gameObject.SetActive(true);
             cg.alpha = end;
             cg.interactable = true;
