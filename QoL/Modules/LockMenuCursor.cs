@@ -21,7 +21,7 @@ namespace QoL.Modules
 
             _hook = new ILHook
             (
-                typeof(ModHooks).GetMethod("OnCursor", BindingFlags.Instance | BindingFlags.NonPublic),
+                typeof(ModHooks).GetMethod("OnCursor", BindingFlags.Static | BindingFlags.NonPublic),
                 ReplaceLockState
             );
         }
