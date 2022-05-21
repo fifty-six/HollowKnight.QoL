@@ -178,7 +178,7 @@ namespace QoL.Modules
         // https://github.com/fifty-six/HollowKnight.QoL/issues/31
         private static void MageLordPhaseTransitionSkip(On.GGCheckIfBossScene.orig_OnEnter orig, GGCheckIfBossScene self)
         {
-            if (SoulMasterPhaseTransitionSkip || !self.Owner.transform.name.Contains("Corpse Mage") || !self.Fsm.ActiveStateName.Contains("Quick Death?"))
+            if (!SoulMasterPhaseTransitionSkip || !self.Owner.transform.name.Contains("Corpse Mage") || !self.Fsm.ActiveStateName.Contains("Quick Death?"))
             {
                 orig(self);
                 return;
