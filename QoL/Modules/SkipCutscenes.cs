@@ -63,6 +63,9 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool InstantSceneFadeIns = true;
 
+        [SerializeToSetting]
+        public static bool SoulMasterPhaseTransitionSkip = true;
+
         #endregion
 
         private const string GUARDIAN = "Dream_Guardian_";
@@ -120,6 +123,7 @@ namespace QoL.Modules
             On.GameManager.BeginSceneTransitionRoutine += OnBeginSceneTransition;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += FastEaseColor;
             On.GameManager.FadeSceneInWithDelay += NoFade;
+            On.GGCheckIfBossScene.OnEnter += MageLordPhaseTransitionSkip;
             ModHooks.NewGameHook += OnNewGame;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += FsmSkips;
         }
@@ -133,6 +137,7 @@ namespace QoL.Modules
             On.GameManager.BeginSceneTransitionRoutine -= OnBeginSceneTransition;
             On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= FastEaseColor;
             On.GameManager.FadeSceneInWithDelay -= NoFade;
+            On.GGCheckIfBossScene.OnEnter -= MageLordPhaseTransitionSkip;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= FsmSkips;
             ModHooks.NewGameHook -= OnNewGame;
         }
@@ -167,6 +172,19 @@ namespace QoL.Modules
             }
 
             orig(self);
+        }
+        
+        // Skips the "flashing lights cutscene" in the middle of the Soul Master/Tyrant fight
+        // https://github.com/fifty-six/HollowKnight.QoL/issues/31
+        private static void MageLordPhaseTransitionSkip(On.GGCheckIfBossScene.orig_OnEnter orig, GGCheckIfBossScene self)
+        {
+            if (SoulMasterPhaseTransitionSkip || !self.Owner.transform.name.Contains("Corpse Mage") || !self.Fsm.ActiveStateName.Contains("Quick Death?"))
+            {
+                orig(self);
+                return;
+            }
+            
+            self.Fsm.Event(self.regularSceneEvent);
         }
 
         private static void FsmSkips(Scene arg0, Scene arg1)
