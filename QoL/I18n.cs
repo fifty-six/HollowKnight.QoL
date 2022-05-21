@@ -29,7 +29,9 @@ namespace QoL
                 return;
             
             byte[] bs = new byte[stream.Length];
-            stream.Read(bs, 0, bs.Length);
+            
+            if (stream.Read(bs, 0, bs.Length) != bs.Length)
+                throw new InvalidOperationException();
             
             ParseLanguage(Encoding.UTF8.GetString(bs), lang);
         }
