@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
@@ -178,13 +179,18 @@ namespace QoL.Modules
         // https://github.com/fifty-six/HollowKnight.QoL/issues/31
         private static void MageLordPhaseTransitionSkip(On.GGCheckIfBossScene.orig_OnEnter orig, GGCheckIfBossScene self)
         {
-            if (!SoulMasterPhaseTransitionSkip || !self.Owner.transform.name.Contains("Corpse Mage") || !self.Fsm.ActiveStateName.Contains("Quick Death?"))
+            if (
+                !SoulMasterPhaseTransitionSkip
+                || !self.Owner.transform.name.Contains("Corpse Mage")
+                || !self.Fsm.ActiveStateName.Contains("Quick Death?")
+                || self.Fsm.ActiveState.Actions[1] is not PlayerDataBoolTest p
+            )
             {
                 orig(self);
                 return;
             }
-            
-            self.Fsm.Event(self.regularSceneEvent);
+
+            self.Fsm.Event(p.isTrue);
         }
 
         private static void FsmSkips(Scene arg0, Scene arg1)
