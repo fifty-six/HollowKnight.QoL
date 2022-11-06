@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Modding;
 using MonoMod.ModInterop;
@@ -14,7 +13,7 @@ namespace QoL
     [UsedImplicitly]
     public class QoL : Mod, ITogglableMod, IGlobalSettings<Settings>, ICustomMenuMod
     {
-        public QoL() : base(null)
+        public QoL() : base()
         {
             typeof(SettingsOverride).ModInterop();
         }

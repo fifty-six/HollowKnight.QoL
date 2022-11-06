@@ -1,5 +1,6 @@
 using System;
 using JetBrains.Annotations;
+using Modding;
 
 namespace QoL.Modules
 {
@@ -13,7 +14,7 @@ namespace QoL.Modules
         protected FauxMod(bool enabled) => DefaultState = enabled;
 
         [PublicAPI]
-        internal void Log(object obj) => Modding.Logger.Log($"[QoL : {GetType().Name}] - {obj}");
+        internal void Log(object obj) => Logger.Log($"[QoL : {GetType().Name}] - {obj}");
 
         internal bool IsLoaded { get; set; }
 

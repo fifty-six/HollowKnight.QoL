@@ -114,8 +114,6 @@ namespace QoL.Modules
                 sprite.color.b,
                 0
             );
-
-            yield break;
         }
 
         private static IEnumerator FadeInSprite(On.UIManager.orig_FadeInSprite orig, UIManager self, SpriteRenderer sprite)
@@ -130,8 +128,6 @@ namespace QoL.Modules
                 sprite.color.b,
                 1
             );
-
-            yield break;
         }
 
         private static IEnumerator FadeInAfterDelay(On.UnityEngine.UI.SaveSlotButton.orig_FadeInCanvasGroupAfterDelay orig, SaveSlotButton self, float delay, CanvasGroup cg)
@@ -142,8 +138,6 @@ namespace QoL.Modules
             cg.gameObject.SetActive(true);
             cg.alpha = 1;
             cg.interactable = true;
-
-            yield break;
         }
 
         private static IEnumerator FadeOutCanvasGroup(On.UIManager.orig_FadeOutCanvasGroup orig, UIManager self, CanvasGroup cg)
@@ -154,8 +148,6 @@ namespace QoL.Modules
             cg.interactable = false;
             cg.alpha = 0f;
             cg.gameObject.SetActive(false);
-
-            yield break;
         }
 
         private static IEnumerator FadeInCanvasGroupAlpha(On.UIManager.orig_FadeInCanvasGroupAlpha orig, UIManager self, CanvasGroup cg, float end)
@@ -166,8 +158,6 @@ namespace QoL.Modules
             cg.gameObject.SetActive(true);
             cg.alpha = end;
             cg.interactable = true;
-
-            yield break;
         }
     }
 }

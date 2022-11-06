@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Modding;
 using System.Runtime.Serialization;
+using Modding;
 
 namespace QoL
 {

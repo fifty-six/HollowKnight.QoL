@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Modding;
+using Newtonsoft.Json;
 
 namespace QoL
 {
@@ -44,7 +45,7 @@ namespace QoL
             }
             catch (Exception e)
             {
-                Modding.Logger.LogError($"[QoL]: Failed to parse {lang} locale! {e}");
+                Logger.LogError($"[QoL]: Failed to parse {lang} locale! {e}");
             }
         }
         
