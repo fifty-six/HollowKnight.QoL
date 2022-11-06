@@ -1,10 +1,9 @@
-using System;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using MonoMod.Utils;
 using UnityEngine;
 
 namespace QoL.Modules
@@ -20,11 +19,9 @@ namespace QoL.Modules
         {
             Unload();
 
-            Type type = typeof(HeroController).GetNestedType("<EnterScene>d__469", BindingFlags.NonPublic | BindingFlags.Instance);
-
             _hook = new ILHook
             (
-                type.GetMethod("MoveNext", BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(HeroController).GetMethod(nameof(HeroController.EnterScene)).GetStateMachineTarget(),
                 EnterScene
             );
         }

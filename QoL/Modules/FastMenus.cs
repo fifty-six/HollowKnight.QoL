@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using MonoMod.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,32 +16,30 @@ namespace QoL.Modules
     {
         private readonly (Type, string, ILContext.Manipulator)[] ILHooks =
         {
-            (typeof(UIManager), "<HideSaveProfileMenu>", DecreaseWait),
-            (typeof(UIManager), "<HideCurrentMenu>", DecreaseWait),
-            (typeof(UIManager), "<HideMenu>", DecreaseWait),
-            (typeof(UIManager), "<ShowMenu>", DecreaseWait),
-            (typeof(UIManager), "<GoToProfileMenu>", DecreaseWait),
-            (typeof(GameManager), "<PauseGameToggle>", PauseGameToggle),
-            (typeof(GameManager), "<RunContinueGame>", RunContinueGame),
-            (typeof(SaveSlotButton), "<AnimateToSlotState>", DecreaseWait),
+            (typeof(UIManager),      nameof(UIManager.HideSaveProfileMenu), DecreaseWait),
+            (typeof(UIManager),      nameof(UIManager.HideCurrentMenu),     DecreaseWait),
+            (typeof(UIManager),      nameof(UIManager.HideMenu),            DecreaseWait),
+            (typeof(UIManager),      nameof(UIManager.ShowMenu),            DecreaseWait),
+            (typeof(UIManager),      nameof(UIManager.GoToProfileMenu),     DecreaseWait),
+            (typeof(GameManager),    nameof(GameManager.PauseGameToggle),   PauseGameToggle),
+            (typeof(GameManager),    nameof(GameManager.RunContinueGame),   RunContinueGame),
+            (typeof(SaveSlotButton), "AnimateToSlotState",                  DecreaseWait),
         };
 
         private readonly List<ILHook> _hooked = new();
 
         public override void Initialize()
         {
-            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-            foreach ((Type t, string nested, ILContext.Manipulator method) in ILHooks)
+            foreach ((Type t, string method, ILContext.Manipulator hook) in ILHooks)
             {
-                Type nestedType = t.GetNestedTypes(flags).First(x => x.Name.Contains(nested));
-
                 _hooked.Add
                 (
                     new ILHook
                     (
-                        nestedType.GetMethod("MoveNext", flags),
-                        method
+                        t.GetMethod(method, flags).GetStateMachineTarget(),
+                        hook
                     )
                 );
             }
