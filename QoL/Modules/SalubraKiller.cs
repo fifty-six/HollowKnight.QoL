@@ -30,7 +30,7 @@ namespace QoL.Modules
 
                 bg
                     .LocateMyFSM("Blessing Control")
-                    .GetAction<ActivateGameObject>("Start Blessing", 0)
+                    .GetAction<ActivateGameObject>("Start Blessing")
                     .activate
                     .Value = false;
             }

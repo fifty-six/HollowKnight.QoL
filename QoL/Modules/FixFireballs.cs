@@ -37,8 +37,8 @@ namespace QoL.Modules
             }
 
             // Store the terrain checker reference, prevent it from being enabled
-            GameObject terrainChecker = self.GetAction<ActivateGameObject>("Pause", 3).gameObject.GameObject.Value;
-            self.GetState("Pause").RemoveAction(3);
+            GameObject terrainChecker = self.GetAction<ActivateGameObject>("Pause").gameObject.GameObject.Value;
+            self.GetState("Pause").RemoveAction<ActivateGameObject>();
 
             // Create a new state before the regular idle
             FsmState idleNoCol = self.CopyState("R", "Idle (No Collision)");
@@ -84,7 +84,7 @@ namespace QoL.Modules
             });
             
             // Account for the additional waiting time before Idle
-            idle.GetAction<Wait>(8).time.Value -= NO_COLLISION_TIME;
+            idle.GetAction<Wait>().time.Value -= NO_COLLISION_TIME;
 
             orig(self);
         }
