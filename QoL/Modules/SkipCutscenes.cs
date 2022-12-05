@@ -246,7 +246,7 @@ namespace QoL.Modules
                 fsm.GetState("On Left").ChangeTransition("FINISHED", "Dream Box Down");
                 fsm.GetState("On Right").ChangeTransition("FINISHED", "Dream Box Down");
 
-                fsm.GetState("Dream Box Down").InsertAction(0, fsm.GetAction<SetPlayerDataString>("Impact", 2));
+                fsm.GetState("Dream Box Down").InsertAction(0, fsm.GetAction<SetPlayerDataString>("Impact"));
             }
         }
 
@@ -259,9 +259,9 @@ namespace QoL.Modules
             PlayMakerFSM control = GameObject.Find("HK Prime").LocateMyFSM("Control");
 
             control.GetState("Init").ChangeTransition("FINISHED", "Intro Roar");
-            control.GetAction<Wait>("Intro 2", 3).time = 0.01f;
-            control.GetAction<Wait>("Intro 1", 0).time = 0.01f;
-            control.GetAction<Wait>("Intro Roar", 7).time = 1f;
+            control.GetAction<Wait>("Intro 2").time = 0.01f;
+            control.GetAction<Wait>("Intro 1").time = 0.01f;
+            control.GetAction<Wait>("Intro Roar").time = 1f;
         }
 
         private static IEnumerator AbsRadSkip(Scene arg1)
@@ -277,12 +277,12 @@ namespace QoL.Modules
 
             FsmState setup = control.GetState("Setup");
 
-            setup.GetAction<Wait>(6).time = 1.5f;
-            setup.RemoveAction(5);
+            setup.GetAction<Wait>().time = 1.5f;
+            setup.RemoveAction<SetPlayerDataBool>();
             setup.RemoveAction(4);
             setup.ChangeTransition("FINISHED", "Eye Flash");
 
-            control.GetAction<Wait>("Title Up", 6).time = 1f;
+            control.GetAction<Wait>("Title Up").time = 1f;
         }
 
         private static IEnumerator DreamerFsm(Scene arg1)
