@@ -11,68 +11,78 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     
+    <PropertyGroup>
+        <HollowKnightRefs>..\..\..\References</HollowKnightRefs>
+        <CopyOutputDir>D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed</CopyOutputDir>
+    </PropertyGroup>
+
+    <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')" />
+    
     <ItemGroup>
       <EmbeddedResource Include="Locales\zh.json" />
     </ItemGroup>
     
     <ItemGroup>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\Assembly-CSharp.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="MMHOOK_Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\MMHOOK_Assembly-CSharp.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\MMHOOK_Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="MMHOOK_PlayMaker, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\MMHOOK_PlayMaker.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\MMHOOK_PlayMaker.dll</HintPath>
         </Reference>
         <Reference Include="Mono.Cecil, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
-          <HintPath>..\..\..\References\Mono.Cecil.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\Mono.Cecil.dll</HintPath>
         </Reference>
         <Reference Include="MonoMod.RuntimeDetour, Version=21.4.29.1, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\MonoMod.RuntimeDetour.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\MonoMod.RuntimeDetour.dll</HintPath>
         </Reference>
         <Reference Include="MonoMod.Utils, Version=21.4.29.1, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\MonoMod.Utils.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\MonoMod.Utils.dll</HintPath>
         </Reference>
         <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\Newtonsoft.Json.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\PlayMaker.dll</HintPath>
+          <HintPath>$(HollowKnightRefs)\PlayMaker.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine">
-            <HintPath>..\..\..\References\UnityEngine.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\UnityEngine.AudioModule.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.AudioModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\UnityEngine.CoreModule.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\UnityEngine.JSONSerializeModule.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.JSONSerializeModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\UnityEngine.Physics2DModule.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.Physics2DModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UI">
-            <HintPath>..\..\..\References\UnityEngine.UI.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.UI.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UIElementsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\UnityEngine.UIElementsModule.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.UIElementsModule.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-            <HintPath>..\..\..\References\UnityEngine.UIModule.dll</HintPath>
+            <HintPath>$(HollowKnightRefs)\UnityEngine.UIModule.dll</HintPath>
         </Reference>
-        <Reference Include="Vasi, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-          <HintPath>..\..\..\References\Mods\Vasi.dll</HintPath>
+        <Reference Include="Vasi, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null" Condition="Exists('$(HollowKnightRefs)\Mods\Vasi.dll')">
+          <HintPath>$(HollowKnightRefs)\Mods\Vasi.dll</HintPath>
         </Reference>
+        <Reference Include="Vasi, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null" Condition="Exists('$(HollowKnightRefs)\Mods\Vasi\Vasi.dll')">
+          <HintPath>$(HollowKnightRefs)\Mods\Vasi\Vasi.dll</HintPath>
+         </Reference>
     </ItemGroup>
     
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
         <Copy 
                 SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" 
-                DestinationFolder="D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed/Mods/$(TargetName)" 
+                DestinationFolder="$(CopyOutputDir)/Mods/$(TargetName)" 
                 SkipUnchangedFiles="true" 
         />
     </Target>
