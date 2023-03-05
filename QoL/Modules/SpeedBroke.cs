@@ -37,6 +37,9 @@ namespace QoL.Modules
         public static bool Televator = true;
 
         [SerializeToSetting]
+        public static bool WallClingStorage = true;
+
+        [SerializeToSetting]
         public static bool ExplosionPogo = true;
 
         [SerializeToSetting]
@@ -68,6 +71,10 @@ namespace QoL.Modules
             On.HeroController.ShouldHardLand += CanHardLand;
             On.PlayMakerFSM.OnEnable += ModifyFSM;
             On.InputHandler.Update += EnableSuperslides;
+            On.HeroController.SetStartingMotionState_bool += SetStartingMotionState_bool;
+            On.HeroController.OnCollisionExit2D += OnCollisionExit2D;
+            On.HeroController.CancelWallsliding += CancelWallsliding;
+            IL.HeroController.FinishedDashing += FinishedDashing;
             ModHooks.ObjectPoolSpawnHook += OnObjectPoolSpawn;
             USceneManager.activeSceneChanged += SceneChanged;
 
@@ -82,6 +89,10 @@ namespace QoL.Modules
             On.HeroController.ShouldHardLand -= CanHardLand;
             On.PlayMakerFSM.OnEnable -= ModifyFSM;
             On.InputHandler.Update -= EnableSuperslides;
+            On.HeroController.SetStartingMotionState_bool -= SetStartingMotionState_bool;
+            On.HeroController.OnCollisionExit2D -= OnCollisionExit2D;
+            On.HeroController.CancelWallsliding -= CancelWallsliding;
+            IL.HeroController.FinishedDashing -= FinishedDashing;
             ModHooks.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
             USceneManager.activeSceneChanged -= SceneChanged;
 
@@ -322,6 +333,119 @@ namespace QoL.Modules
 
                 nonBounce.gameObject.AddComponent<TinkEffect>().blockEffect = tinkAudio.gameObject;
             }
+        }
+
+        private static void SetStartingMotionState_bool
+        (
+            On.HeroController.orig_SetStartingMotionState_bool orig,
+            HeroController self,
+            bool preventRunDip
+        )
+        {
+            if (WallClingStorage)
+            {
+                // Retain wall flag through transitions
+                var touchingWall = self.cState.touchingWall;
+
+                orig(self, preventRunDip);
+
+                self.cState.touchingWall = touchingWall;
+            }
+            else
+            {
+                orig(self, preventRunDip);
+            }
+        }
+
+        private static void OnCollisionExit2D
+        (
+            On.HeroController.orig_OnCollisionExit2D orig,
+            HeroController self,
+            Collision2D collision
+        )
+        {
+            if (WallClingStorage && !self.cState.recoilingLeft && !self.cState.recoilingRight)
+            {
+                // Don't update wall flag on collision exit
+                var touchingWall = self.cState.touchingWall;
+                var touchingWallL = self.touchingWallL;
+                var touchingWallR = self.touchingWallR;
+
+                orig(self, collision);
+
+                self.cState.touchingWall = touchingWall;
+                self.touchingWallL = touchingWallL;
+                self.touchingWallR = touchingWallR;
+            }
+            else
+            {
+                orig(self, collision);
+            }
+        }
+
+        private static void CancelWallsliding(On.HeroController.orig_CancelWallsliding orig, HeroController self)
+        {
+            if (WallClingStorage)
+            {
+                // Allow clinging with WCS
+                var touchingWallL = self.touchingWallL;
+                var touchingWallR = self.touchingWallR;
+
+                orig(self);
+
+                self.touchingWallL = touchingWallL;
+                self.touchingWallR = touchingWallR;
+            }
+            else
+            {
+                orig(self);
+            }
+        }
+
+        private static void FinishedDashing(ILContext il)
+        {
+            var cursor = new ILCursor(il);
+
+            // Allow directionless cling after dashing
+            cursor.GotoNext
+            (
+                i => i.MatchLdarg(0),
+                i => i.MatchLdfld<HeroController>("touchingWallL"),
+                i => i.MatchBrtrue(out _),
+                i => i.MatchLdarg(0),
+                i => i.MatchLdfld<HeroController>("touchingWallR"),
+                i => i.MatchBr(out _),
+                i => i.MatchLdcI4(1),
+                i => i.MatchAnd()
+            );
+
+            cursor.GotoNext();
+            cursor.RemoveRange(7);
+            cursor.EmitDelegate<Func<bool, HeroController, bool>>
+            (
+                (flag, hc) => flag && (WallClingStorage || hc.touchingWallL || hc.touchingWallR)
+            );
+
+            // Don't fix sprite orientation after down dash
+            cursor.GotoNext
+            (
+                i => i.MatchLdarg(0),
+                i => i.MatchLdfld<HeroController>("dashingDown"),
+                i => i.MatchBrfalse(out _),
+                i => i.MatchLdarg(0),
+                i => i.MatchCallvirt<HeroController>(nameof(HeroController.FlipSprite))
+            );
+
+            cursor.GotoNext();
+            cursor.RemoveRange(4);
+            cursor.EmitDelegate<Action<HeroController>>
+            (
+                hc =>
+                {
+                    if (!WallClingStorage && hc.dashingDown)
+                        hc.FlipSprite();
+                }
+            );
         }
     }
 }
