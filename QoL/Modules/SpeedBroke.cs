@@ -37,7 +37,7 @@ namespace QoL.Modules
         public static bool Televator = true;
 
         [SerializeToSetting]
-        public static bool WallClingStorage = true;
+        public static bool WallClingStorage;
 
         [SerializeToSetting]
         public static bool ExplosionPogo = true;
