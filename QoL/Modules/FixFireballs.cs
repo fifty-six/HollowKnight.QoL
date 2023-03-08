@@ -9,7 +9,34 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class FixFireballs : FauxMod
     {
-        private const float NO_COLLISION_TIME = 0.05f;
+        private class NextPostPhysicsFrameEvent : FsmStateAction
+        {
+            [RequiredField]
+            public FsmEvent? sendEvent;
+
+            private bool fixedUpdate;
+
+            public override void Reset() => sendEvent = null;
+
+            public override void OnEnter()
+            {
+                fixedUpdate = false;
+            }
+
+            public override void OnUpdate()
+            {
+                if (fixedUpdate)
+                {
+                    Finish();
+                    Fsm.Event(sendEvent);
+                }
+            }
+
+            public override void OnFixedUpdate()
+            {
+                fixedUpdate = true;
+            }
+        }
 
         public override void Initialize()
         {
@@ -24,67 +51,25 @@ namespace QoL.Modules
         private static void CheckFireball(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
             // Wall Impact state doesn't exist in shade soul control
-            // Fireballs get recycled so we've gotta check for the state this method adds as well
+            // Fireballs get recycled so we've gotta check for the action this method adds as well
             if
             (
                 self.FsmName != "Fireball Control"
                 || !self.TryGetState("Wall Impact", out _)
-                || self.TryGetState("Idle (No Collision)", out _)
+                || self.GetAction<FsmStateAction>("Pause", 0) is NextPostPhysicsFrameEvent
             )
             {
                 orig(self);
                 return;
             }
 
-            // Store the terrain checker reference, prevent it from being enabled
-            GameObject terrainChecker = self.GetAction<ActivateGameObject>("Pause").gameObject.GameObject.Value;
-            self.GetState("Pause").RemoveAction<ActivateGameObject>();
+            // Always allow a physics update before enabling collision
+            self.GetState("Pause").RemoveAction<NextFrameEvent>();
 
-            // Create a new state before the regular idle
-            FsmState idleNoCol = self.CopyState("R", "Idle (No Collision)");
-            idleNoCol.RemoveAction(0);
-
-            self.GetState("L").ChangeTransition("FINISHED", "Idle (No Collision)");
-            self.GetState("R").ChangeTransition("FINISHED", "Idle (No Collision)");
-
-            idleNoCol.AddTransition("FINISHED", "Idle");
-
-            // New state needs to start the fireball moving
-            idleNoCol.AddAction(new SetVelocity2d
+            self.GetState("Pause").InsertAction(0, new NextPostPhysicsFrameEvent
             {
-                gameObject = new FsmOwnerDefault(),
-                vector = Vector2.zero,
-                x = self.FsmVariables.FindFsmFloat("Velocity"),
-                y = 0,
-                everyFrame = false
+                sendEvent = FsmEvent.FindEvent("FINISHED")
             });
-            
-            // Small waiting period before proceeding to the old idle state
-            idleNoCol.AddAction(new Wait
-            {
-                time = NO_COLLISION_TIME,
-                finishEvent = FsmEvent.FindEvent("FINISHED"),
-                realTime = false
-            });
-
-            FsmState idle = self.GetState("Idle");
-            
-            // Idle state needs to activate the collision now
-            idle.InsertAction(0, new ActivateGameObject
-            {
-                gameObject = new FsmOwnerDefault
-                {
-                    GameObject = terrainChecker,
-                    OwnerOption = OwnerDefaultOption.SpecifyGameObject
-                },
-                activate = true,
-                recursive = false,
-                resetOnExit = false,
-                everyFrame = false
-            });
-            
-            // Account for the additional waiting time before Idle
-            idle.GetAction<Wait>().time.Value -= NO_COLLISION_TIME;
 
             orig(self);
         }
