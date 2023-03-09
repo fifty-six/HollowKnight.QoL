@@ -18,10 +18,9 @@ namespace QoL.Modules
 
             public override void Reset() => sendEvent = null;
 
-            public override void OnEnter()
-            {
-                fixedUpdate = false;
-            }
+            public override void OnEnter() => fixedUpdate = false;
+
+            public override void OnFixedUpdate() => fixedUpdate = true;
 
             public override void OnUpdate()
             {
@@ -30,11 +29,6 @@ namespace QoL.Modules
                     Finish();
                     Fsm.Event(sendEvent);
                 }
-            }
-
-            public override void OnFixedUpdate()
-            {
-                fixedUpdate = true;
             }
         }
 
