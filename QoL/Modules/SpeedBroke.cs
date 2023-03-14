@@ -24,6 +24,21 @@ namespace QoL.Modules
     [UsedImplicitly]
     public class SpeedBroke : FauxMod
     {
+        private class PrePhysicsRelinquishControl : FsmStateAction
+        {
+            public override void OnEnter()
+            {
+                if (!MenuDrop)
+                    OnFixedUpdate();
+            }
+
+            public override void OnFixedUpdate()
+            {
+                HeroController.instance.RelinquishControl();
+                Finish();
+            }
+        }
+
         [SerializeToSetting]
         public static bool MenuDrop = true;
 
@@ -229,6 +244,23 @@ namespace QoL.Modules
                     self.GetState("Cancelable Dash").GetAction<ListenForDreamNail>().activeBool = true;
                     self.GetState("Queuing").GetAction<ListenForDreamNail>().activeBool = true;
                     self.GetState("Queuing").RemoveAllOfType<BoolTest>();
+                    break;
+                }
+
+                case "Inventory Control" when self.name == "Inventory":
+                {
+                    if (self.GetAction<FsmStateAction>("Open", 5) is PrePhysicsRelinquishControl)
+                        break;
+
+                    // Enable OnFixedUpdate on FSM actions
+                    self.Fsm.HandleFixedUpdate = true;
+                    self.AddEventHandlerComponents();
+
+                    // Allow gravity to be applied between RelinquishControl and FallCheck.
+                    // On 1221, the FSM updates after the HeroController and the inventory
+                    // stutter ensures a physics frame happens before the next Update.
+                    self.GetState("Open").RemoveAction<CallMethodProper>();
+                    self.GetState("Open").InsertAction(5, new PrePhysicsRelinquishControl());
                     break;
                 }
             }
