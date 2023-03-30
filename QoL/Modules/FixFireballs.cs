@@ -14,17 +14,17 @@ namespace QoL.Modules
             [RequiredField]
             public FsmEvent? sendEvent;
 
-            private bool fixedUpdate;
+            private bool _fixedUpdate;
 
             public override void Reset() => sendEvent = null;
 
-            public override void OnEnter() => fixedUpdate = false;
+            public override void OnEnter() => _fixedUpdate = false;
 
-            public override void OnFixedUpdate() => fixedUpdate = true;
+            public override void OnFixedUpdate() => _fixedUpdate = true;
 
             public override void OnUpdate()
             {
-                if (fixedUpdate)
+                if (_fixedUpdate)
                 {
                     Finish();
                     Fsm.Event(sendEvent);
