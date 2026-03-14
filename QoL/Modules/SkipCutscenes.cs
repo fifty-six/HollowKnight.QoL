@@ -411,7 +411,12 @@ namespace QoL.Modules
             PlayMakerFSM.BroadcastEvent("BOX DOWN");
             PlayMakerFSM.BroadcastEvent("BOX DOWN DREAM");
 
-            pd.SetBenchRespawn(UObject.FindObjectOfType<RespawnMarker>(), GameManager.instance.sceneName, 2);
+            string sceneName = GameManager.instance.sceneName;
+            string respawnMarker = sceneName == "Deepnest_Spider_Town" ? "Death Respawn Marker Hegemol" : "Death Respawn Marker";
+            HeroController.instance.SetBenchRespawn(respawnMarker, sceneName, 0, true);
+            if (sceneName == "Ruins2_Watcher_Room") GameManager.instance.SetCurrentMapZoneAsRespawn();
+            if (sceneName == "Deepnest_Spider_Town") PlayerData.instance.SetBool(nameof(PlayerData.spiderCapture), true);
+
             GameManager.instance.SaveGame();
 
             HeroController.instance.AcceptInput();
