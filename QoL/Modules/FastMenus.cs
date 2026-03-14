@@ -2,12 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using HutongGames.PlayMaker;
+using HutongGames.PlayMaker.Actions;
 using JetBrains.Annotations;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+using Vasi;
 
 namespace QoL.Modules
 {
@@ -22,7 +25,8 @@ namespace QoL.Modules
             (typeof(UIManager),      nameof(UIManager.ShowMenu),            DecreaseWait),
             (typeof(UIManager),      nameof(UIManager.GoToProfileMenu),     DecreaseWait),
             (typeof(GameManager),    nameof(GameManager.PauseGameToggle),   PauseGameToggle),
-            (typeof(GameManager),    nameof(GameManager.RunContinueGame),   RunContinueGame),
+            (typeof(GameManager),    nameof(GameManager.RunStartNewGame),   RunGame),
+            (typeof(GameManager),    nameof(GameManager.RunContinueGame),   RunGame),
             (typeof(SaveSlotButton), "AnimateToSlotState",                  DecreaseWait),
         };
 
@@ -49,6 +53,7 @@ namespace QoL.Modules
             On.UIManager.FadeInSprite += FadeInSprite;
             On.UIManager.FadeOutSprite += FadeOutSprite;
             On.UnityEngine.UI.SaveSlotButton.FadeInCanvasGroupAfterDelay += FadeInAfterDelay;
+            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter += EaseStartBlanker;
         }
 
         public override void Unload()
@@ -65,9 +70,10 @@ namespace QoL.Modules
             On.UIManager.FadeInSprite -= FadeInSprite;
             On.UIManager.FadeOutSprite -= FadeOutSprite;
             On.UnityEngine.UI.SaveSlotButton.FadeInCanvasGroupAfterDelay -= FadeInAfterDelay;
+            On.HutongGames.PlayMaker.Actions.EaseColor.OnEnter -= EaseStartBlanker;
         }
 
-        private static void RunContinueGame(ILContext il)
+        private static void RunGame(ILContext il)
         {
             ILCursor cursor = new ILCursor(il).Goto(0);
 
@@ -158,6 +164,15 @@ namespace QoL.Modules
             cg.gameObject.SetActive(true);
             cg.alpha = end;
             cg.interactable = true;
+        }
+
+        private void EaseStartBlanker(On.HutongGames.PlayMaker.Actions.EaseColor.orig_OnEnter orig, EaseColor self)
+        {
+            if (self.Fsm.Name == "Blanker Control" && self.Fsm.FsmComponent.name == "Start Blanker" && self.State.Name == "Fade In")
+            {
+                self.time = 0.05f; // Originally 2.3f, changed to match the 0.05f timer in RunGame.
+            }
+            orig(self);
         }
     }
 }
