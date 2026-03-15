@@ -71,9 +71,6 @@
         <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>$(HollowKnightRefs)\UnityEngine.UIModule.dll</HintPath>
         </Reference>
-        <Reference Include="Vasi, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null" Condition="Exists('$(HollowKnightRefs)\Mods\Vasi.dll')">
-          <HintPath>$(HollowKnightRefs)\Mods\Vasi.dll</HintPath>
-        </Reference>
         <Reference Include="Vasi, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null" Condition="Exists('$(HollowKnightRefs)\Mods\Vasi\Vasi.dll')">
           <HintPath>$(HollowKnightRefs)\Mods\Vasi\Vasi.dll</HintPath>
          </Reference>
