@@ -72,6 +72,9 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool CrystalisedMoundSpikes = true;
 
+        [SerializeToSetting]
+        public static bool RevertFireballRange = true;
+
         private static readonly MethodInfo _DieFromHazardIteratorMethod = typeof(HeroController)
                                                                           .GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance)
                                                                           .GetStateMachineTarget();
@@ -261,6 +264,18 @@ namespace QoL.Modules
                     // stutter ensures a physics frame happens before the next Update.
                     self.GetState("Open").RemoveAction<CallMethodProper>();
                     self.GetState("Open").InsertAction(5, new PrePhysicsRelinquishControl());
+                    break;
+                }
+
+                case "Fireball Control" when self.name == "Fireball(Clone)":
+                {
+                    if (RevertFireballRange) self.StartCoroutine(ModifyFireball(self));
+                    break;
+                }
+
+                case "Fireball Control" when self.name == "Fireball2 Spiral(Clone)":
+                {
+                    if (RevertFireballRange) self.StartCoroutine(ModifyShadeSoul(self));
                     break;
                 }
             }
@@ -478,6 +493,49 @@ namespace QoL.Modules
                         hc.FlipSprite();
                 }
             );
+        }
+
+        private static IEnumerator ModifyFireball(PlayMakerFSM fireballFSM)
+        {
+            if (!RevertFireballRange) yield break;
+
+            // ensure FB is fully initialized
+            yield return new WaitForEndOfFrame();
+
+            var fireballBoxColliders = fireballFSM.gameObject.FindInChildren("Terrain Checker").GetComponents<BoxCollider2D>();
+            var init = fireballFSM.GetState("Init");
+            if (init.Actions[0] is Vasi.InvokeMethod) yield break;
+            FsmUtil.InsertAction(init, 0, new Vasi.InvokeMethod(() =>
+            {
+                fireballFSM.GetState("Idle").GetAction<Wait>().time.Value = RevertFireballRange ? 0.45f : 0.4f;
+                // for some reason TC doubled the wait time at the end. This can make fireballs affecting things after a transition more likely, so revert it
+                fireballFSM.GetState("Dissipate End").GetAction<Wait>().time.Value = RevertFireballRange ? 1f : 2f;
+                foreach (var bc in fireballBoxColliders) bc.isTrigger = false;
+                fireballFSM.GetState("Dissipate").GetAction<ActivateGameObject>().activate = RevertFireballRange;
+            }
+            ));
+            FsmUtil.AddAction(fireballFSM.GetState("Dissipate"), new Vasi.InvokeMethod(() =>
+            {
+                foreach (var bc in fireballBoxColliders) bc.isTrigger = RevertFireballRange;
+            }
+            ));
+
+        }
+        
+        private static IEnumerator ModifyShadeSoul(PlayMakerFSM shadeSoulFSM)
+        {
+            if (!RevertFireballRange) yield break;
+
+            // ensure FB is fully initialized
+            yield return new WaitForEndOfFrame();
+            var init = shadeSoulFSM.GetState("Init");
+            if (init.Actions[0] is Vasi.InvokeMethod) yield break;
+            FsmUtil.InsertAction(init, 0, new Vasi.InvokeMethod(() =>
+            {
+                shadeSoulFSM.GetState("Idle").GetAction<Wait>().time.Value = RevertFireballRange ? 0.6f : 0.475f;
+            }
+            ));
+
         }
     }
 }
