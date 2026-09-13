@@ -18,8 +18,7 @@ namespace QoL
             typeof(SettingsOverride).ModInterop();
         }
 
-        // public override string GetVersion() => VersionUtil.GetVersion<QoL>();
-        public override string GetVersion() => "GP baldur 1fb test";
+        public override string GetVersion() => VersionUtil.GetVersion<QoL>();
 
         internal static Settings GlobalSettings { get; private set; } = new();
 
