@@ -278,12 +278,13 @@ namespace QoL.Modules
                 {
                     if (!RevertFireballs) break;
 
-                    var fireballBoxColliders = self.transform.Find("Terrain Checker").GetComponents<BoxCollider2D>();
                     var init = self.GetState("Init");
 
                     // since fireballs are recycled, avoid adding the FSM actions multiple times
                     // we also need to check what behavior the fireball needs every cast, or turning off QOL/SpeedBroke/RevertFireballs would not work
                     if (init.Actions[0] is Vasi.InvokeMethod) break;
+                    
+                    var fireballBoxColliders = self.transform.Find("Terrain Checker").GetComponents<BoxCollider2D>();
 
                     FsmUtil.InsertAction(init, 0, new Vasi.InvokeMethod(() =>
                     {
