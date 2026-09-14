@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,9 +73,13 @@ namespace QoL.Modules
         [SerializeToSetting]
         public static bool CrystalisedMoundSpikes = true;
 
+        [SerializeToSetting]
+        public static bool RevertFireballs = true;
+
         private static readonly MethodInfo _DieFromHazardIteratorMethod = typeof(HeroController)
                                                                           .GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance)
                                                                           .GetStateMachineTarget();
+
 
         private ILHook? _elevatorStorage;
 
@@ -204,7 +209,7 @@ namespace QoL.Modules
             return !NoHardFalls && orig(self, collision);
         }
 
-        private static void ModifyFSM(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+        private void ModifyFSM(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
             switch (self.FsmName)
             {
@@ -261,6 +266,75 @@ namespace QoL.Modules
                     // stutter ensures a physics frame happens before the next Update.
                     self.GetState("Open").RemoveAction<CallMethodProper>();
                     self.GetState("Open").InsertAction(5, new PrePhysicsRelinquishControl());
+                    break;
+                }
+
+                case "Fireball Control" when self.name == "Fireball(Clone)":
+                {
+                    if (!RevertFireballs)
+                        break;
+
+                    var init = self.GetState("Init");
+
+                    // since fireballs are recycled, avoid adding the FSM actions multiple times
+                    // we also need to check what behavior the fireball needs every cast, or turning off QOL/SpeedBroke/RevertFireballs would not work
+                    if (init.Actions[0] is Vasi.InvokeMethod) 
+                        break;
+                    
+                    init.InsertAction(0, new Vasi.InvokeMethod(() =>
+                    {
+                        var terrainChecker = self.transform.Find("Terrain Checker");
+                        var fireballBoxColliders = terrainChecker.GetComponents<BoxCollider2D>();
+                        
+                        foreach (var bc in fireballBoxColliders) {
+                            // ensure BCs aren't left inactive from last time the fireball was used
+                            bc.isTrigger = false;
+                        }
+
+                        if (RevertFireballs && IsLoaded)
+                        {
+                            self.GetState("Idle").GetAction<Wait>().time.Value = 0.45f;
+                            self.GetState("Dissipate End").GetAction<Wait>().time.Value = 1f;
+                            self.GetState("Dissipate").GetAction<ActivateGameObject>().activate = true;
+                        } else {
+                            self.GetState("Idle").GetAction<Wait>().time.Value = 0.4f;
+                            self.GetState("Dissipate End").GetAction<Wait>().time.Value = 2f;
+                            self.GetState("Dissipate").GetAction<ActivateGameObject>().activate = false;
+                        }
+                    }
+                    ));
+
+                    self.GetState("Dissipate").AddAction(new Vasi.InvokeMethod(() =>
+                    {
+                        // remove collision from terrainCheckers when the fireball starts to dissipate
+                        var terrainChecker = self.transform.Find("Terrain Checker");
+                        foreach (BoxCollider2D bc in terrainChecker.GetComponents<BoxCollider2D>())
+                        {
+                            bc.isTrigger = RevertFireballs && IsLoaded;
+                        }
+                    }
+                    ));
+
+                    break;
+                }
+
+                case "Fireball Control" when self.name == "Fireball2 Spiral(Clone)":
+                {
+                    // revert shade soul range 
+                    if (!RevertFireballs)
+                        break;
+
+                    var init = self.GetState("Init");
+                    if (init.Actions[0] is Vasi.InvokeMethod)
+                        break;
+                    if (RevertFireballs && IsLoaded)
+                    {
+                        self.GetState("Idle").GetAction<Wait>().time.Value = 0.6f;
+                    } else
+                    {
+                        self.GetState("Idle").GetAction<Wait>().time.Value = 0.475f;
+                    }
+                    
                     break;
                 }
             }
@@ -479,5 +553,6 @@ namespace QoL.Modules
                 }
             );
         }
+
     }
 }
