@@ -80,7 +80,6 @@ namespace QoL.Modules
                                                                           .GetMethod("DieFromHazard", BindingFlags.NonPublic | BindingFlags.Instance)
                                                                           .GetStateMachineTarget();
 
-        private static bool isModuleEnabled = false;
 
         private ILHook? _elevatorStorage;
 
@@ -99,8 +98,6 @@ namespace QoL.Modules
             ModHooks.ObjectPoolSpawnHook += OnObjectPoolSpawn;
             USceneManager.activeSceneChanged += SceneChanged;
 
-            isModuleEnabled = true;
-
             _elevatorStorage = new ILHook(_DieFromHazardIteratorMethod, RestoreElevatorStorage);
         }
 
@@ -118,8 +115,6 @@ namespace QoL.Modules
             IL.HeroController.FinishedDashing -= FinishedDashing;
             ModHooks.ObjectPoolSpawnHook -= OnObjectPoolSpawn;
             USceneManager.activeSceneChanged -= SceneChanged;
-
-            isModuleEnabled = false;
 
             _elevatorStorage?.Dispose();
         }
@@ -214,7 +209,7 @@ namespace QoL.Modules
             return !NoHardFalls && orig(self, collision);
         }
 
-        private static void ModifyFSM(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+        private void ModifyFSM(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
         {
             switch (self.FsmName)
             {
@@ -276,34 +271,49 @@ namespace QoL.Modules
 
                 case "Fireball Control" when self.name == "Fireball(Clone)":
                 {
-                    if (!RevertFireballs) break;
+                    if (!RevertFireballs)
+                        break;
 
                     var init = self.GetState("Init");
 
                     // since fireballs are recycled, avoid adding the FSM actions multiple times
                     // we also need to check what behavior the fireball needs every cast, or turning off QOL/SpeedBroke/RevertFireballs would not work
-                    if (init.Actions[0] is Vasi.InvokeMethod) break;
+                    if (init.Actions[0] is Vasi.InvokeMethod) 
+                        break;
                     
-                    var fireballBoxColliders = self.transform.Find("Terrain Checker").GetComponents<BoxCollider2D>();
-
-                    FsmUtil.InsertAction(init, 0, new Vasi.InvokeMethod(() =>
+                    init.InsertAction(0, new Vasi.InvokeMethod(() =>
                     {
-                        bool use1221Fireballs = RevertFireballs && QoL.GlobalSettings.EnabledModules["SpeedBroke"] && isModuleEnabled;
-                        self.GetState("Idle").GetAction<Wait>().time.Value = use1221Fireballs ? 0.45f : 0.4f;
-                        // for some reason TC doubled the wait time at the end. This can make fireballs affecting things after a transition more likely, so revert it
-                        self.GetState("Dissipate End").GetAction<Wait>().time.Value = use1221Fireballs ? 1f : 2f;
-                        foreach (var bc in fireballBoxColliders) bc.isTrigger = false;
-                        self.GetState("Dissipate").GetAction<ActivateGameObject>().activate = use1221Fireballs;
+                        var terrainChecker = self.transform.Find("Terrain Checker");
+                        var fireballBoxColliders = terrainChecker.GetComponents<BoxCollider2D>();
+                        
+                        foreach (var bc in fireballBoxColliders) {
+                            // ensure BCs aren't left inactive from last time the fireball was used
+                            bc.isTrigger = false;
+                        }
+
+                        if (RevertFireballs && IsLoaded)
+                        {
+                            self.GetState("Idle").GetAction<Wait>().time.Value = 0.45f;
+                            self.GetState("Dissipate End").GetAction<Wait>().time.Value = 1f;
+                            self.GetState("Dissipate").GetAction<ActivateGameObject>().activate = true;
+                        } else {
+                            self.GetState("Idle").GetAction<Wait>().time.Value = 0.4f;
+                            self.GetState("Dissipate End").GetAction<Wait>().time.Value = 2f;
+                            self.GetState("Dissipate").GetAction<ActivateGameObject>().activate = false;
+                        }
                     }
                     ));
 
-                    FsmUtil.AddAction(self.GetState("Dissipate"), new Vasi.InvokeMethod(() =>
+                    self.GetState("Dissipate").AddAction(new Vasi.InvokeMethod(() =>
                     {
-                        bool shouldRevert = RevertFireballs && QoL.GlobalSettings.EnabledModules["SpeedBroke"] && isModuleEnabled;
-                        foreach (var bc in fireballBoxColliders) bc.isTrigger = shouldRevert;
+                        // remove collision from terrainCheckers when the fireball starts to dissipate
+                        var terrainChecker = self.transform.Find("Terrain Checker");
+                        foreach (BoxCollider2D bc in terrainChecker.GetComponents<BoxCollider2D>())
+                        {
+                            bc.isTrigger = RevertFireballs && IsLoaded;
+                        }
                     }
                     ));
-
 
                     break;
                 }
@@ -311,17 +321,20 @@ namespace QoL.Modules
                 case "Fireball Control" when self.name == "Fireball2 Spiral(Clone)":
                 {
                     // revert shade soul range 
-                    if (!RevertFireballs) break;
+                    if (!RevertFireballs)
+                        break;
 
                     var init = self.GetState("Init");
-                    if (init.Actions[0] is Vasi.InvokeMethod) break;
-                    FsmUtil.InsertAction(init, 0, new Vasi.InvokeMethod(() =>
+                    if (init.Actions[0] is Vasi.InvokeMethod)
+                        break;
+                    if (RevertFireballs && IsLoaded)
                     {
-                        bool shouldRevert = RevertFireballs && QoL.GlobalSettings.EnabledModules["SpeedBroke"] && isModuleEnabled;
-                        self.GetState("Idle").GetAction<Wait>().time.Value = shouldRevert ? 0.6f : 0.475f;
+                        self.GetState("Idle").GetAction<Wait>().time.Value = 0.6f;
+                    } else
+                    {
+                        self.GetState("Idle").GetAction<Wait>().time.Value = 0.475f;
                     }
-                    ));
-
+                    
                     break;
                 }
             }
