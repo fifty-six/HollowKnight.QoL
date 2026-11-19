@@ -5,7 +5,7 @@
         <AssemblyTitle>QoL</AssemblyTitle>
         <AssemblyVersion>4.10.0</AssemblyVersion>
         <Product>QoL</Product>
-        <Copyright>Copyright © Yusuf Bham 2021</Copyright>
+        <Copyright>Copyright © Yusuf Bham 2026</Copyright>
         <OutputPath>bin\$(Configuration)\</OutputPath>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
