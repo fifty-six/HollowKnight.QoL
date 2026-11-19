@@ -40,6 +40,20 @@ namespace QoL.Modules
             }
         }
 
+        private class RevertFireballsOnEnter : FsmStateAction
+        {
+            Action onEnter;
+            public override void OnEnter()
+            {
+                onEnter();
+            }
+
+            public RevertFireballsOnEnter(Action action)
+            {
+                onEnter = action;
+            }
+        }
+
         [SerializeToSetting]
         public static bool MenuDrop = true;
 
@@ -274,14 +288,14 @@ namespace QoL.Modules
                     if (!RevertFireballs)
                         break;
 
-                    var init = self.GetState("Init");
+                    var pause = self.GetState("Pause");
 
                     // since fireballs are recycled, avoid adding the FSM actions multiple times
                     // we also need to check what behavior the fireball needs every cast, or turning off QOL/SpeedBroke/RevertFireballs would not work
-                    if (init.Actions[0] is Vasi.InvokeMethod) 
+                    if (pause.Actions.Any(action => action is RevertFireballsOnEnter))
                         break;
-                    
-                    init.InsertAction(0, new Vasi.InvokeMethod(() =>
+
+                    pause.AddAction(new RevertFireballsOnEnter(() =>
                     {
                         var terrainChecker = self.transform.Find("Terrain Checker");
                         var fireballBoxColliders = terrainChecker.GetComponents<BoxCollider2D>();
@@ -304,7 +318,7 @@ namespace QoL.Modules
                     }
                     ));
 
-                    self.GetState("Dissipate").AddAction(new Vasi.InvokeMethod(() =>
+                    self.GetState("Dissipate").AddAction(new RevertFireballsOnEnter(() =>
                     {
                         // remove collision from terrainCheckers when the fireball starts to dissipate
                         var terrainChecker = self.transform.Find("Terrain Checker");
@@ -324,16 +338,22 @@ namespace QoL.Modules
                     if (!RevertFireballs)
                         break;
 
+                    // the Pause state does not exist for shade soul so use Init instead
                     var init = self.GetState("Init");
-                    if (init.Actions[0] is Vasi.InvokeMethod)
+                    if (init.Actions.Any(action => action is RevertFireballsOnEnter))
                         break;
-                    if (RevertFireballs && IsLoaded)
+
+                    // if this action is added at the end it will not execute
+                    init.InsertAction(0, new RevertFireballsOnEnter(() =>
                     {
-                        self.GetState("Idle").GetAction<Wait>().time.Value = 0.6f;
-                    } else
-                    {
-                        self.GetState("Idle").GetAction<Wait>().time.Value = 0.475f;
-                    }
+                        if (RevertFireballs && IsLoaded)
+                        {
+                            self.GetState("Idle").GetAction<Wait>().time.Value = 0.6f;
+                        } else
+                        {
+                            self.GetState("Idle").GetAction<Wait>().time.Value = 0.475f;
+                        }
+                    }));
                     
                     break;
                 }
