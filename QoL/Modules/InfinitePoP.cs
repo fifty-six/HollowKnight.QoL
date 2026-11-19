@@ -30,7 +30,7 @@ namespace QoL.Modules
 
         private static bool SetBool(string field, bool value)
         {
-            if (field != nameof(PlayerData.newDataBindingSeal) || !value) 
+            if (field != nameof(PlayerData.newDataBindingSeal) || !value)
                 return value;
 
             SceneData sd = GameManager.instance.sceneData;
@@ -69,7 +69,7 @@ namespace QoL.Modules
         {
             ModHooks.GetPlayerBoolHook -= GetBool;
             ModHooks.SetPlayerBoolHook -= SetBool;
-            
+
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
         }
     }

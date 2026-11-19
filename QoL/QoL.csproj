@@ -10,18 +10,18 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <HollowKnightRefs>..\..\..\References</HollowKnightRefs>
         <CopyOutputDir>D:/Steam/steamapps/common/Hollow Knight/hollow_knight_Data/Managed</CopyOutputDir>
     </PropertyGroup>
 
     <Import Project="LocalBuildProperties.props" Condition="Exists('LocalBuildProperties.props')" />
-    
+
     <ItemGroup>
       <EmbeddedResource Include="Locales\zh.json" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>$(HollowKnightRefs)\Assembly-CSharp.dll</HintPath>
@@ -75,15 +75,15 @@
           <HintPath>$(HollowKnightRefs)\Mods\Vasi\Vasi.dll</HintPath>
          </Reference>
     </ItemGroup>
-    
+
     <Target Name="CopyMod" AfterTargets="PostBuildEvent">
-        <Copy 
-                SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" 
-                DestinationFolder="$(CopyOutputDir)/Mods/$(TargetName)" 
-                SkipUnchangedFiles="true" 
+        <Copy
+                SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb"
+                DestinationFolder="$(CopyOutputDir)/Mods/$(TargetName)"
+                SkipUnchangedFiles="true"
         />
     </Target>
-    
+
     <Target Name="CreateReleaseZip" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
         <MakeDir Directories="$(ProjectDir)Output" />
         <Delete Files="$(ProjectDir)/$(TargetName).zip" />
@@ -92,11 +92,11 @@
         <Copy SourceFiles="$(SolutionDir)/README.md" DestinationFolder="$(ProjectDir)/Output/" ContinueOnError="true"/>
         <ZipDirectory DestinationFile="$(ProjectDir)/$(TargetName).zip" SourceDirectory="$(ProjectDir)/Output" />
         <RemoveDir Directories="$(ProjectDir)Output" />
-        
+
         <GetFileHash Files="$(ProjectDir)/$(TargetName).zip" Algorithm="SHA256" >
             <Output
                     TaskParameter="Items"
-                    ItemName="FilesWithHashes" 
+                    ItemName="FilesWithHashes"
             />
         </GetFileHash>
         <Message Importance="High" Text="@(FilesWithHashes->'%(Identity): %(FileHash)')" />
